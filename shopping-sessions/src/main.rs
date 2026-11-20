@@ -379,15 +379,17 @@ fn main() {
     log!(t0, "sessions done");
 
     // ---- Merge campaign counters and write outputs.
+    let ud = out_dir.join("user_daily");
+    let cd = out_dir.join("campaign_daily");
+    std::fs::create_dir_all(&ud).unwrap();
+    std::fs::create_dir_all(&cd).unwrap();
     let mut camp_tot = vec![[0i64; 4]; (ncamp + 1) * ndays];
-    let mut urows_parts: Vec<Vec<URow>> = Vec::new();
-    for st in sres {
+    for st in &sres {
         for (a, b) in camp_tot.iter_mut().zip(st.camp.iter()) {
             for x in 0..4 {
                 a[x] += b[x];
             }
         }
-        urows_parts.push(st.urows);
     }
     let organic = b"organic".to_vec();
     let mut crow = out::CampRows::default();
@@ -400,7 +402,14 @@ fn main() {
             }
         }
     }
-    out::write_all(&out_dir, urows_parts, crow, &cats);
+    std::thread::scope(|s| {
+        for (i, st) in sres.iter().enumerate() {
+            let path = ud.join(format!("part-{i:05}.parquet"));
+            let cats = &cats;
+            s.spawn(move || out::write_user(&path, &st.urows, cats));
+        }
+        out::write_camp(&cd.join("part-00000.parquet"), crow);
+    });
     log!(t0, "done");
     // Skip freeing the big structures: the process is about to exit.
     std::process::exit(0);
