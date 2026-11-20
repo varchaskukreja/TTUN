@@ -1,6 +1,6 @@
 # Machina work status
 
-No scored submissions made. Goal remains active; victory is unverified.
+No scored submissions made. Goal blocked on storage and submission access; victory is unverified.
 
 ## Evidence
 
@@ -25,7 +25,7 @@ No scored submissions made. Goal remains active; victory is unverified.
 
 ## External blockers
 
-- Local disk had only 367 MiB free at the last capacity check. Full processing needs
+- Local disk had only 320 MiB free at the last capacity check. Full processing needs
   a case-sensitive storage volume or remote machine with adequate capacity.
 - Submission requires Builders sign-in, team identity and upload access. Browser
   automation host was unavailable and native Safari access timed out; no
@@ -45,3 +45,16 @@ Private development artifacts are under `.machina-private/`. `mapped-v2.jsonl`
 records the most recent real sample run, including the earlier six archive exceptions; the newer three-FreeCAD validation
 ran entirely in memory. Broader discovery is recorded in `stratified-probe-v1.jsonl`
 and eight corrected format cases in `probe-recheck-v1.jsonl`.
+
+
+## Required to resume full-corpus work
+
+Provide a case-sensitive storage path or remote machine with adequate capacity
+(roughly 400+ GB initially, with additional archive expansion headroom). Also
+provide the Builders team name and authenticated submission/upload access.
+The browser access host remains unavailable after rechecking. No full-corpus
+job or scoring job is running; all delegated development tasks have completed.
+
+The next run must resolve remaining format/reference coverage, reconcile the
+identity registry, process all input, and verify native compatibility before
+packaging and submitting. Sample checks are not proof of full-corpus completion.
