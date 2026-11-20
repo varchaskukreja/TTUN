@@ -1,0 +1,74 @@
+import unittest
+from machina.neutral import extract, transform
+
+
+class NeutralTests(unittest.TestCase):
+    def test_step_nested_quotes_and_geometry(self):
+        original = b"""ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('Acme; design'),'2;1');
+FILE_NAME('Acme.step','2026-11-20',('O''Brien'),('Acme'),'CAD v1','CAD','Acme');
+FILE_SCHEMA(('Acme'));
+ENDSEC;
+DATA;
+#1=PRODUCT('Acme','Acme','Acme',(#2));
+#2=CARTESIAN_POINT('Acme',(1.234,-5.,0.));
+/* PRODUCT('Acme') */
+ENDSEC;
+END-ISO-10303-21;
+"""
+        out, report = transform(original, '.step', lambda x: x.replace('Acme', 'Company_17').replace("O'Brien", "Person_2"))
+        self.assertIn(b"FILE_SCHEMA(('Acme'))", out)
+        self.assertIn(b"CARTESIAN_POINT('Acme',(1.234,-5.,0.))", out)
+        self.assertIn(b"/* PRODUCT('Acme') */", out)
+        self.assertIn(b"('Person_2')", out)
+        self.assertIn(b"'2026-11-20'", out)
+        self.assertNotIn('CAD v1', extract(original, '.step'))
+        self.assertEqual(report['changes'], 8)
+
+    def test_step_replacement_quote_escaping(self):
+        source = b"ISO-10303-21; HEADER; FILE_NAME('Name','',(''),(''),'','',''); ENDSEC;"
+        out, _ = transform(source, '.stp', lambda x: "D'Angelo" if x == 'Name' else x)
+        self.assertIn(b"'D''Angelo'", out)
+
+    def test_stl_geometry_unchanged(self):
+        source = b'solid Acme\nfacet normal 0 0 1\nouter loop\nvertex 1 2 3\nendloop\nendfacet\nendsolid Acme\n'
+        out, _ = transform(source, '.stl', lambda s: s.replace('Acme', 'Part_12'))
+        self.assertEqual(out, source.replace(b'Acme', b'Part_12'))
+
+    def test_binary_unsupported(self):
+        data = b'solid\0binary'
+        out, report = transform(data, '.stl', lambda s: 'x')
+        self.assertEqual(out, data)
+        self.assertEqual(report['status'], 'unsupported')
+
+    def test_obj_reference_names(self):
+        source = b'mtllib Acme.mtl\no Acme\nusemtl Acme\nv 1 2 3\nf 1 2 3\n'
+        out, _ = transform(source, '.obj', lambda s: s.replace('Acme', 'Part_1'))
+        self.assertEqual(out, source.replace(b'Acme', b'Part_1'))
+
+    def test_svg_preserves_geometry_and_escapes(self):
+        source = b'<svg xmlns="http://www.w3.org/2000/svg"><path d="M 1 2 L 3 4"/><text>Acme &amp; Co<tspan>Acme</tspan></text><metadata><author>Acme</author></metadata></svg>'
+        out, _ = transform(source, '.svg', lambda s: s.replace('Acme', 'Company <1>'))
+        self.assertIn(b'<path d="M 1 2 L 3 4"/>', out)
+        self.assertIn(b'Company &lt;1&gt; &amp; Co', out)
+        self.assertNotIn(b'Acme', out)
+
+    def test_dxf_geometry_and_text(self):
+        source = b'0\r\nSECTION\r\n2\r\nENTITIES\r\n0\r\nTEXT\r\n1\r\nAcme\r\n10\r\n1.23\r\n0\r\nLINE\r\n10\r\n123\r\n0\r\nEOF\r\n'
+        out, _ = transform(source, '.dxf', lambda s: s.replace('Acme', 'Company_1'))
+        self.assertEqual(out, source.replace(b'Acme', b'Company_1'))
+
+    def test_sat_length_prefix_and_geometry(self):
+        source = b'700 0 1 0\n4 Acme 3 1.0 24 Thu Jul  2 12:47:17 2026\n1 0.000001 0.0000000001\nbody $1 -1 $-1 $2 $-1 $-1 #\n'
+        out, report = transform(source, '.sat', lambda s: s.replace('Acme', 'Company_17'))
+        self.assertEqual(out, source.replace(b'4 Acme', b'10 Company_17'))
+        self.assertEqual(report['changes'], 1)
+
+    def test_unchanged_bytes(self):
+        source = b'<svg><text>Steel 304, 2 mm</text></svg>'
+        self.assertEqual(transform(source, '.svg', lambda s: s)[0], source)
+
+
+if __name__ == '__main__':
+    unittest.main()
