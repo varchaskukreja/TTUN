@@ -1,0 +1,9 @@
+# Development tool only: the submission ships its precomputed baseline map.
+FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+RUN apt-get update -qq && apt-get install -y -qq git && rm -rf /var/lib/apt/lists/*
+COPY rwx-blast-radius/tools/requirements-coverage.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN git config --global --add safe.directory /workspace/.work/sqlglot
+WORKDIR /workspace
+ENTRYPOINT ["python", "rwx-blast-radius/tools/build_map.py"]
+CMD ["--source", ".work/sqlglot", "--work", ".work/coverage-linux", "--catalog", "rwx-blast-radius/sample/tests.json", "--output", "rwx-blast-radius/maps/coverage.json.gz"]

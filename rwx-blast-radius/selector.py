@@ -62,6 +62,10 @@ class Selector:
                 if original_dump == ast.dump(new_tree, include_attributes=False):
                     selected.update(self.unmapped)
                     continue
+                if path.startswith('tests/'):
+                    # Class/session fixtures and collection hooks can affect tests
+                    # beyond the context in which their setup ran.
+                    return self.all
                 lines = info.get('lines', {})
                 functions = [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
                 def callable_kinds(node):

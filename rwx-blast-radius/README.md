@@ -36,4 +36,6 @@ Coverage generation is implemented in `tools/build_map.py` and `tools/coverage_p
 
 ## Current verification
 
-Initial all-tests fallback passed the official constrained container sample: 1104.510 simulated seconds, zero misses. Coverage-based results will replace this checkpoint after map generation and validation. No leaderboard result has yet been obtained.
+The coverage selector passed all 30 official samples inside the constrained Linux/amd64 container: **371.704 simulated seconds, zero missed commits**. The all-tests scheduling fallback scored 1104.510 seconds. All 39 regression tests pass. CPU time is not included in these local scores.
+
+The baseline trace includes all 1620 catalog tests and subprocess execution. Three optimizer tests reported external DuckDB subtest errors during tracing; they are conservatively always selected. The long parser limit test completed successfully. Further class-consumer mapping and runtime-probe experiments are not used in this candidate. No leaderboard result has yet been obtained.

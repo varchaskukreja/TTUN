@@ -17,7 +17,11 @@ REVISION = 'eb11aec4be8cb2122afe713a4816662c3f0fb2fa'
 
 
 def export(source, work, catalog, output):
-    from coverage import CoverageData
+    from coverage import Coverage, CoverageData
+    combined = Coverage(data_file=str(work / 'baseline.coverage'))
+    combined.load()
+    combined.combine(data_paths=[str(work)], strict=False, keep=True)
+    combined.save()
     tests = json.loads(catalog.read_text())['tests']
     ids = [t['id'] for t in tests]
     indices = {name: i for i, name in enumerate(ids)}
@@ -32,7 +36,7 @@ def export(source, work, catalog, output):
         contexts = data.contexts_by_lineno(filename)
         lines = {str(line): sorted({indices[c] for c in cs if c in indices}) for line, cs in contexts.items()}
         union = sorted({i for li in lines.values() for i in li})
-        entry = {'lines': lines, 'tests': union, 'collection': any('' in cs for cs in contexts.values()), 'functions': [], 'classes': []}
+        entry = {'lines': lines, 'tests': union, 'collection': any('' in cs for cs in contexts.values()), 'collection_lines': sorted(line for line, cs in contexts.items() if '' in cs), 'functions': [], 'classes': []}
         try:
             tree = ast.parse(Path(filename).read_text())
             for node in ast.walk(tree):
@@ -45,28 +49,47 @@ def export(source, work, catalog, output):
         except (SyntaxError, UnicodeError):
             pass
         files[rel] = entry
-    for rel, contexts in json.loads((work / 'reads.json').read_text()).items():
+    reads = json.loads((work / 'reads.json').read_text())
+    for child in work.glob('child-reads-*.json'):
+        for rel, contexts in json.loads(child.read_text()).items():
+            reads.setdefault(rel, []).extend(contexts)
+    for rel, contexts in reads.items():
         entry = files.setdefault(rel, {'lines': {}, 'tests': [], 'collection': False, 'functions': [], 'classes': []})
         entry['read_tests'] = sorted({indices[c] for c in contexts if c in indices})
         entry['collection_read'] = '' in contexts
         entry['tests'] = sorted(set(entry['tests']) | set(entry['read_tests']))
+    class_files = list(work.glob('child-classes-*.json'))
+    if (work / 'classes.json').exists():
+        class_files.append(work / 'classes.json')
+    class_contexts = {}
+    for path in class_files:
+        for rel, classes in json.loads(path.read_text()).items():
+            for name, contexts in classes.items():
+                class_contexts.setdefault(rel, {}).setdefault(name, set()).update(contexts)
+    for rel, classes in class_contexts.items():
+        if rel in files:
+            files[rel]['class_consumers'] = {name: sorted({indices[c] for c in cs if c in indices}) for name, cs in classes.items()}
+            files[rel]['class_collection'] = sorted(name for name, cs in classes.items() if '' in cs)
     results = json.loads((work / 'results.json').read_text())
-    missing = json.loads((work / 'missing_tests.json').read_text())
+    missing = sorted(set(json.loads((work / 'missing_tests.json').read_text())) | (set(ids) - set(results)))
     payload = {'revision': REVISION, 'test_ids': ids, 'files': files,
                'missing_tests': missing, 'baseline_outcomes': results,
                'environment': {'python': sys.version, 'platform': platform.platform()}}
+    if (work / 'call_outcomes.json').exists():
+        payload['call_outcomes'] = json.loads((work / 'call_outcomes.json').read_text())
     output.parent.mkdir(parents=True, exist_ok=True)
     raw = json.dumps(payload, separators=(',', ':'), sort_keys=True).encode()
-    if output.suffix == '.gz':
-        output.write_bytes(gzip.compress(raw, mtime=0))
-    else:
-        output.write_bytes(raw)
+    encoded = gzip.compress(raw, mtime=0) if output.suffix == '.gz' else raw
+    temporary = output.with_name(output.name + '.tmp')
+    temporary.write_bytes(encoded)
+    temporary.replace(output)
     print(f'{len(files)} mapped files, {len(ids)} tests, {len(missing)} missing, {len(raw)} JSON bytes -> {output.stat().st_size} bytes')
     sources = {}
     tracked = subprocess.check_output(['git', '-C', str(source), 'ls-files'], text=True).splitlines()
     for rel in tracked:
         if rel.endswith('.py'):
             sources[rel] = (source / rel).read_text()
+    output.with_name('SQLGLOT_LICENSE').write_text((source / 'LICENSE').read_text())
     source_output = output.with_name('baseline_sources.json.gz')
     source_output.write_bytes(gzip.compress(json.dumps(sources, separators=(',', ':'), sort_keys=True).encode(), mtime=0))
     print(f'Baseline sources: {source_output.stat().st_size} bytes')
@@ -79,15 +102,19 @@ def main():
     p.add_argument('--catalog', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--export-only', action='store_true')
+    p.add_argument('--timeout', type=int, default=300)
+    p.add_argument('--retry-test', action='append', default=[], help='Rerun this node ID and merge with existing work data; may be repeated')
     args = p.parse_args()
     source, work, catalog, output = [x.resolve() for x in (args.source, args.work, args.catalog, args.output)]
     revision = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
-    if revision != REVISION or subprocess.check_output(['git', '-C', str(source), 'diff', '--name-only'], text=True):
+    if revision != REVISION or subprocess.check_output(['git', '-C', str(source), 'diff', '--name-only', 'HEAD'], text=True):
         raise SystemExit('Refusing to map anything except the clean pinned baseline')
     work.mkdir(parents=True, exist_ok=True)
     if not args.export_only:
         env = dict(os.environ, BLAST_SOURCE=str(source), BLAST_WORK=str(work), BLAST_CATALOG=str(catalog), PYTHONPATH=str(Path(__file__).parent.resolve()) + os.pathsep + str(source))
-        result = subprocess.run([sys.executable, '-m', 'pytest', 'tests', '-p', 'coverage_plugin', '-q', '--timeout=30'], cwd=source, env=env)
+        if args.retry_test:
+            env['BLAST_RETRY'] = json.dumps(args.retry_test)
+        result = subprocess.run([sys.executable, '-m', 'pytest', 'tests', '-p', 'coverage_plugin', '-q', f'--timeout={args.timeout}'], cwd=source, env=env)
         if result.returncode not in (0, 1):
             raise SystemExit(result.returncode)
     export(source, work, catalog, output)
