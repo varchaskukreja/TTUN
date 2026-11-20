@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import re
 import unicodedata
+from .matching import compile_identity_mapping, replace_identity_match
 
 KINDS = {'person', 'company', 'project', 'part', 'account', 'email', 'domain', 'address', 'phone'}
 
@@ -21,7 +22,10 @@ class Registry:
             if not canonical:
                 raise ValueError('Empty identity')
             digest = hmac.new(key, (kind + ':' + canonical).encode(), hashlib.sha256).hexdigest()[:16]
-            pseudonym = entry.get('pseudonym') or f'{kind.title()}-{digest}'
+            default = (f'user-{digest}@example.invalid' if kind == 'email' else
+                       f'domain-{digest}.invalid' if kind == 'domain' else
+                       f'{kind.title()}-{digest}')
+            pseudonym = entry.get('pseudonym') or default
             if not pseudonym or any(c in pseudonym for c in '/\\\x00') or pseudonym in {'.','..'}:
                 raise ValueError('Unsafe pseudonym')
             owner = (kind, canonical)
@@ -35,12 +39,10 @@ class Registry:
                 if previous and previous != pseudonym:
                     raise ValueError('Ambiguous alias')
                 self.mapping[alias.casefold()] = pseudonym
-        # One pass prevents cascading replacements; boundaries protect material names.
-        alternatives = sorted(self.mapping, key=len, reverse=True)
-        self.pattern = re.compile(r'(?<!\w)(?:' + '|'.join(map(re.escape, alternatives)) + r')(?!\w)', re.I) if alternatives else None
+        self.pattern, self.mapping = compile_identity_mapping(self.mapping)
 
     def replace(self, value: str) -> str:
-        return self.pattern.sub(lambda match: self.mapping[match.group().casefold()], value) if self.pattern else value
+        return self.pattern.sub(lambda match: replace_identity_match(match, self.mapping), value) if self.pattern else value
 
     def path(self, value: str) -> str:
         from pathlib import PurePosixPath

@@ -8,24 +8,16 @@ from __future__ import annotations
 import re
 import xml.etree.ElementTree as ET
 import pymupdf as fitz
+from .matching import compile_identity_mapping, replace_identity_match
 
 
 def _replacer(replacements):
     if any(not isinstance(k, str) or not isinstance(v, str) or not k or not v.strip() for k, v in replacements.items()):
         raise ValueError("Identity and pseudonym must be nonempty strings")
-    mapping = {}
-    for key, value in replacements.items():
-        folded = key.casefold()
-        if folded in mapping and mapping[folded] != value:
-            raise ValueError("Conflicting aliases for the same case-insensitive identity")
-        if key != value:
-            mapping[folded] = value
-    if not mapping:
+    pattern, mapping = compile_identity_mapping(replacements)
+    if pattern is None:
         return lambda text: text, None
-    # Match complete identities, with longest aliases winning overlapping matches.
-    alternatives = sorted(mapping, key=len, reverse=True)
-    pattern = re.compile(r"(?<!\w)(?:" + "|".join(map(re.escape, alternatives)) + r")(?!\w)", re.I)
-    return lambda text: pattern.sub(lambda m: mapping[m.group().casefold()], text), pattern
+    return lambda text: pattern.sub(lambda m: replace_identity_match(m, mapping), text), pattern
 
 
 def extract(data: bytes) -> list[str]:

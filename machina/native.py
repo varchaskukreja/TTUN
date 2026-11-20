@@ -8,9 +8,11 @@ from __future__ import annotations
 import re
 import shutil
 import struct
+import uuid
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Mapping
+from .matching import compile_identity_mapping, replace_identity_match
 
 
 @dataclass(frozen=True)
@@ -21,6 +23,22 @@ class PropertyString:
     encoding: str
     offset: int
     size: int
+    fmtid: str = ""
+    semantic: str | None = None
+
+
+# MS-OLEPS standard property sets; no title/subject/material inference.
+SEMANTIC_FIELDS = {
+    'f29f85e0-4ff9-1068-ab91-08002b27b3d9': {4: 'author', 8: 'last_saved_by'},
+    'd5cdd502-2e9c-101b-9397-08002b2cf9ae': {14: 'manager', 15: 'company'},
+    # Autodesk's published iProperties table, final page:
+    # https://download.autodesk.com/us/community/mfg/part_4.pdf
+    '32853f0f-3444-11d1-9e93-0060b03c1ca6': {
+        10: 'checked_by', 12: 'engineering_approved_by', 30: 'vendor',
+        34: 'manufacturing_approved_by', 41: 'designer', 42: 'engineer',
+        48: 'manufacturer',
+    },
+}
 
 
 def property_strings(data: bytes) -> tuple[list[PropertyString], list[str]]:
@@ -37,6 +55,7 @@ def property_strings(data: bytes) -> tuple[list[PropertyString], list[str]]:
     if count > 64 or 28 + 20 * count > len(data):
         return strings, ['invalid_section_table']
     for section in range(count):
+        fmtid = str(uuid.UUID(bytes_le=bytes(data[28 + section * 20:44 + section * 20])))
         base = u32(28 + section * 20 + 16)
         if base + 8 > len(data):
             issues.append('invalid_section_offset'); continue
@@ -79,45 +98,23 @@ def property_strings(data: bytes) -> tuple[list[PropertyString], list[str]]:
                 issues.append('unsupported_string_encoding'); continue
             if '\x00' in text:
                 issues.append('embedded_null_string'); continue
-            strings.append(PropertyString(section, pid, text, enc, pos + 8, byte_length - terminator))
+            strings.append(PropertyString(section, pid, text, enc, pos + 8, byte_length - terminator, fmtid, SEMANTIC_FIELDS.get(fmtid, {}).get(pid)))
     return strings, issues
 
 
-def compile_identity_mapping(mapping: Mapping[str, str]):
-    """Normalize registry keys and match complete identities without cascading.
-
-    Conflicting variants of the same casefolded identity are rejected rather
-    than allowing mapping iteration order to choose a pseudonym.
-    """
-    normalized = {}
-    for key, replacement in mapping.items():
-        if not key:
-            continue
-        folded = key.casefold()
-        if folded in normalized and normalized[folded] != replacement:
-            raise ValueError('conflicting_casefold_identity_mapping')
-        normalized[folded] = replacement
-    keys = sorted(normalized, key=len, reverse=True)
-    pattern = re.compile(r'(?<!\w)(?:' + '|'.join(re.escape(k) for k in keys) + r')(?!\w)', re.IGNORECASE) if keys else None
-    return pattern, normalized
-
-
-def replace_identity_match(match, normalized):
-    # Python IGNORECASE has a few additional Unicode equivalences (e.g. dotted
-    # I) beyond casefold. Leave those unchanged unless explicitly registered.
-    return normalized.get(match.group().casefold(), match.group())
-
-
 def rewrite_property_stream(data: bytes, mapping: Mapping[str, str]) -> tuple[bytes, dict]:
-    """Replace exact identifier occurrences once, only inside parsed values.
+    """Repack scalar strings inside their existing OLE property-stream capacity.
 
-    Rejects the entire field if its encoded size changes, avoiding truncation,
-    padding identities inconsistently, and offset corruption.
+    Property offsets/lengths are rebuilt, retaining every untouched value byte.
+    Stream length and section start offsets never change. Only documented
+    zero padding may be reclaimed. Unaffordable growth is explicitly rejected;
+    shrinking changes are applied first to make space for larger pseudonyms.
     """
     fields, issues = property_strings(data)
     out = bytearray(data)
     changed, rejected = 0, 0
     pattern, normalized = compile_identity_mapping(mapping)
+    pending = {}
     for field in fields:
         replacement = pattern.sub(lambda m: replace_identity_match(m, normalized), field.text) if pattern else field.text
         if replacement == field.text:
@@ -126,11 +123,81 @@ def rewrite_property_stream(data: bytes, mapping: Mapping[str, str]) -> tuple[by
             encoded = replacement.encode(field.encoding)
         except UnicodeError:
             rejected += 1; continue
-        if len(encoded) != field.size:
-            rejected += 1; continue
-        out[field.offset:field.offset + field.size] = encoded
-        changed += 1
-    return bytes(out), {'changed_fields': changed, 'rejected_fields': rejected, 'issues': issues}
+        pending.setdefault(field.section, []).append((field, encoded))
+    if not pending:
+        return data, {'changed_fields': 0, 'rejected_fields': rejected, 'issues': issues}
+    count = struct.unpack_from('<I', data, 24)[0]
+    bases = [struct.unpack_from('<I', data, 44 + i * 20)[0] for i in range(count)]
+    for section, edits in pending.items():
+        base = bases[section]
+        size, n = struct.unpack_from('<II', data, base)
+        entries = [struct.unpack_from('<II', data, base + 8 + i * 8) for i in range(n)]
+        ordered = sorted(entries, key=lambda x: x[1])
+        offsets = [off for _, off in ordered]
+        # Do not rebuild aliased, overlapping, or unaligned property layouts.
+        if (len(set(offsets)) != len(offsets) or not offsets or
+            min(offsets) < 8 + 8*n or max(offsets) > size - 4 or
+            any(off % 4 for off in offsets) or
+            base < 28 + 20*count or
+            any(other != base and base < other < base + size for other in bases) or
+            bases.count(base) != 1):
+            rejected += len(edits); issues.append('unsafe_property_layout'); continue
+        ends = offsets[1:] + [size]
+        blocks = {off: data[base + off:base + end] for off, end in zip(offsets, ends)}
+        first = offsets[0]
+        next_section = min((other for other in bases if other > base), default=len(data))
+        capacity = size
+        if next_section >= base + size and not any(data[base + size:next_section]):
+            capacity = next_section - base
+        proposals = []
+        for field, encoded in edits:
+            off = field.offset - 8 - base
+            raw = blocks[off]
+            kind = struct.unpack_from('<I', raw)[0]
+            null = bytes(2 if field.encoding == 'utf-16-le' else 1)
+            original_end = 8 + field.size + len(null)
+            if len(encoded) == field.size:
+                block = raw[:8] + encoded + raw[8 + field.size:]
+            elif any(raw[original_end:]):
+                rejected += 1; issues.append('nonzero_property_tail'); continue
+            else:
+                payload = encoded + null
+                length = len(payload) // (2 if kind == 31 else 1)
+                block = struct.pack('<II', kind, length) + payload
+                block += bytes((-len(block)) % 4)
+            proposals.append((len(block)-len(raw), off, block))
+        used = first + sum(len(v) for v in blocks.values())
+        accepted = 0
+        for delta, off, block in sorted(proposals, key=lambda item: item[0]):
+            if used + delta > capacity:
+                rejected += 1; issues.append('property_stream_capacity_exceeded'); continue
+            blocks[off] = block
+            used += delta
+            accepted += 1
+        if not accepted:
+            continue
+        rebuilt = bytearray(data[base:base + first])
+        new_offsets = {}
+        for off in offsets:
+            new_offsets[off] = len(rebuilt)
+            rebuilt.extend(blocks[off])
+        struct.pack_into('<I', rebuilt, 0, len(rebuilt))
+        for i, (_, off) in enumerate(entries):
+            struct.pack_into('<I', rebuilt, 12 + i*8, new_offsets[off])
+        out[base:base + capacity] = rebuilt + bytes(capacity-len(rebuilt))
+        changed += accepted
+    result = bytes(out)
+    parsed, after_issues = property_strings(result)
+    # Every parsed nonedited property must retain its value and semantic type.
+    original = {(f.section, f.property_id): f for f in fields}
+    if len(result) != len(data) or len(parsed) != len(fields):
+        raise ValueError('property_stream_rebuild_validation_failed')
+    for field in parsed:
+        old = original[(field.section, field.property_id)]
+        wanted = pattern.sub(lambda m: replace_identity_match(m, normalized), old.text) if pattern else old.text
+        if field.text not in (old.text, wanted) or field.encoding != old.encoding:
+            raise ValueError('property_value_changed_unexpectedly')
+    return result, {'changed_fields': changed, 'rejected_fields': rejected, 'issues': issues}
 
 
 def inspect_native(path: str | Path) -> dict:

@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import html
 import re
+import struct
 import xml.etree.ElementTree as ET
 from typing import Callable
 
-SUPPORTED = {'.step', '.stp', '.stl', '.obj', '.svg', '.dxf', '.sat'}
+SUPPORTED = {'.step', '.stp', '.stl', '.obj', '.svg', '.dxf', '.sat', '.pat'}
 _STRING = re.compile(r"'(?:[^']|'')*'", re.S)
 
 
@@ -50,6 +51,10 @@ def _sat_spans(text):
     lines = text.splitlines(keepends=True)
     if len(lines) < 3 or not re.fullmatch(r'\s*\d+\s+\d+\s+\d+\s+\d+\s*', lines[0]):
         raise ValueError('Not an ASCII SAT header')
+    if lines[0].split()[0] == '107' and lines[1].startswith('body '):
+        # Observed legacy corpus variant has no application metadata lines.
+        # Its geometry records remain untouched and unclassified.
+        return
     pos = len(lines[0])
     end = pos + len(lines[1])
     for _ in range(2):
@@ -67,6 +72,16 @@ def _sat_spans(text):
 
 def _line_spans(text, suffix):
     offset = 0
+    if suffix == '.pat':
+        for line in text.splitlines(keepends=True):
+            value=line.rstrip('\r\n')
+            if value.lstrip().startswith((';','*')):
+                start=len(value)-len(value.lstrip())+1
+                yield offset+start,offset+len(value),value[start:],'plain'
+            elif value.strip() and not re.fullmatch(r'[\s+\-\d.eE,]+',value):
+                raise ValueError('Unknown PAT geometry record')
+            offset+=len(line)
+        return
     if suffix == '.dxf':
         lines = text.splitlines(keepends=True)
         if len(lines) % 2:
@@ -97,7 +112,7 @@ def _line_spans(text, suffix):
 
 
 def _svg_spans(text):
-    if re.search(r'<!\s*(?:DOCTYPE|ENTITY)', text, re.I):
+    if re.search(r'<!\s*ENTITY|<!\s*DOCTYPE[^>]*\[', text, re.I):
         raise ValueError('SVG DTD/entity declarations require separate handling')
     ET.fromstring(text)  # Validate before retaining its exact original syntax.
     stack = []
@@ -115,7 +130,7 @@ def _svg_spans(text):
             if stack:
                 stack.pop()
         elif value.startswith('<'):
-            if not value.startswith('<?') and not value.endswith('/>'):
+            if not value.startswith(('<?','<!')) and not value.endswith('/>'):
                 name = re.match(r'<\s*([^\s/>]+)', value)
                 if name:
                     stack.append(name[1].split(':')[-1].lower())
@@ -139,7 +154,7 @@ def _spans(text, suffix):
         return list(_svg_spans(text))
     if suffix == '.sat':
         return list(_sat_spans(text))
-    if suffix in {'.stl', '.obj', '.dxf'}:
+    if suffix in {'.stl', '.obj', '.dxf', '.pat'}:
         if '\x00' in text:
             raise ValueError('Binary input requires a different handler')
         if suffix == '.stl' and not text.lstrip().startswith('solid'):
@@ -150,8 +165,21 @@ def _spans(text, suffix):
 
 def extract(data: bytes, suffix: str) -> list[str]:
     """Return candidate metadata values; raise ValueError on unsupported syntax."""
+    if suffix.lower() == '.stl' and _binary_stl(data):
+        return [_stl_header(data)]
     text, _ = _decode(data)
     return [value for _, _, value, _ in _spans(text, suffix.lower()) if value.strip()]
+
+
+def _binary_stl(data):
+    return len(data)>=84 and len(data)==84+50*struct.unpack_from('<I',data,80)[0]
+
+
+def _stl_header(data):
+    header=data[:80].rstrip(b'\x00 ')
+    if any(b<32 and b not in (9,10,13) or b>126 for b in header):
+        raise ValueError('Opaque binary STL header requires a dedicated adapter')
+    return header.decode('ascii')
 
 
 def transform(data: bytes, suffix: str, replace: Callable[[str], str]) -> tuple[bytes, dict]:
@@ -161,6 +189,18 @@ def transform(data: bytes, suffix: str, replace: Callable[[str], str]) -> tuple[
     text encoding for a replacement is an error, never a lossy conversion.
     """
     suffix = suffix.lower()
+    if suffix == '.stl' and _binary_stl(data):
+        try:
+            header=_stl_header(data)
+            updated=replace(header)
+            if updated==header:
+                return data,{'status':'processed','changes':0,'geometry_bytes_preserved':True}
+            encoded=updated.encode('ascii')
+            if len(encoded)>80:
+                raise ValueError('Pseudonym exceeds binary STL header capacity')
+            return encoded.ljust(80,b'\x00')+data[80:],{'status':'processed','changes':1,'geometry_bytes_preserved':True}
+        except (ValueError,UnicodeError) as error:
+            return data,{'status':'unsupported','reason':str(error),'changes':0}
     text, encoding = _decode(data)
     try:
         spans = _spans(text, suffix)
