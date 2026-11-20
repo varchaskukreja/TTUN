@@ -1,26 +1,35 @@
 # Machina work status
 
-No scored submissions made. Goal remains active; victory is unverified.
+No scored submissions made. Goal blocked on storage and submission access; victory is unverified.
 
 ## Evidence
 
 - Public manifest: 188,722 files, 139,707,781,499 bytes.
 - 42 private representative files downloaded (about 19 MB).
-- 57 unit/integration tests passing; 5 additional parameter subtests passing.
+- 89 unit/integration tests passing; 5 additional parameter subtests passing.
 - Real sample identity transformation: five reviewed synthetic pseudonyms replaced
   13 occurrences in extracted metadata candidates; zero of those five originals
   remain in the final extracted candidates. This is not a full leakage audit.
-- Six sample archives fail closed because children lack supported handlers.
+- All three local FreeCAD samples process with opt-in OCR; all 104 BREP members
+  remain byte-identical and archive member counts remain unchanged. Native reopen,
+  thumbnails and identity completeness still require review.
+- A separate bounded in-memory probe inspected 70 stratified files (14.1 MB).
+  After fixing and rechecking eight format failures, 68 reach metadata extraction;
+  the remaining two are six-byte native files flagged as source defects.
+- Metadata/provenance discovery produced 1,251 candidate records from the manifest
+  and initial samples; the broader probe contributed 357 further evidence records.
+  These are candidates, not 1,608 confirmed distinct identities.
 - Modern SolidWorks no-op rebuilds and metadata edits independently parsed;
   unedited streams preserved. No vendor application reopen test available.
 - Raw samples, registry, key, and reports are ignored and never committed.
 
 ## External blockers
 
-- Local disk had only 2.5 GiB free at the last capacity check. Full processing needs
+- Local disk had only 320 MiB free at the last capacity check. Full processing needs
   a case-sensitive storage volume or remote machine with adequate capacity.
 - Submission requires Builders sign-in, team identity and upload access. Browser
-  automation host was unavailable; no authenticated submission panel inspected.
+  automation host was unavailable and native Safari access timed out; no
+  authenticated submission panel inspected.
 
 ## Next engineering work
 
@@ -33,4 +42,19 @@ No scored submissions made. Goal remains active; victory is unverified.
    attempt corpus/code/README before using the 20-attempt scoring budget.
 
 Private development artifacts are under `.machina-private/`. `mapped-v2.jsonl`
-records the most recent real sample run, including all six archive exceptions.
+records the most recent real sample run, including the earlier six archive exceptions; the newer three-FreeCAD validation
+ran entirely in memory. Broader discovery is recorded in `stratified-probe-v1.jsonl`
+and eight corrected format cases in `probe-recheck-v1.jsonl`.
+
+
+## Required to resume full-corpus work
+
+Provide a case-sensitive storage path or remote machine with adequate capacity
+(roughly 400+ GB initially, with additional archive expansion headroom). Also
+provide the Builders team name and authenticated submission/upload access.
+The browser access host remains unavailable after rechecking. No full-corpus
+job or scoring job is running; all delegated development tasks have completed.
+
+The next run must resolve remaining format/reference coverage, reconcile the
+identity registry, process all input, and verify native compatibility before
+packaging and submitting. Sample checks are not proof of full-corpus completion.

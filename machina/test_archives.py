@@ -90,3 +90,17 @@ class ArchiveTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ArchiveContextTests(unittest.TestCase):
+    def test_factory_per_container_retains_shared_budget(self):
+        source=make_zip([('one.zip',make_zip([('a.txt',b'one')])),('two.zip',make_zip([('b.txt',b'two')]))])
+        visited=[]
+        def factory(name,data):
+            visited.append(name)
+            return callback
+        output,report=transform(source,'root.zip',callback,callback_factory=factory)
+        self.assertEqual(visited,['root.zip','one.zip','two.zip'])
+        self.assertEqual(report['total_members'],4)
+        with self.assertRaises(ArchiveError):
+            transform(source,'root.zip',callback,callback_factory=factory,limits=Limits(max_members=3))

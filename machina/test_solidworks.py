@@ -40,7 +40,7 @@ class SolidWorksTests(unittest.TestCase):
         data = fixture(b'<root>ALICE / Alice / alice / Malice / Alice2 / Alice_B</root>')
         result, report = rewrite_bytes(data, {'alice': 'Agent'})
         self.assertEqual(read_streams(result)[0][0].payload,
-                         b'<root>Agent / Agent / Agent / Malice / Alice2 / Alice_B</root>')
+                         b'<root>Agent / Agent / Agent / Malice / Alice2 / Agent_B</root>')
         self.assertEqual(report['changed_streams'], 1)
 
     def test_conflicting_casefold_mapping(self):

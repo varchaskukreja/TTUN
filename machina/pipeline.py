@@ -14,19 +14,46 @@ from . import neutral
 from . import pdf_handler
 from . import solidworks
 from . import archives
+from . import freecad
 from . import text_handler
+from . import raster
 from .identity import Registry
 
 
-def transform(data: bytes, suffix: str, registry: Registry):
+def transform(data: bytes, suffix: str, registry: Registry, *, ocr=False):
     if archives.kind('file'+suffix,data):
         def member(name, content):
             renamed=registry.path(name)
+            if name.endswith('/'):
+                if content:
+                    raise ValueError('Directory contains unexpected bytes')
+                return renamed+'/',b'',{'status':'processed','directory':True}
             if archives.kind(name,content):
                 return renamed,content,{'status':'container_pending_recursion'}
-            result,report=transform(content,Path(name).suffix.lower(),registry)
+            result,report=transform(content,Path(name).suffix.lower(),registry,ocr=ocr)
             return renamed,result,report
-        return archives.transform(data,'file'+suffix,member,limits=archives.Limits(max_expanded_bytes=256*1024*1024,max_output_bytes=256*1024*1024))
+
+        def factory(container_name, container_bytes):
+            if not container_name.lower().endswith(('.fcstd', '.fcstd1')):
+                return member
+            types=freecad.member_types(container_bytes)
+            protected={'Document.xml','GuiDocument.xml'}
+            def rename_internal(name):
+                return name if name in protected else registry.path(name)
+            def native_member(name, content):
+                if name.endswith('/') or archives.kind(name,content):
+                    return member(name,content)
+                result,report=freecad.transform_member(name,content,registry.replace,
+                    info=types.get(name),rename=rename_internal)
+                if report.get('status')=='unsupported':
+                    renamed,result,report=member(name,content)
+                    return rename_internal(name),result,report
+                return rename_internal(name),result,report
+            return native_member
+
+        return archives.transform(data,'file'+suffix,member,
+            limits=archives.Limits(max_expanded_bytes=256*1024*1024,max_output_bytes=256*1024*1024),
+            callback_factory=factory)
     if suffix == '.xml':
         return text_handler.transform_xml(data,registry.replace)
     if suffix in {'.txt', '.csv', '.md'}:
@@ -36,7 +63,12 @@ def transform(data: bytes, suffix: str, registry: Registry):
     if suffix in neutral.SUPPORTED:
         return neutral.transform(data,suffix,registry.replace)
     if suffix == '.pdf':
-        return pdf_handler.transform(data,registry.mapping)
+        output,report=pdf_handler.transform(data,registry.mapping)
+        if ocr:
+            output,report['raster']=raster.transform_pdf(output,registry.mapping)
+        return output,report
+    if suffix == '.png' and ocr:
+        return raster.transform_png(data,registry.mapping)
     if data.startswith(b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'):
         with tempfile.TemporaryDirectory(prefix='machina-') as temp:
             source=Path(temp)/'source'; dest=Path(temp)/'result'
@@ -46,7 +78,7 @@ def transform(data: bytes, suffix: str, registry: Registry):
     return data, {'status':'unsupported','complete_deidentification':False}
 
 
-def run(source: Path, output: Path, registry: Registry, report_path: Path):
+def run(source: Path, output: Path, registry: Registry, report_path: Path, *, ocr=False):
     source=source.resolve();output=output.resolve();report_path=report_path.resolve()
     if source==output or source in output.parents or output in source.parents:
         raise ValueError('Input and output must be separate non-nested directories')
@@ -75,7 +107,7 @@ def run(source: Path, output: Path, registry: Registry, report_path: Path):
                     shutil.copyfile(p,target)
                     detail={'status':'deferred_large_file','complete_deidentification':False}
                 else:
-                    result,detail=transform(p.read_bytes(),p.suffix.lower(),registry)
+                    result,detail=transform(p.read_bytes(),p.suffix.lower(),registry,ocr=ocr)
                     target.write_bytes(result)
                 row['coverage']=detail
                 row['output_bytes']=target.stat().st_size
@@ -94,8 +126,9 @@ def main():
     p.add_argument('--registry',type=Path,required=True)
     p.add_argument('--key-file',type=Path,required=True)
     p.add_argument('--private-report',type=Path,required=True)
+    p.add_argument('--ocr',action='store_true',help='Enable bounded known-identity raster edits; all edited regions require review')
     a=p.parse_args()
     registry=Registry(json.loads(a.registry.read_text()),a.key_file.read_bytes())
-    print(json.dumps(run(a.input,a.output,registry,a.private_report),indent=2))
+    print(json.dumps(run(a.input,a.output,registry,a.private_report,ocr=a.ocr),indent=2))
 
 if __name__=='__main__':main()

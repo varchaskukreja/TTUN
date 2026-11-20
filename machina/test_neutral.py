@@ -72,3 +72,31 @@ END-ISO-10303-21;
 
 if __name__ == '__main__':
     unittest.main()
+
+def test_pat_geometry_preserved():
+    data=b'; Acme patterns\n*Acme, Hatch label\n45,0,0,0,1.0\n-45,0,0,0,1.0\n'
+    out,report=transform(data,'.pat',lambda x:x.replace('Acme','Company-A'))
+    assert out.endswith(b'45,0,0,0,1.0\n-45,0,0,0,1.0\n')
+    assert b'Acme' not in out and report['changes']==2
+
+def test_binary_stl_header_only_and_capacity():
+    import struct
+    triangle=struct.pack('<12fH',*[float(i) for i in range(12)],123)
+    data=b'Acme design'.ljust(80,b'\0')+struct.pack('<I',1)+triangle
+    output,report=transform(data,'.stl',lambda x:x.replace('Acme','Company-A'))
+    assert output[80:]==data[80:] and b'Acme' not in output[:80]
+    assert extract(output,'.stl')==['Company-A design']
+    output,report=transform(data,'.stl',lambda x:'X'*81)
+    assert output==data and report['status']=='unsupported'
+
+def test_standard_svg_doctype_but_no_entity_expansion():
+    data=b'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg"><text>Acme</text></svg>'
+    out,report=transform(data,'.svg',lambda x:x.replace('Acme','Company-A'))
+    assert b'Company-A' in out and report['changes']==1
+    hostile=b'<!DOCTYPE svg [<!ENTITY secret "Acme">]><svg><text>&secret;</text></svg>'
+    assert transform(hostile,'.svg',lambda x:'Company-A')[1]['status']=='unsupported'
+
+def test_legacy_sat_without_metadata_header():
+    data=b'107 0 1 0\nbody $-1 $1 $-1 $-1 #\nlump $-1 $-1 $2 $0 #\n'
+    assert extract(data,'.sat')==[]
+    assert transform(data,'.sat',lambda x:'Company-A')[0]==data

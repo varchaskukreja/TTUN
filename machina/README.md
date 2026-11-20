@@ -40,7 +40,8 @@ not an archive expansion guarantee.
   conflict checks and coordinated filename replacement. Identity candidates need
   review: engineering labels and material names must not be treated as identities.
 - `neutral.py`: format-aware editing of supported neutral CAD metadata/text spans.
-- `native.py`: strict OLE property parsing and equal-byte-size string replacement.
+- `native.py`: strict OLE property parsing and bounded variable-length string replacement
+  within existing stream capacity.
   Other OLE streams are preserved; unsupported structures are reported.
 - `pdf_handler.py`: known-identity text and metadata replacement with PDF drawings
   preserved; reports unhandled content.
@@ -49,7 +50,13 @@ not an archive expansion guarantee.
 - `archives.py`: bounded ZIP/TAR/GZIP recursion; rejects unsafe paths and unsupported
   children. Unsupported archives do not get copied unchanged into candidate output.
 - `text_handler.py`: known-identity replacement in XML values, preserving keys.
+- `freecad.py`: typed native XML, BREP, colors and material texture references.
 - `ocr.py`: local Tesseract candidate extraction, with page/time/pixel limits.
+- `raster.py`: opt-in known-identity replacement in scanned PDF regions and RGB
+  PNGs. Untouched PNG pixels are preserved; edited regions require visual review.
+- `discovery.py`: semantic author/company/contact/provenance candidate records.
+- `probe.py`: bounded stratified remote samples processed in memory, persisting
+  only private metadata and candidate evidence.
 - `scan.py`: private review inventory, not an automatic identity classifier.
 - `pipeline.py`: coordinated path/content transformation and a private coverage ledger.
 
@@ -65,8 +72,8 @@ The registry is a JSON array of objects with `kind`, `identity`, optional `alias
 and optional `pseudonym`. Supported kinds are person, company, project, part,
 account, email, domain, address and phone. Generate a private random key of at
 least 16 bytes once and reuse it across the corpus. Without explicit pseudonyms,
-HMAC-derived pseudonyms are deterministic. Fixed-size OLE fields currently need
-explicit pseudonyms with the same encoded length; size changes are rejected.
+HMAC-derived pseudonyms are deterministic. OLE string growth is supported when existing stream padding or shrinking fields
+provide capacity; unaffordable growth is explicitly rejected.
 
 Every run currently reports `ready_to_submit: false`. This is intentional:
 identity discovery, visual validation and native compatibility are incomplete.
@@ -90,3 +97,24 @@ Keep each submitted attempt immutable until results are published.
 Prefer the private Builders upload folder offered by the signed-in submission
 panel. A user sign-in and team upload token are needed. Do not consume a scored
 attempt until a complete candidate and local validation report are ready.
+
+## Broader discovery without retaining raw downloads
+
+```sh
+uv run --project machina python -m machina.probe .machina-private/manifest.tsv \
+  --private-report .machina-private/probe.jsonl --per-format 5 --budget-mb 20
+uv run --project machina python -m machina.discovery \
+  --manifest .machina-private/manifest.tsv --scan-report .machina-private/candidates.jsonl \
+  --input /your/case-sensitive-volume/input --private-output .machina-private/identities-review.jsonl
+```
+
+Candidate confidence describes evidence, not approval. Even an author/company
+field can hold a software vendor or generic value. Review and reconcile aliases
+before constructing the registry. `probe.py` is a storage-saving discovery tool;
+it does not satisfy the requirement to process and upload the whole corpus.
+
+Pass `--ocr` to `pipeline` to enable OCR-guided image edits, including RGB PNG
+thumbnails in archives. The current tested external OCR runtime is Tesseract
+5.5.4 with Leptonica 1.87.0. Image regions with uncertain recognition, unsupported
+transparency, logos, and geometry overlap remain explicitly flagged. OCR does
+not independently validate geometry or guarantee complete identification.

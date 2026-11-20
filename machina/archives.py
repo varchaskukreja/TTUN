@@ -70,12 +70,15 @@ def _check_report(report):
 
 
 def transform(data: bytes, name: str, transform_member: Callable,
-              *, limits: Limits | None = None) -> tuple[bytes, dict]:
+              *, limits: Limits | None = None,
+              callback_factory: Callable | None = None) -> tuple[bytes, dict]:
     """Rewrite a ZIP, TAR or GZIP recursively, raising ArchiveError on failure.
 
     Limits apply cumulatively across nesting, including duplicate entries. No
     symlinks, hardlinks, devices, encrypted ZIP members, duplicate output paths,
     or traversal paths are accepted. Archives are never extracted to disk.
+    callback_factory(container_name, bytes), when supplied, selects a member
+    callback separately for every nested container. Recursion retains one budget.
     """
     limits = limits or Limits()
     budget = _Budget()
@@ -94,8 +97,8 @@ def transform(data: bytes, name: str, transform_member: Callable,
         budget.expanded += len(content)
         return content
 
-    def call(member_name, content):
-        new_name, updated, report = transform_member(member_name, content)
+    def call(member_name, content, callback):
+        new_name, updated, report = callback(member_name, content)
         safe_name(new_name)
         if not isinstance(updated, bytes):
             raise ArchiveError('Member callback must return bytes')
@@ -104,18 +107,18 @@ def transform(data: bytes, name: str, transform_member: Callable,
         _check_report(report)
         return new_name, updated, report
 
-    def metadata(content, label):
+    def metadata(content, label, callback):
         if not content:
             return content, None
-        _, updated, report = call(label + '.txt', content)
+        _, updated, report = call(label + '.txt', content, callback)
         return updated, report
 
-    def member(member_name, content, depth, seen, directory=False):
+    def member(member_name, content, depth, seen, callback, directory=False):
         safe_name(member_name)
         budget.members += 1
         if budget.members > limits.max_members:
             raise ArchiveError('Archive member count limit exceeded')
-        new_name, updated, report = call(member_name, content)
+        new_name, updated, report = call(member_name, content, callback)
         if directory:
             new_name = new_name.rstrip('/') + '/'
             if updated:
@@ -142,6 +145,9 @@ def transform(data: bytes, name: str, transform_member: Callable,
         if depth > limits.max_depth:
             raise ArchiveError('Archive nesting depth limit exceeded')
         archive_kind = kind(archive_name, content)
+        callback = callback_factory(archive_name, content) if callback_factory else transform_member
+        if not callable(callback):
+            raise ArchiveError('Archive callback factory did not return a callable')
         report = {'format': archive_kind, 'status': 'processed', 'members': [], 'metadata': []}
         seen = {}
         destination = io.BytesIO()
@@ -157,11 +163,11 @@ def transform(data: bytes, name: str, transform_member: Callable,
                     safe_name(info.filename)
                     with source.open(info) as stream:
                         payload = read_bounded(stream, info.file_size)
-                    renamed, payload, detail = member(info.filename, payload, depth, seen, info.is_dir())
+                    renamed, payload, detail = member(info.filename, payload, depth, seen, callback, info.is_dir())
                     output_info = copy.copy(info)
                     output_info.filename = renamed
                     output_info.orig_filename = renamed
-                    output_info.comment, comment_report = metadata(info.comment, '__entry_comment__')
+                    output_info.comment, comment_report = metadata(info.comment, '__entry_comment__', callback)
                     if comment_report:
                         report['metadata'].append(comment_report)
                     # Extra fields can carry stale Unicode paths or arbitrary
@@ -183,7 +189,7 @@ def transform(data: bytes, name: str, transform_member: Callable,
                     if destination.tell() > limits.max_output_bytes:
                         raise ArchiveError('Archive output size limit exceeded')
                     report['members'].append({'path': renamed, 'report': detail})
-                target.comment, comment_report = metadata(source.comment, '__archive_comment__')
+                target.comment, comment_report = metadata(source.comment, '__archive_comment__', callback)
                 if comment_report:
                     report['metadata'].append(comment_report)
         elif archive_kind == 'tar':
@@ -195,11 +201,11 @@ def transform(data: bytes, name: str, transform_member: Callable,
                     stream = source.extractfile(info) if info.isfile() else io.BytesIO()
                     with stream:
                         payload = read_bounded(stream, info.size)
-                    renamed, payload, detail = member(info.name, payload, depth, seen, info.isdir())
+                    renamed, payload, detail = member(info.name.rstrip('/') + '/' if info.isdir() else info.name, payload, depth, seen, callback, info.isdir())
                     output_info = copy.copy(info)
                     output_info.name, output_info.size = renamed, len(payload)
                     for field in ('uname', 'gname'):
-                        updated, meta_report = metadata(getattr(info, field).encode('utf-8'), '__tar_' + field + '__')
+                        updated, meta_report = metadata(getattr(info, field).encode('utf-8'), '__tar_' + field + '__', callback)
                         setattr(output_info, field, updated.decode('utf-8'))
                         if meta_report:
                             report['metadata'].append(meta_report)
@@ -222,7 +228,7 @@ def transform(data: bytes, name: str, transform_member: Callable,
             lower = archive_name.lower()
             inner_name = archive_name[:-4] + '.tar' if lower.endswith('.tgz') else archive_name[:-3] if lower.endswith('.gz') else 'content'
             inner_name = PurePosixPath(inner_name).name
-            renamed, payload, detail = member(inner_name, payload, depth, seen)
+            renamed, payload, detail = member(inner_name, payload, depth, seen, callback)
             # GZIP optional original filename/comment are intentionally omitted.
             destination.write(gzip.compress(payload, mtime=0))
             report['members'].append({'path': renamed, 'report': detail})
