@@ -35,6 +35,25 @@ class SelectorTests(unittest.TestCase):
     def select(self, path, old, new):
         return selector.Selector(self.tests, self.mapping, self.root).select(make_patch(path, old, new))
 
+    def test_context_invalid_syntax_selects_all_import_consumers(self):
+        old = self.add_source("m.py", "def f():\n    return 1\n", lines={"2": [0]})
+        self.assertEqual(self.select("m.py", old, "def f():\n    break\n"), {10, 11, 12, 13})
+
+    def test_experimental_class_narrowing_requires_successful_guard(self):
+        old = self.add_source("m.py", "class C:\n    LIMIT = 1\n", class_consumers={"C": [0]})
+        change = make_patch("m.py", old, old.replace("1", "2"))
+        for permitted, expected in ((True, {10}), (False, {10, 11, 12, 13})):
+            guard = unittest.mock.Mock(return_value=permitted)
+            subject = selector.Selector(self.tests, self.mapping, self.root, class_guard=guard)
+            self.assertEqual(subject.select(change), expected)
+            guard.assert_called_once_with(change)
+
+    def test_experimental_class_guard_error_falls_back(self):
+        old = self.add_source("m.py", "class C:\n    LIMIT = 1\n", class_consumers={"C": [0]})
+        guard = unittest.mock.Mock(side_effect=TimeoutError)
+        subject = selector.Selector(self.tests, self.mapping, self.root, class_guard=guard)
+        self.assertEqual(subject.select(make_patch("m.py", old, old.replace("1", "2"))), {10, 11, 12, 13})
+
     def test_function_edit_selects_all_function_callers(self):
         old = self.add_source("m.py", "def f(x):\n    value = 1\n    return value + x\n", lines={"2": [0], "3": [1]})
         self.assertEqual(self.select("m.py", old, old.replace("value = 1", "value = 2")), {10, 11})

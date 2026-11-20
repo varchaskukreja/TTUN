@@ -36,6 +36,10 @@ Coverage generation is implemented in `tools/build_map.py` and `tools/coverage_p
 
 ## Current verification
 
-The coverage selector passed all 30 official samples inside the constrained Linux/amd64 container: **371.704 simulated seconds, zero missed commits**. The all-tests scheduling fallback scored 1104.510 seconds. All 39 regression tests pass. CPU time is not included in these local scores.
+The current conservative selector scores **335.334 simulated seconds, zero missed commits** on all 30 official samples. The original all-tests scheduling fallback scored 1104.510 seconds. The current runtime was verified under the official Linux/amd64 restrictions with updated code and map mounted read-only into the previously built pinned image. A fresh local build is temporarily failing at Docker's GitHub network connection; the Dockerfile's source revision remains unchanged.
 
-The baseline trace includes all 1620 catalog tests and subprocess execution. Three optimizer tests reported external DuckDB subtest errors during tracing; they are conservatively always selected. The long parser limit test completed successfully. Further class-consumer mapping and runtime-probe experiments are not used in this candidate. No leaderboard result has yet been obtained.
+All 74 primary regression tests and 10 experimental granularity tests pass. Local simulated scores exclude CPU time. The baseline map covers all 1620 catalog tests, subprocesses, and shared fixture scopes. Three tests that reported DuckDB errors under emulation passed all 723 subtests in a native pinned-dependency coverage run; the merged map retains every Linux dependency and records the repair provenance.
+
+First submitted commit `0d7ca6cd9e2b2b4ab86cd1a405b940f56c95ed42` received receipt **BB-C2E99545** and a public score of **938.3 seconds**, observed at rank 7. Private miss/CPU feedback is still needed. The next hourly slot opens November 20 at 7:30 PM Eastern; slot availability alone is not a reason to submit.
+
+`runtime_probe.py`, `class_selection.py`, and `tools/experiment_classes.py` are optional experiments, disabled in the submission entrypoint. The class experiment scored 270.653 simulated seconds plus 7.178 measured process CPU seconds on samples, with zero misses. It is undergoing additional validation before promotion. `tools/public_standings.py` reads public scores without browser access, cookies, or authentication.
