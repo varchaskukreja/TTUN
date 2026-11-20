@@ -1,6 +1,18 @@
-# Official scorer Python/SQLite environment; only public pinned baseline download.
-FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
-ADD https://github.com/tobymao/sqlglot/archive/eb11aec4be8cb2122afe713a4816662c3f0fb2fa.tar.gz /tmp/sqlglot.tar.gz
-RUN mkdir -p /opt/sqlglot && tar -xzf /tmp/sqlglot.tar.gz --strip-components=1 -C /opt/sqlglot && rm /tmp/sqlglot.tar.gz
-COPY rwx-blast-radius/selector.py rwx-blast-radius/scheduler.py rwx-blast-radius/patches.py /app/
-CMD ["python", "/app/selector.py"]
+# Shopping Sessions (Databricks track) submission. The pipeline lives in shopping-sessions/.
+FROM rust:1-slim-bookworm AS build
+ARG TARGETARCH
+WORKDIR /src
+COPY shopping-sessions/Cargo.toml shopping-sessions/Cargo.lock ./
+COPY shopping-sessions/src ./src
+# An explicit --target keeps RUSTFLAGS off build scripts, so they run on any build host.
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      RUSTFLAGS="-C target-cpu=x86-64-v3" cargo build --release --locked --target x86_64-unknown-linux-gnu && \
+      cp target/x86_64-unknown-linux-gnu/release/ss /ss; \
+    else \
+      cargo build --release --locked && cp target/release/ss /ss; \
+    fi
+
+FROM debian:bookworm-slim
+COPY --from=build /ss /app/ss
+USER 1000:1000
+CMD ["/app/ss"]

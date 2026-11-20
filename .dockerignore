@@ -1,8 +1,6 @@
 **
-!Dockerfile
-!rwx-blast-radius/
-!rwx-blast-radius/selector.py
-!rwx-blast-radius/scheduler.py
-!rwx-blast-radius/patches.py
-!rwx-blast-radius/maps/
-!rwx-blast-radius/maps/coverage.json.gz
+!shopping-sessions/
+!shopping-sessions/Cargo.toml
+!shopping-sessions/Cargo.lock
+!shopping-sessions/src/
+!shopping-sessions/src/**
