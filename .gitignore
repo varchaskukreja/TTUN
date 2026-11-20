@@ -1,0 +1,12 @@
+.work/
+__pycache__/
+*.pyc
+rwx-blast-radius/output.jsonl
+rwx-blast-radius/reports/
+
+# Machina private corpus and run artifacts
+.machina-private/
+machina/input/
+machina/output/
+machina/attempt-*/
+machina/.venv/
