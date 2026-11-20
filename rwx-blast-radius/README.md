@@ -36,10 +36,20 @@ Coverage generation is implemented in `tools/build_map.py` and `tools/coverage_p
 
 ## Current verification
 
-The current conservative selector scores **335.334 simulated seconds, zero missed commits** on all 30 official samples. The original all-tests scheduling fallback scored 1104.510 seconds. The current runtime was verified under the official Linux/amd64 restrictions with updated code and map mounted read-only into the previously built pinned image. A fresh local build is temporarily failing at Docker's GitHub network connection; the Dockerfile's source revision remains unchanged.
+The current conservative selector scores **335.334 simulated seconds, zero missed commits** on all 30 official samples. The original all-tests scheduling fallback scored 1104.510 seconds. The current runtime was verified under the official Linux/amd64 restrictions in an offline-rebuilt image based on the previously verified pinned image. A fresh local build is temporarily failing at Docker's GitHub network connection; the Dockerfile's source revision remains unchanged.
 
-All 74 primary regression tests and 10 experimental granularity tests pass. Local simulated scores exclude CPU time. The baseline map covers all 1620 catalog tests, subprocesses, and shared fixture scopes. Three tests that reported DuckDB errors under emulation passed all 723 subtests in a native pinned-dependency coverage run; the merged map retains every Linux dependency and records the repair provenance.
+All 74 primary regression tests and 12 experimental granularity tests pass. The latter include reproducible counterexamples showing statement-level selection can miss consumers of cached values; that optimization remains excluded from production. Local simulated scores exclude CPU time. The baseline map covers all 1620 catalog tests, subprocesses, and shared fixture scopes. Three tests that reported DuckDB errors under emulation passed all 723 subtests in a native pinned-dependency coverage run; the merged map retains every Linux dependency and records the repair provenance.
 
 First submitted commit `0d7ca6cd9e2b2b4ab86cd1a405b940f56c95ed42` received receipt **BB-C2E99545** and a public score of **938.3 seconds**, observed at rank 7. Private miss/CPU feedback is still needed. The next hourly slot opens November 20 at 7:30 PM Eastern; slot availability alone is not a reason to submit.
 
 `runtime_probe.py`, `class_selection.py`, and `tools/experiment_classes.py` are optional experiments, disabled in the submission entrypoint. The class experiment scored 270.653 simulated seconds plus 7.178 measured process CPU seconds on samples, with zero misses. It is undergoing additional validation before promotion. `tools/public_standings.py` reads public scores without browser access, cookies, or authentication.
+
+For local rebuilding during a network outage, with a previously verified `blast-radius-entry` image available:
+
+```sh
+# From the repository root:
+docker build --platform linux/amd64 -f rwx-blast-radius/tools/Dockerfile.offline -t ttun-blast-local .
+make -C rwx-blast-radius run-sample IMAGE=ttun-blast-local
+```
+
+This development path does not replace the root Dockerfile or verify a fresh upstream download.

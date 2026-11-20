@@ -1,0 +1,7 @@
+# Development-only rebuild from a previously verified local submission image.
+# The production entrypoint remains the repository-root Dockerfile, which fetches
+# the exact upstream revision. This file does not fetch or replace that baseline.
+ARG BASE=blast-radius-entry
+FROM ${BASE}
+COPY rwx-blast-radius/selector.py rwx-blast-radius/scheduler.py rwx-blast-radius/patches.py /app/
+COPY rwx-blast-radius/maps/coverage.json.gz /app/maps/coverage.json.gz

@@ -1,5 +1,6 @@
 """Adversarial cases for the opt-in granularity experiment, not label fitting."""
 import difflib
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,6 +9,24 @@ from evaluate_granularity import StatementSelector, symbol_signature
 
 
 class GranularityTests(unittest.TestCase):
+    def trace_calls(self, source, call):
+        """Measure sequential test coverage with retained module/cache state."""
+        namespace = {}
+        exec(compile(source, "m.py", "exec"), namespace)
+        lines, values = {}, []
+        for test_number in (0, 1):
+            def trace(frame, event, arg):
+                if event == 'line' and frame.f_code.co_filename == 'm.py':
+                    lines.setdefault(str(frame.f_lineno), set()).add(test_number)
+                return trace
+            previous = sys.gettrace()
+            sys.settrace(trace)
+            try:
+                values.append(call(namespace))
+            finally:
+                sys.settrace(previous)
+        return {line: sorted(tests) for line, tests in lines.items()}, values
+
     def select(self, before, after, lines, guarded=True):
         tests = [{"id": str(i), "number": i, "seconds": .1} for i in range(3)]
         mapping = {"test_ids": ["0", "1", "2"], "files": {"m.py": {"lines": lines}}}
@@ -78,6 +97,33 @@ class GranularityTests(unittest.TestCase):
     def test_recursive_symbol_signature_detects_nested_free_variables(self):
         before = "x = 1\ndef outer():\n    y = 2\n    def inner():\n        return x\n    return inner\n"
         self.assertNotEqual(symbol_signature(before, "m.py"), symbol_signature(before.replace("return x", "return y"), "m.py"))
+
+    def test_known_unsoundness_shared_cache_write_misses_later_consumer(self):
+        # Passing this test documents a counterexample, not algorithm correctness.
+        before = 'cache = {}\ndef f(x):\n    if x not in cache:\n        cache[x] = x + 1\n    return cache[x]\n'
+        after = before.replace('x + 1', 'x + 2')
+        baseline_lines, expected = self.trace_calls(before, lambda ns: ns['f'](1))
+        _, actual = self.trace_calls(after, lambda ns: ns['f'](1))
+        self.assertEqual(baseline_lines['4'], [0])
+        self.assertEqual(expected, [2, 2])
+        self.assertEqual(actual, [3, 3])
+        failing_tests = {i for i in (0, 1) if expected[i] != actual[i]}
+        selected = self.select(before, after, baseline_lines)
+        self.assertEqual(selected, {0})
+        self.assertEqual(failing_tests - selected, {1}, 'Known unsafe narrowing must remain explicit')
+
+    def test_known_unsoundness_lazy_global_registry_misses_later_consumer(self):
+        before = 'registry = None\ndef resolve():\n    global registry\n    if registry is None:\n        registry = 1\n    return registry\n'
+        after = before.replace('registry = 1', 'registry = 2')
+        baseline_lines, expected = self.trace_calls(before, lambda ns: ns['resolve']())
+        _, actual = self.trace_calls(after, lambda ns: ns['resolve']())
+        self.assertEqual(baseline_lines['5'], [0])
+        self.assertEqual(expected, [1, 1])
+        self.assertEqual(actual, [2, 2])
+        failing_tests = {i for i in (0, 1) if expected[i] != actual[i]}
+        selected = self.select(before, after, baseline_lines)
+        self.assertEqual(selected, {0})
+        self.assertEqual(failing_tests - selected, {1}, 'Known unsafe narrowing must remain explicit')
 
 
 if __name__ == "__main__":

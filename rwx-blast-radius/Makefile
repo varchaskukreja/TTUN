@@ -11,7 +11,7 @@ RUN_FLAGS := --rm --platform linux/amd64 --network none --cpus 2 \
 	--volume $(SAMPLE)/commits:/data/commits:ro \
 	--volume $(SAMPLE)/tests.json:/data/tests.json:ro
 
-.PHONY: build sample check
+.PHONY: build sample run-sample check
 
 build:
 	docker build --platform linux/amd64 --tag $(IMAGE) -f ../Dockerfile ..
@@ -19,6 +19,7 @@ build:
 # Runs your image once on the sample commits under the scorer's limits and
 # scores what it printed.
 sample: build
+sample run-sample:
 	docker run $(RUN_FLAGS) $(IMAGE) > $(OUTPUT)
 	python3 score.py $(SAMPLE) $(SAMPLE)/answers.json $(OUTPUT)
 

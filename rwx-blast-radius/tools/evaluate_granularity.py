@@ -3,6 +3,11 @@
 
 Labels are read only after both algorithms have selected and scheduled tests.
 No output is a submission artifact or patch-to-answer lookup table.
+
+WARNING: Even --guarded is not sound for cross-test mutable caches or lazy
+globals. Symbol/layout guards do not propagate writes to later state readers.
+Executable counterexamples are retained in test_granularity.py. This tool is
+exploratory only; a zero-miss sample result does not justify production use.
 """
 from __future__ import annotations
 
@@ -151,7 +156,7 @@ def main():
     parser.add_argument("--source", type=Path, default=ROOT.parent / ".work/sqlglot")
     parser.add_argument("--data", type=Path, default=ROOT / "sample")
     parser.add_argument("--map", type=Path, default=ROOT / "maps/coverage.json.gz")
-    parser.add_argument("--guarded", action="store_true", help="also test symbol/statement-layout guarded narrowing")
+    parser.add_argument("--guarded", action="store_true", help="also test symbol/layout guards (still unsafe for shared mutable state)")
     args = parser.parse_args()
     tests = read_json(args.data / "tests.json")["tests"]
     mapping = read_json(args.map)
@@ -172,7 +177,7 @@ def main():
         elapsed[label] = time.process_time() - start
     # This is the first access to labels, after every selection is fixed.
     answers = read_json(args.data / "answers.json")["commits"]
-    report = {}
+    report = {"warning": "Statement modes can miss later consumers of shared state; exploratory only."}
     for label, output in outputs.items():
         result = evaluate_run(output, tests, answers)
         result["local_cpu_seconds"] = round(elapsed[label], 6)
