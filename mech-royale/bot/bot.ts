@@ -345,7 +345,23 @@ class Brain {
 
     // heal: hold still (silent) out of sight until HP is back
     const healing = !moveGoal && !target && !zoneGoal && (hpFrac < 0.55 || (t < this.hideUntil && hpFrac < 0.9))
-    if (healing) mode = "heal"
+    let slow = false
+    if (healing) {
+      mode = "heal"
+      // creep (silently) into cover from the most recent threat
+      let last: Track | null = null
+      for (const tr of this.tracks.values()) if (!last || tr.t > last.t) last = tr
+      if (last && map) {
+        const exposed = map.los(last.pos[0], last.pos[1], last.pos[2] + 8, x, y, z + 6)
+        if (exposed) {
+          const cov = map.coverFrom(x, y, last.pos[0], last.pos[1], last.pos[2] + 8, 36)
+          if (cov) {
+            moveGoal = cov
+            slow = true
+          }
+        }
+      }
+    }
     if (!moveGoal && !healing) {
       if (zoneGoal) {
         mode = mode === "fight" ? "fight-zone" : "zone"
@@ -469,6 +485,7 @@ class Brain {
       const gd = hyp2(x, y, moveGoal[0], moveGoal[1])
       if (gd > 2) mv = [(moveGoal[0] - x) / gd, (moveGoal[1] - y) / gd]
     }
+    if (slow) mv = [mv[0] * 0.4, mv[1] * 0.4]
     // dodge incoming bullets and shells
     {
       let dx = 0, dy = 0, urgent = false
