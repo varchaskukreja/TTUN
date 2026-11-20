@@ -345,7 +345,23 @@ class Brain {
 
     // heal: hold still (silent) out of sight until HP is back
     const healing = !moveGoal && !target && !zoneGoal && (hpFrac < 0.55 || (t < this.hideUntil && hpFrac < 0.9))
-    if (healing) mode = "heal"
+    let slow = false
+    if (healing) {
+      mode = "heal"
+      // creep (silently) into cover from the most recent threat
+      let last: Track | null = null
+      for (const tr of this.tracks.values()) if (!last || tr.t > last.t) last = tr
+      if (last && map) {
+        const exposed = map.los(last.pos[0], last.pos[1], last.pos[2] + 8, x, y, z + 6)
+        if (exposed) {
+          const cov = map.coverFrom(x, y, last.pos[0], last.pos[1], last.pos[2] + 8, 36)
+          if (cov) {
+            moveGoal = cov
+            slow = true
+          }
+        }
+      }
+    }
     if (!moveGoal && !healing) {
       if (zoneGoal) {
         mode = mode === "fight" ? "fight-zone" : "zone"
@@ -403,6 +419,19 @@ class Brain {
             }
           }
         }
+        // crates on the ground: walk into range and break them
+        if (hpFrac > 0.45) {
+          for (const c of o.crates) {
+            if (Math.abs(c.pos[2] - this.mapGround(c.pos[0], c.pos[1])) > 2) continue
+            const d = hyp2(x, y, c.pos[0], c.pos[1])
+            if (d > 150) continue
+            const sc = d + 5
+            if (sc < bs) {
+              bs = sc
+              best = d > 30 ? [c.pos[0], c.pos[1]] : [x, y]
+            }
+          }
+        }
         if (best) {
           mode = "loot"
           moveGoal = best
@@ -415,7 +444,7 @@ class Brain {
         }
         // shoot crates / NPCs when nothing better
         const crate = o.crates
-          .filter((c) => hyp2(x, y, c.pos[0], c.pos[1]) < 90 && map?.los(x, y, muzzleZ, c.pos[0], c.pos[1], c.pos[2] + 1.2) !== false)
+          .filter((c) => hyp2(x, y, c.pos[0], c.pos[1]) < 120 && map?.los(x, y, muzzleZ, c.pos[0], c.pos[1], c.pos[2] + 1.2) !== false)
           .sort((a, b) => hyp2(x, y, a.pos[0], a.pos[1]) - hyp2(x, y, b.pos[0], b.pos[1]))[0]
         const npc = npcs
           .filter((n) => hyp2(x, y, n.pos[0], n.pos[1]) < 110 && map?.los(x, y, muzzleZ, n.pos[0], n.pos[1], n.pos[2] + 1.75) !== false)
@@ -456,6 +485,7 @@ class Brain {
       const gd = hyp2(x, y, moveGoal[0], moveGoal[1])
       if (gd > 2) mv = [(moveGoal[0] - x) / gd, (moveGoal[1] - y) / gd]
     }
+    if (slow) mv = [mv[0] * 0.4, mv[1] * 0.4]
     // dodge incoming bullets and shells
     {
       let dx = 0, dy = 0, urgent = false
