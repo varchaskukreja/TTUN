@@ -1,5 +1,6 @@
 """Parse and apply unified diffs against the immutable baseline in memory."""
 import re
+from pathlib import PurePosixPath
 
 
 def parse_patch(text):
@@ -16,6 +17,8 @@ def parse_patch(text):
                 raise ValueError('missing file header')
             path = line[4:].strip().split('\t')[0]
             current['path'] = path[2:] if path.startswith('b/') else path
+            if PurePosixPath(current['path']).is_absolute() or '..' in PurePosixPath(current['path']).parts:
+                raise ValueError('unsupported path')
         elif line.startswith('@@ '):
             match = re.match(r'@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@', line)
             if not match or current is None:
@@ -41,21 +44,25 @@ def apply_file(source, change):
         output.extend(lines[cursor:start])
         cursor = start
         consumed = produced = 0
+        deleted_in_block = False
         for line in hunk['lines']:
             if line[0] in ' -':
                 if cursor >= len(lines) or lines[cursor] != line[1:]:
                     raise ValueError('patch does not match baseline')
                 if line[0] == '-':
                     changed.add(cursor + 1)
+                    deleted_in_block = True
                 else:
                     output.append(line[1:])
                     produced += 1
+                    deleted_in_block = False
                 cursor += 1
                 consumed += 1
             else:
                 output.append(line[1:])
                 produced += 1
-                changed.update((max(1, cursor), min(len(lines), cursor + 1)))
+                if not deleted_in_block:
+                    changed.update((max(1, cursor), min(len(lines), cursor + 1)))
         if consumed != hunk['count'] or produced != hunk['new_count']:
             raise ValueError('incorrect hunk size')
     output.extend(lines[cursor:])

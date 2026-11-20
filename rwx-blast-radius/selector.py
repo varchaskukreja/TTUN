@@ -20,6 +20,8 @@ class Selector:
         self.tests = tests
         self.mapping = mapping
         self.source = source
+        self.source_cache = {}
+        self.ast_cache = {}
         self.all = {t['number'] for t in tests}
         by_id = {t['id']: t['number'] for t in tests}
         self.translate = {i: by_id[name] for i, name in enumerate(mapping.get('test_ids', [])) if name in by_id}
@@ -37,29 +39,48 @@ class Selector:
             baseline = self.source / path
             if not baseline.is_file():
                 return self.all
-            source = baseline.read_text()
+            if path not in self.source_cache:
+                self.source_cache[path] = baseline.read_text()
+            source = self.source_cache[path]
             updated, changed = apply_file(source, change)
             info = self.mapping.get('files', {}).get(path)
             if info:
                 selected.update(self.numbers(info.get('read_tests', [])))
             if path.endswith('.py'):
                 try:
-                    tree = ast.parse(source)
-                    new_tree = ast.parse(updated)
+                    if path not in self.ast_cache:
+                        parsed = compile(source.encode('utf-8'), path, 'exec', ast.PyCF_ONLY_AST)
+                        self.ast_cache[path] = (parsed, ast.dump(parsed, include_attributes=False))
+                    tree, original_dump = self.ast_cache[path]
+                    new_tree = compile(updated.encode('utf-8'), path, 'exec', ast.PyCF_ONLY_AST)
                 except SyntaxError:
                     return self.all
-                # Syntax-equivalent changes still use dependencies, since tests may inspect source.
                 if not info:
                     return self.all
+                # Compare the whole file, not edit text or patch IDs. Source readers
+                # remain selected even when executable structure is unchanged.
+                if original_dump == ast.dump(new_tree, include_attributes=False):
+                    selected.update(self.unmapped)
+                    continue
                 lines = info.get('lines', {})
                 functions = [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
+                def callable_kinds(node):
+                    return [(type(n).__name__, getattr(n, 'name', '<lambda>'),
+                             any(isinstance(child, (ast.Yield, ast.YieldFrom)) for child in ast.walk(n)))
+                            for n in ast.walk(node) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
+                if callable_kinds(tree) != callable_kinds(new_tree):
+                    return self.all
                 for line in changed:
                     enclosing = [n for n in functions if n.lineno <= line <= n.end_lineno]
                     if not enclosing:
                         # Imports, class attributes and registration tables affect later consumers.
                         return self.all
                     function = min(enclosing, key=lambda n: n.end_lineno - n.lineno)
-                    # Statements span continuation lines that may have no trace event.
+                    body_start = function.body[0].lineno if isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)) else function.lineno
+                    if line < body_start or any(body_start <= recorded <= function.end_lineno for recorded in info.get('collection_lines', [])):
+                        return self.all
+                    # Function coverage includes callers affected by inserted paths
+                    # and continuation lines without their own trace event.
                     statement = function
                     hits = set()
                     for number in range(statement.lineno, statement.end_lineno + 1):
@@ -70,7 +91,7 @@ class Selector:
                     selected.update(self.numbers(hits))
                 selected.update(self.unmapped)
             else:
-                if not info or not info.get('tests'):
+                if not info or not info.get('tests') or info.get('collection_read'):
                     return self.all
                 selected.update(self.numbers(info['tests']))
                 selected.update(self.unmapped)
@@ -80,7 +101,7 @@ class Selector:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', type=Path, default=Path('/data'))
-    parser.add_argument('--map', type=Path, default=ROOT / 'coverage-map.json.gz')
+    parser.add_argument('--map', type=Path, default=ROOT / 'maps/coverage.json.gz')
     parser.add_argument('--source', type=Path, default=Path('/opt/sqlglot'))
     args = parser.parse_args()
     tests = read_json(args.data / 'tests.json')['tests']
