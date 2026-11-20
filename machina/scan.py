@@ -3,9 +3,10 @@ import argparse
 import json
 from pathlib import Path
 import re
-import native
-import neutral
-import pdf_handler
+from . import native
+from . import neutral
+from . import pdf_handler
+from . import solidworks
 
 CONTACT = re.compile(r'\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b|\bhttps?://[^\s<>]+', re.I)
 
@@ -16,6 +17,9 @@ def scan(root):
         try:
             if p.stat().st_size > 20_000_000:
                 report.update(status='deferred_large_file', candidates=[])
+            elif solidworks.MARKER in p.read_bytes()[:64]:
+                streams, issues = solidworks.read_streams(p.read_bytes())
+                report.update(status='solidworks_metadata',issues=issues,candidates=[s.payload.decode('utf-8') for s in streams if s.name.startswith('docProps/') and s.name.endswith('.xml')])
             elif p.suffix.lower() in neutral.SUPPORTED:
                 report.update(status='metadata_extracted',candidates=neutral.extract(p.read_bytes(),p.suffix.lower()))
             elif p.suffix.lower() == '.pdf':

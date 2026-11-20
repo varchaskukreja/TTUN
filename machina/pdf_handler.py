@@ -69,6 +69,7 @@ def transform(data: bytes, replacements: dict[str, str], sanitize_attachment=Non
     replace, pattern = _replacer(replacements)
     report = {"format": "pdf", "replacements": 0, "limitations": [], "pages": 0, "attachments_sanitized": 0}
     limits = set()
+    has_annotation_attachment = False
     with fitz.open(stream=data, filetype="pdf") as doc:
         if doc.needs_pass:
             raise ValueError("Encrypted PDF requires a password")
@@ -84,10 +85,10 @@ def transform(data: bytes, replacements: dict[str, str], sanitize_attachment=Non
                 if newname != name and newname in doc.embfile_names():
                     raise ValueError("Attachment name collision")
                 if newname == name:
-                    doc.embfile_upd(name, buffer_=content, filename=newname, ufilename=newname, desc=replace(info.get("desc", "")))
+                    doc.embfile_upd(name, buffer_=content, filename=newname, ufilename=newname, desc=replace(info.get("description", "")) if info.get("description") != info.get("filename") else newname)
                 else:
                     # Add before delete so failure never silently drops a source file.
-                    doc.embfile_add(newname, content, filename=newname, ufilename=newname, desc=replace(info.get("desc", "")))
+                    doc.embfile_add(newname, content, filename=newname, ufilename=newname, desc=replace(info.get("description", "")) if info.get("description") != info.get("filename") else newname)
                     doc.embfile_del(name)
                 report["attachments_sanitized"] += 1
             except Exception:
@@ -121,6 +122,7 @@ def transform(data: bytes, replacements: dict[str, str], sanitize_attachment=Non
             # Update annotations before text redaction invalidates page objects.
             for annot in page.annots() or ():
                 if annot.type[0] == fitz.PDF_ANNOT_FILE_ATTACHMENT:
+                    has_annotation_attachment = True
                     if sanitize_attachment is None:
                         limits.add("annotation_attachments_require_recursive_sanitization")
                     else:
@@ -128,7 +130,7 @@ def transform(data: bytes, replacements: dict[str, str], sanitize_attachment=Non
                             info = annot.file_info
                             newname, content, child = sanitize_attachment(info.get("filename", "attachment"), annot.get_file())
                             _validate_attachment(newname, content, child)
-                            annot.update_file(buffer_=content, filename=newname, ufilename=newname, desc=replace(info.get("desc", "")))
+                            annot.update_file(buffer_=content, filename=newname, ufilename=newname, desc=replace(info.get("description", "")) if info.get("description") != info.get("filename") else newname)
                             report["attachments_sanitized"] += 1
                         except Exception:
                             limits.add("annotation_attachment_sanitization_failed_or_incomplete")
@@ -195,7 +197,9 @@ def transform(data: bytes, replacements: dict[str, str], sanitize_attachment=Non
                     page.insert_text(origin, alias, fontsize=size, fontname="helv", color=rgb)
                 report["replacements"] += len(edits)
         # Full rewrite drops orphaned original text and previous incremental versions.
-        output = doc.tobytes(garbage=4, deflate=True)
+        # PyMuPDF 1.26.6 double-compresses updated FileAttachment streams
+        # when deflate=True. A full uncompressed rewrite preserves their bytes.
+        output = doc.tobytes(garbage=4, deflate=not has_annotation_attachment)
     report["limitations"] = sorted(limits)
     report["complete"] = not limits
     return output, report

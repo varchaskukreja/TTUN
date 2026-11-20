@@ -83,6 +83,31 @@ def property_strings(data: bytes) -> tuple[list[PropertyString], list[str]]:
     return strings, issues
 
 
+def compile_identity_mapping(mapping: Mapping[str, str]):
+    """Normalize registry keys and match complete identities without cascading.
+
+    Conflicting variants of the same casefolded identity are rejected rather
+    than allowing mapping iteration order to choose a pseudonym.
+    """
+    normalized = {}
+    for key, replacement in mapping.items():
+        if not key:
+            continue
+        folded = key.casefold()
+        if folded in normalized and normalized[folded] != replacement:
+            raise ValueError('conflicting_casefold_identity_mapping')
+        normalized[folded] = replacement
+    keys = sorted(normalized, key=len, reverse=True)
+    pattern = re.compile(r'(?<!\w)(?:' + '|'.join(re.escape(k) for k in keys) + r')(?!\w)', re.IGNORECASE) if keys else None
+    return pattern, normalized
+
+
+def replace_identity_match(match, normalized):
+    # Python IGNORECASE has a few additional Unicode equivalences (e.g. dotted
+    # I) beyond casefold. Leave those unchanged unless explicitly registered.
+    return normalized.get(match.group().casefold(), match.group())
+
+
 def rewrite_property_stream(data: bytes, mapping: Mapping[str, str]) -> tuple[bytes, dict]:
     """Replace exact identifier occurrences once, only inside parsed values.
 
@@ -92,10 +117,9 @@ def rewrite_property_stream(data: bytes, mapping: Mapping[str, str]) -> tuple[by
     fields, issues = property_strings(data)
     out = bytearray(data)
     changed, rejected = 0, 0
-    keys = sorted((k for k in mapping if k), key=len, reverse=True)
-    pattern = re.compile('|'.join(re.escape(k) for k in keys)) if keys else None
+    pattern, normalized = compile_identity_mapping(mapping)
     for field in fields:
-        replacement = pattern.sub(lambda m: mapping[m.group()], field.text) if pattern else field.text
+        replacement = pattern.sub(lambda m: replace_identity_match(m, normalized), field.text) if pattern else field.text
         if replacement == field.text:
             continue
         try:

@@ -79,3 +79,43 @@ def test_blank_pseudonyms_rejected():
     import pytest
     with pytest.raises(ValueError):
         transform(fixture().tobytes(), {'Acme Engineering': ''})
+
+
+def test_recursive_attachment_callback_success():
+    doc = fixture()
+    doc.embfile_add('Acme.step', b'Acme payload', desc='Acme Engineering')
+    calls = []
+    def sanitize(name, data):
+        calls.append((name, data))
+        return 'Company_001.step', b'Company_001 payload', {'complete': True}
+    result, report = transform(doc.tobytes(), {'Acme Engineering': 'Company_001'}, sanitize)
+    out = fitz.open(stream=result, filetype='pdf')
+    assert out.embfile_names() == ['Company_001.step']
+    assert out.embfile_get('Company_001.step') == b'Company_001 payload'
+    assert out.embfile_info('Company_001.step')['description'] == 'Company_001'
+    assert calls == [('Acme.step', b'Acme payload')]
+    assert report['attachments_sanitized'] == 1
+    assert 'embedded_files_require_recursive_sanitization' not in report['limitations']
+
+
+def test_incomplete_callback_preserves_attachment_and_flags():
+    doc = fixture()
+    doc.embfile_add('Acme.step', b'Acme payload')
+    result, report = transform(doc.tobytes(), {}, lambda n, b: ('new.step', b'partial', {'complete': False}))
+    out = fitz.open(stream=result, filetype='pdf')
+    assert out.embfile_get('Acme.step') == b'Acme payload'
+    assert report['attachments_sanitized'] == 0
+    assert not report['complete']
+
+
+def test_annotation_attachment_callback():
+    doc = fixture()
+    page = doc[0]
+    page.add_file_annot((280, 50), b'Acme payload', 'Acme.step')
+    result, report = transform(doc.tobytes(), {}, lambda n, b: ('new.step', b'sanitized', {'complete': True}))
+    out = fitz.open(stream=result, filetype='pdf')
+    page = out[0]
+    annot = next(page.annots())
+    assert annot.file_info['filename'] == 'new.step'
+    assert annot.get_file() == b'sanitized'
+    assert report['attachments_sanitized'] == 1

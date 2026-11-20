@@ -1,8 +1,8 @@
 import json
 import pytest
 from pathlib import Path
-from identity import Registry
-from pipeline import run
+from machina.identity import Registry
+from machina.pipeline import run
 
 KEY=b'private-test-key-123'
 def test_paths_metadata_geometry_and_ledger(tmp_path):

@@ -1,4 +1,4 @@
-from inventory import rows, sample
+from machina.inventory import rows, sample
 import pytest
 
 def test_reject_manifest_traversal(tmp_path):

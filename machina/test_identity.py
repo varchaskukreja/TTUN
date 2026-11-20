@@ -1,5 +1,5 @@
 import pytest
-from identity import Registry
+from machina.identity import Registry
 
 KEY = b'synthetic-test-key-only'
 def test_alias_consistency_and_boundaries():

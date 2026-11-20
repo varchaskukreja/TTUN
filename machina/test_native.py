@@ -24,6 +24,17 @@ class NativeTests(unittest.TestCase):
             self.assertEqual(report['changed_fields'], 1)
             self.assertEqual(data[:fields[0].offset], changed[:fields[0].offset])
 
+    def test_casefold_keys_and_identity_boundaries(self):
+        data = fixture('ALICE / Alice / alice / Malice / Alice2 / Alice_B')
+        out, report = rewrite_property_stream(data, {'alice': 'Agent'})
+        self.assertEqual(property_strings(out)[0][0].text,
+                         'Agent / Agent / Agent / Malice / Alice2 / Alice_B')
+        self.assertEqual(report['changed_fields'], 1)
+
+    def test_conflicting_casefold_mapping(self):
+        with self.assertRaisesRegex(ValueError, 'conflicting_casefold'):
+            rewrite_property_stream(fixture(), {'Alice': 'Agent', 'ALICE': 'Other'})
+
     def test_refuses_length_change(self):
         data = fixture()
         out, report = rewrite_property_stream(data, {'Alice': 'Person-123'})

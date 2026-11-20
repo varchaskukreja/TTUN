@@ -16,15 +16,15 @@ Fetch the manifest privately:
 ```sh
 mkdir -p .machina-private
 curl -fsSL https://machina-input.joinbuilders.org/manifest.tsv -o .machina-private/manifest.tsv
-uv run --project machina python machina/inventory.py .machina-private/manifest.tsv
+uv run --project machina python -m machina.inventory .machina-private/manifest.tsv
 ```
 
 To download a bounded, deterministic sample onto a **case-sensitive** volume:
 
 ```sh
-uv run --project machina python machina/inventory.py .machina-private/manifest.tsv \
+uv run --project machina python -m machina.inventory .machina-private/manifest.tsv \
   --sample-dir /your/case-sensitive-volume/input --budget-mb 100
-uv run --project machina python machina/scan.py /your/case-sensitive-volume/input \
+uv run --project machina python -m machina.scan /your/case-sensitive-volume/input \
   --private-report .machina-private/candidates.jsonl
 ```
 
@@ -44,11 +44,36 @@ not an archive expansion guarantee.
   Other OLE streams are preserved; unsupported structures are reported.
 - `pdf_handler.py`: known-identity text and metadata replacement with PDF drawings
   preserved; reports unhandled content.
+- `solidworks.py`: bounded modern SolidWorks stream parsing and XML metadata
+  rewriting with fixed spans and CRC updates; native application reopen unverified.
+- `archives.py`: bounded ZIP/TAR/GZIP recursion; rejects unsafe paths and unsupported
+  children. Unsupported archives do not get copied unchanged into candidate output.
+- `text_handler.py`: known-identity replacement in XML values, preserving keys.
+- `ocr.py`: local Tesseract candidate extraction, with page/time/pixel limits.
 - `scan.py`: private review inventory, not an automatic identity classifier.
+- `pipeline.py`: coordinated path/content transformation and a private coverage ledger.
 
-This is not yet a full-corpus submission pipeline. Native CAD references, modern
-SolidWorks containers, nested archives, image/logo sanitization and OCR require
-further work. Passing unit tests does not establish complete de-identification or
+To run a development candidate with a reviewed JSON registry and private key:
+
+```sh
+uv run --project machina python -m machina.pipeline /private/input /private/candidate \
+  --registry /private/identities.json --key-file /private/pseudonym.key \
+  --private-report /private/candidate-report.jsonl
+```
+
+The registry is a JSON array of objects with `kind`, `identity`, optional `aliases`,
+and optional `pseudonym`. Supported kinds are person, company, project, part,
+account, email, domain, address and phone. Generate a private random key of at
+least 16 bytes once and reuse it across the corpus. Without explicit pseudonyms,
+HMAC-derived pseudonyms are deterministic. Fixed-size OLE fields currently need
+explicit pseudonyms with the same encoded length; size changes are rejected.
+
+Every run currently reports `ready_to_submit: false`. This is intentional:
+identity discovery, visual validation and native compatibility are incomplete.
+Never treat a successful candidate run as a validated final corpus.
+
+This is not yet a full-corpus submission pipeline. Native CAD references, non-XML SolidWorks metadata, archive member
+coverage, image/logo sanitization and OCR-based replacement require further work. Passing unit tests does not establish complete de-identification or
 native application compatibility. Never submit unchanged unsupported copies as
 if they were sanitized.
 

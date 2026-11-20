@@ -9,13 +9,30 @@ import json
 from pathlib import Path
 import shutil
 import tempfile
-import native
-import neutral
-import pdf_handler
-from identity import Registry
+from . import native
+from . import neutral
+from . import pdf_handler
+from . import solidworks
+from . import archives
+from . import text_handler
+from .identity import Registry
 
 
 def transform(data: bytes, suffix: str, registry: Registry):
+    if archives.kind('file'+suffix,data):
+        def member(name, content):
+            renamed=registry.path(name)
+            if archives.kind(name,content):
+                return renamed,content,{'status':'container_pending_recursion'}
+            result,report=transform(content,Path(name).suffix.lower(),registry)
+            return renamed,result,report
+        return archives.transform(data,'file'+suffix,member,limits=archives.Limits(max_expanded_bytes=256*1024*1024,max_output_bytes=256*1024*1024))
+    if suffix == '.xml':
+        return text_handler.transform_xml(data,registry.replace)
+    if suffix in {'.txt', '.csv', '.md'}:
+        return registry.replace(data.decode('utf-8')).encode('utf-8'),{'status':'processed','limitations':['known_text_identities_only']}
+    if solidworks.MARKER in data[:64]:
+        return solidworks.rewrite_bytes(data,registry.mapping)
     if suffix in neutral.SUPPORTED:
         return neutral.transform(data,suffix,registry.replace)
     if suffix == '.pdf':
