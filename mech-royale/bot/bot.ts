@@ -35,6 +35,8 @@ class Brain {
   lastHp = 0
   scanPhase = 0
   laserHold = false
+  attackers = new Map<number, number>() // id -> last time they hit us
+  hideUntil = 0
 
   constructor(hello: Hello) {
     this.cfg = hello.config
@@ -82,6 +84,7 @@ class Brain {
     }
     for (const [id, tr] of this.tracks) if (t - tr.t > 12) this.tracks.delete(id)
     for (const e of o.events) {
+      if (e.type === "damaged" && e.by != null && e.weapon !== "npc") this.attackers.set(e.by, t)
       if (e.type === "damaged" && e.weapon !== "zone" && e.bearing != null) {
         this.lastDamageT = t
         this.lastDamageBearing = e.bearing
@@ -154,13 +157,16 @@ class Brain {
       const d = hyp2(x, y, tr.pos[0], tr.pos[1])
       const age = t - tr.t
       if (age > 4) continue
-      const s = d + (tr.hp / tr.maxHp) * 60 + age * 30
+      const hitUs = t - (this.attackers.get(tr.id) ?? -99) < 3 ? 50 : 0
+      const s = d + (tr.hp / tr.maxHp) * 80 + age * 30 - hitUs
       if (s < tScore) {
         tScore = s
         target = tr
       }
     }
     const npcs = o.mechs.filter((m) => m.kind === "npc")
+    let threats = 0
+    for (const tr of this.tracks.values()) if (t - tr.t < 3 && hyp2(x, y, tr.pos[0], tr.pos[1]) < 160) threats++
 
     // ---------- zone goal
     const zn = o.zone
@@ -287,7 +293,9 @@ class Brain {
       // movement in fight
       const myDps = (gunS >= 0 ? 150 : 0) + (lightS >= 0 && d < 45 ? 200 : 0) + (laserS >= 0 ? 120 : 0)
       const theirHp = target.hp
-      const losing = hpFrac < 0.3 && theirHp / target.maxHp > hpFrac + 0.1
+      const theirFrac = theirHp / target.maxHp
+      const losing = (hpFrac < 0.35 && theirFrac > hpFrac + 0.1) || (threats >= 2 && hpFrac < 0.55) || (threats >= 3 && hpFrac < 0.8)
+      if (losing) this.hideUntil = t + 6
       const prefer = lightS >= 0 ? 28 : laserS >= 0 ? 110 : 70
       if (losing && map) {
         mode = "retreat"
@@ -328,7 +336,10 @@ class Brain {
       void myDps
     }
 
-    if (!moveGoal) {
+    // heal: hold still (silent) out of sight until HP is back
+    const healing = !moveGoal && !target && !zoneGoal && (hpFrac < 0.55 || (t < this.hideUntil && hpFrac < 0.9))
+    if (healing) mode = "heal"
+    if (!moveGoal && !healing) {
       if (zoneGoal) {
         mode = mode === "fight" ? "fight-zone" : "zone"
         moveGoal = zoneGoal
@@ -431,7 +442,8 @@ class Brain {
 
     // ---------- aim when idle: look along move or toward threats
     if (!wantAim) {
-      if (this.threatBearing !== null && t - this.threatT < 3) aimYaw = this.threatBearing
+      if (t < 3) aimYaw = me.aim[0] + 1.6
+      else if (this.threatBearing !== null && t - this.threatT < 3) aimYaw = this.threatBearing
       else if (mv[0] || mv[1]) {
         this.scanPhase += 0.1
         aimYaw = Math.atan2(mv[1], mv[0]) + Math.sin(this.scanPhase * 1.3) * 0.9
