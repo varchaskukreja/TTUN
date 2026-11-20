@@ -3,12 +3,14 @@
 mod keys;
 mod out;
 mod parse;
+mod ptable;
 mod scan;
 
 use hashbrown::HashMap;
-use keys::{cmp_keys, mix2, pack, KeyHasher};
+use keys::{cmp_keys, mix2, pack, pack_in, KeyHasher};
 use memmap2::Mmap;
 use parse::{parse_price, parse_ts};
+use ptable::PTable;
 use std::fs::File;
 use std::hash::BuildHasherDefault;
 use std::path::{Path, PathBuf};
@@ -186,13 +188,7 @@ struct Ctx {
     campaigns: KMap<u16>,
 }
 
-#[inline]
-fn person_of(persons: &KMap<u128>, uid: u128) -> u128 {
-    match persons.get(&uid) {
-        Some(&p) => p,
-        None => uid,
-    }
-}
+const PF: usize = 16;
 
 #[inline]
 fn pbucket(p: u128) -> usize {
@@ -322,9 +318,17 @@ fn main() {
                     }
                 }
             }
-            for r in &buf {
+            let n = buf.len();
+            for i in 0..n {
+                if i + PF < n {
+                    let r2 = &buf[i + PF];
+                    if r2.ts != NO_TS {
+                        persons.prefetch(r2.uid);
+                    }
+                }
+                let r = &buf[i];
                 if r.ts != NO_TS {
-                    let p = person_of(&persons, r.uid);
+                    let p = persons.person(r.uid);
                     unsafe { st.ev.get_unchecked_mut(pbucket(p)) }.push(Ev { who: p, ts: r.ts, pc: r.pc });
                 }
             }
@@ -571,11 +575,12 @@ fn process_person(p: u128, evs: &[Ev], cls: &[Click], c: &PCtx, sc: &mut Scratch
 }
 
 fn parse_events(data: &[u8], ctx: &Ctx, out: &mut [Vec<EvRaw>]) {
+    let end = data.as_ptr() as usize + data.len();
     scan::scan::<7, _>(data, |f| {
         if f[0].is_empty() {
             return;
         }
-        let key = pack(f[0]);
+        let key = pack_in(f[0], end);
         let ingest = parse_ts(f[3]).unwrap_or(i64::MAX);
         let mut ts_rel = NO_TS;
         let mut pc = 0u32;
@@ -598,13 +603,13 @@ fn parse_events(data: &[u8], ctx: &Ctx, out: &mut [Vec<EvRaw>]) {
                     Some(p) => p,
                     None => break 'v,
                 };
-                let cat = *ctx.products.get(&pack(f[5])).unwrap_or(&ctx.unknown_cat);
+                let cat = *ctx.products.get(&pack_in(f[5], end)).unwrap_or(&ctx.unknown_cat);
                 pc = ((cat as u32) << 24) | price;
             }
             if ingest == i64::MAX || ingest - ts > LATE_MS {
                 break 'v;
             }
-            uid = pack(f[1]);
+            uid = pack_in(f[1], end);
             ts_rel = (ts - ctx.ws) as u32;
         }
         let b = (mix2(key) >> (64 - DEDUP_BITS)) as usize;
@@ -612,8 +617,10 @@ fn parse_events(data: &[u8], ctx: &Ctx, out: &mut [Vec<EvRaw>]) {
     });
 }
 
-fn parse_clicks(data: &[u8], ctx: &Ctx, persons: &KMap<u128>, out: &mut [Vec<Click>]) {
+fn parse_clicks(data: &[u8], ctx: &Ctx, persons: &PTable, out: &mut [Vec<Click>]) {
     let lo = ctx.ws - WEEK_MS;
+    let mut local: Vec<Click> = Vec::with_capacity(data.len() / 48);
+    let end = data.as_ptr() as usize + data.len();
     scan::scan::<4, _>(data, |f| {
         if f[0].is_empty() || f[1].is_empty() {
             return;
@@ -622,17 +629,25 @@ fn parse_clicks(data: &[u8], ctx: &Ctx, persons: &KMap<u128>, out: &mut [Vec<Cli
             Some(t) if t >= lo && t < ctx.we => t,
             _ => return,
         };
-        let camp = match ctx.campaigns.get(&pack(f[2])) {
+        let camp = match ctx.campaigns.get(&pack_in(f[2], end)) {
             Some(&c) => c,
             None => return,
         };
-        let p = person_of(persons, pack(f[1]));
-        unsafe { out.get_unchecked_mut(pbucket(p)) }.push(Click { who: p, click: pack(f[0]), ts: (ts - lo) as u32, camp: camp as u32 });
+        local.push(Click { who: pack_in(f[1], end), click: pack_in(f[0], end), ts: (ts - lo) as u32, camp: camp as u32 });
     });
+    let n = local.len();
+    for i in 0..n {
+        if i + PF < n {
+            persons.prefetch(local[i + PF].who);
+        }
+        let c = local[i];
+        let p = persons.person(c.who);
+        unsafe { out.get_unchecked_mut(pbucket(p)) }.push(Click { who: p, ..c });
+    }
 }
 
 /// Union-find over linked IDs; returns id -> person name (smallest id) for every linked id.
-fn build_persons(links: Vec<(u128, u128)>) -> KMap<u128> {
+fn build_persons(links: Vec<(u128, u128)>) -> PTable {
     let total = links.len();
     let mut idx: KMap<u32> = KMap::with_capacity_and_hasher(total, Default::default());
     let mut ids: Vec<u128> = Vec::with_capacity(total);
@@ -669,7 +684,7 @@ fn build_persons(links: Vec<(u128, u128)>) -> KMap<u128> {
         }
     }
     drop(idx);
-    let mut persons: KMap<u128> = KMap::with_capacity_and_hasher(ids.len(), Default::default());
+    let mut persons = PTable::with_capacity(ids.len());
     for i in 0..ids.len() {
         let r = find(&mut parent, i as u32);
         persons.insert(ids[i], ids[r as usize]);
