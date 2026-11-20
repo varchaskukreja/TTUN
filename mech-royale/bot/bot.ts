@@ -37,6 +37,7 @@ class Brain {
   laserHold = false
   attackers = new Map<number, number>() // id -> last time they hit us
   hideUntil = 0
+  npcMem = new Map<number, { pos: number[]; vel: number[]; t: number; hp: number }>()
 
   constructor(hello: Hello) {
     this.cfg = hello.config
@@ -165,6 +166,12 @@ class Brain {
       }
     }
     const npcs = o.mechs.filter((m) => m.kind === "npc")
+    for (const n of npcs) this.npcMem.set(n.id, { pos: n.pos, vel: n.vel, t, hp: n.hp ?? 350 })
+    for (const e of o.events) if (e.type === "hit" && e.target >= 100 && e.target < 1000) {
+      const nm = this.npcMem.get(e.target)
+      if (nm) nm.hp -= e.amount
+    }
+    for (const [id, nm] of this.npcMem) if (t - nm.t > 25 || nm.hp <= 0) this.npcMem.delete(id)
     let threats = 0
     for (const tr of this.tracks.values()) if (t - tr.t < 3 && hyp2(x, y, tr.pos[0], tr.pos[1]) < 160) threats++
 
@@ -371,6 +378,31 @@ class Brain {
             best = [c.pos[0], c.pos[1]]
           }
         }
+        // supply drops: capture when nobody else is on it
+        for (const dr of o.drops ?? []) {
+          const d = hyp2(x, y, dr.pos[0], dr.pos[1])
+          if (dr.holder != null && dr.holder !== me.id) continue
+          if (d > 220 || dr.lands_in > d / speed + 3) continue
+          const zr = hyp2(dr.pos[0], dr.pos[1], zn.next_center[0], zn.next_center[1])
+          if (zr > zn.next_radius && timeToShrink < 15) continue
+          const sc = d - 80
+          if (sc < bs) {
+            bs = sc
+            best = d < dr.radius - 3 ? [x, y] : [dr.pos[0], dr.pos[1]]
+          }
+        }
+        // NPC drones: walk into gun range of the nearest remembered one
+        if (hpFrac > 0.5) {
+          for (const nm of this.npcMem.values()) {
+            const d = hyp2(x, y, nm.pos[0], nm.pos[1])
+            if (d > 170) continue
+            const sc = d - 20
+            if (sc < bs) {
+              bs = sc
+              best = d > 38 ? [nm.pos[0], nm.pos[1]] : [x, y]
+            }
+          }
+        }
         if (best) {
           mode = "loot"
           moveGoal = best
@@ -386,9 +418,9 @@ class Brain {
           .filter((c) => hyp2(x, y, c.pos[0], c.pos[1]) < 90 && map?.los(x, y, muzzleZ, c.pos[0], c.pos[1], c.pos[2] + 1.2) !== false)
           .sort((a, b) => hyp2(x, y, a.pos[0], a.pos[1]) - hyp2(x, y, b.pos[0], b.pos[1]))[0]
         const npc = npcs
-          .filter((n) => hyp2(x, y, n.pos[0], n.pos[1]) < 80 && map?.los(x, y, muzzleZ, n.pos[0], n.pos[1], n.pos[2] + 1.75) !== false)
+          .filter((n) => hyp2(x, y, n.pos[0], n.pos[1]) < 110 && map?.los(x, y, muzzleZ, n.pos[0], n.pos[1], n.pos[2] + 1.75) !== false)
           .sort((a, b) => hyp2(x, y, a.pos[0], a.pos[1]) - hyp2(x, y, b.pos[0], b.pos[1]))[0]
-        const tgt = crate ? { pos: crate.pos, vel: [0, 0, 0], h: 1.2 } : npc ? { pos: npc.pos, vel: npc.vel, h: 1.75 } : null
+        const tgt = npc ? { pos: npc.pos, vel: npc.vel, h: 1.75 } : crate ? { pos: crate.pos, vel: [0, 0, 0], h: 1.2 } : null
         if (tgt && hpFrac > 0.4) {
           const dd = hyp2(x, y, tgt.pos[0], tgt.pos[1])
           const tt = dd / 252
@@ -401,7 +433,7 @@ class Brain {
             if (gunS >= 0) fire[gunS] = true
             if (lightS >= 0 && dd < 40) fire[lightS] = true
           }
-          if (crate && dd < 25) moveGoal = [crate.pos[0], crate.pos[1]]
+          if (!npc && crate && dd < 25) moveGoal = [crate.pos[0], crate.pos[1]]
           mode += "+shoot"
         }
       }
@@ -423,6 +455,61 @@ class Brain {
     } else if (moveGoal) {
       const gd = hyp2(x, y, moveGoal[0], moveGoal[1])
       if (gd > 2) mv = [(moveGoal[0] - x) / gd, (moveGoal[1] - y) / gd]
+    }
+    // dodge incoming bullets and shells
+    {
+      let dx = 0, dy = 0, urgent = false
+      const cz = z + 4.5 * scale
+      const mg = this.cfg.weapons.mortar.gravity ?? 22
+      for (const p of o.projectiles) {
+        const [px, py, pz] = p.pos
+        const [vx, vy, vz] = p.vel
+        if (p.kind === "mortar") {
+          // time until it falls to our height, then landing point
+          const a = -0.5 * mg, b = vz, c = pz - z
+          const disc = b * b - 4 * a * c
+          if (disc < 0) continue
+          const tl = (-b - Math.sqrt(disc)) / (2 * a)
+          if (tl < 0 || tl > 3) continue
+          const lx = px + vx * tl, ly = py + vy * tl
+          const dd = hyp2(x + me.vel[0] * tl, y + me.vel[1] * tl, lx, ly)
+          if (dd < 11) {
+            const l = Math.max(0.5, hyp2(x, y, lx, ly))
+            dx += (x - lx) / l
+            dy += (y - ly) / l
+            urgent = true
+          }
+          continue
+        }
+        const rx = x - px, ry = y - py, rz = cz - pz
+        const vv = vx * vx + vy * vy + vz * vz
+        if (vv < 1) continue
+        const tc = (rx * vx + ry * vy + rz * vz) / vv
+        if (tc < 0 || tc > 0.9) continue
+        const mx = px + vx * tc - x, my = py + vy * tc - y, mz = pz + vz * tc - cz
+        const miss = Math.hypot(mx, my, mz * 0.5)
+        if (miss > 3.6 * scale) continue
+        // move perpendicular to the bullet path, away from its closest point
+        const hv = Math.hypot(vx, vy) || 1
+        let nx = -vy / hv, ny = vx / hv
+        if (nx * -mx + ny * -my < 0) {
+          nx = -nx
+          ny = -ny
+        }
+        dx += nx
+        dy += ny
+        urgent = true
+      }
+      if (urgent) {
+        const l = Math.hypot(dx, dy)
+        if (l > 0.01) {
+          mv = [mv[0] * 0.3 + (dx / l) * 0.95, mv[1] * 0.3 + (dy / l) * 0.95]
+          const ml = Math.hypot(mv[0], mv[1])
+          if (ml > 1) mv = [mv[0] / ml, mv[1] / ml]
+          if (me.energy > 25) boost = true
+          mode += "+dodge"
+        }
+      }
     }
     // stuck handling: jump + jet
     const moved = hyp2(x, y, this.lastPos[0], this.lastPos[1])
