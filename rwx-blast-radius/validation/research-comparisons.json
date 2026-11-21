@@ -1,0 +1,97 @@
+{
+  "format": 1,
+  "kind": "optional_comparison_prototype_research",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "production_enabled": false,
+  "synthetic_tests": {
+    "passed": 24,
+    "seconds": 0.017,
+    "command": ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_comparison_types.py"
+  },
+  "coarse_pilot": {
+    "eligible_named_test_site_pairs": 9,
+    "reader_retained_pairs": 9,
+    "conditionally_unblocked_pairs": 0
+  },
+  "granularity_pilots": {
+    "v2": {
+      "registered_sites": 1415,
+      "observed_sites": 156,
+      "algebraically_eligible_sites_including_collection": 24,
+      "eligible_named_test_site_pairs": 9,
+      "reader_retained_pairs": 0,
+      "conditionally_unblocked_pairs": 9,
+      "code_object_reader_records": 98,
+      "preexisting_modules": {},
+      "timing": {
+        "plain_seconds": 0.843784666999909,
+        "plain_exitcode": 0,
+        "instrumented_seconds": 2.951033708999603,
+        "instrumented_exitcode": 0
+      },
+      "baseline_results": {
+        "selected": [
+          "tests/test_helper.py::TestHelper::test_merge_ranges",
+          "tests/test_parser.py::TestParser::test_distinct_from",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata"
+        ],
+        "outcomes": {
+          "tests/test_helper.py::TestHelper::test_merge_ranges": "passed",
+          "tests/test_parser.py::TestParser::test_distinct_from": "passed",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata": "passed"
+        },
+        "exitstatus": 0
+      },
+      "preexisting_metadata_captured": false
+    },
+    "v3": {
+      "registered_sites": 1415,
+      "observed_sites": 156,
+      "algebraically_eligible_sites_including_collection": 24,
+      "eligible_named_test_site_pairs": 9,
+      "reader_retained_pairs": 0,
+      "conditionally_unblocked_pairs": 9,
+      "code_object_reader_records": 98,
+      "preexisting_modules": {},
+      "timing": {
+        "plain_seconds": 0.9366772909997962,
+        "plain_exitcode": 0,
+        "instrumented_seconds": 3.3492989999999736,
+        "instrumented_exitcode": 0
+      },
+      "baseline_results": {
+        "selected": [
+          "tests/test_helper.py::TestHelper::test_merge_ranges",
+          "tests/test_parser.py::TestParser::test_distinct_from",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata"
+        ],
+        "outcomes": {
+          "tests/test_helper.py::TestHelper::test_merge_ranges": "passed",
+          "tests/test_parser.py::TestParser::test_distinct_from": "passed",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata": "passed"
+        },
+        "exitstatus": 0
+      },
+      "preexisting_metadata_captured": true
+    }
+  },
+  "semantics": [
+    "Operands evaluated once left-to-right; original operator return value and dispatch preserved.",
+    "All observed type pairs at a site must qualify globally; unsafe producer contexts reject the entire site because they may change shared state.",
+    "Whole-patch eligibility requires exact single equal-width Is/Eq text replacement with every other character unchanged; IsNot/NotEq is algebra-only and rejected for whole patches to avoid unrelated same-line code position changes.",
+    "Code acquisition audits record qualname/firstline and recursively all nested code constants. Collection acquisition retains all tests only for affected code objects.",
+    "Source readers retain file precision. Cached code objects acquired before hook and direct co_code/co_consts access remain an audit coverage gap.",
+    "Preexisting target modules are explicit and permanently ineligible even if later reloaded."
+  ],
+  "limitations": [
+    "No unconditional skip authorization; certificates are conditional operand algebra observations.",
+    "Untracked subprocesses, missing context receipts, unknown/failed/skipped executions preclude global completeness.",
+    "Full trace not run; separate successful spawn helper pilot awaits core integration and raw observation merging.",
+    "Fixed deterministic warm-suite trajectory induction does not establish cold/reordered or nondeterministic execution equivalence.",
+    "Instrumentation changes stack, globals, timing and reference lifetimes; reflection coverage remains empirical."
+  ],
+  "artifacts": {
+    "rwx-blast-radius/tools/comparison_types.py": "f70953873d74e4a2c610a0a4ff53f05dda31e99230740c7060c54f3ff3a581bd",
+    "rwx-blast-radius/tools/test_comparison_types.py": "6094d8a10aeef7d30dcc2d1a7144a2c2ed30ff7166d0851aa35f9f8e4b82e0b4"
+  }
+}
