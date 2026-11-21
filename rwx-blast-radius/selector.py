@@ -18,6 +18,7 @@ def read_json(path):
 
 class Selector:
     def __init__(self, tests, mapping, source, class_guard=None, class_candidate=None):
+        self.last_selection_status = {"complete": False, "reason": "not_started"}
         self.tests = tests
         self.mapping = mapping
         self.source = source
@@ -38,7 +39,15 @@ class Selector:
     def numbers(self, indices):
         return {self.translate[i] for i in indices if i in self.translate}
 
+    def _fallback(self, reason):
+        self.last_selection_status = {'complete': False, 'reason': reason}
+        return self.all
+
     def select(self, patch):
+        self.last_selection_status = {'complete': False, 'reason': 'unknown_or_exception'}
+        return self._select_base(patch)
+
+    def _select_base(self, patch):
         selected = set()
         narrowed_class = False
         changes = parse_patch(patch)
@@ -47,7 +56,7 @@ class Selector:
             path = change['path']
             baseline = self.source / path
             if not baseline.is_file():
-                return self.all
+                return self._fallback('missing_source')
             if path not in self.source_cache:
                 self.source_cache[path] = baseline.read_text()
             source = self.source_cache[path]
@@ -66,9 +75,9 @@ class Selector:
                     tree, original_dump = self.ast_cache[path]
                     new_tree = compile(updated.encode('utf-8'), path, 'exec', ast.PyCF_ONLY_AST)
                 except SyntaxError:
-                    return self.all
+                    return self._fallback('invalid_syntax')
                 if not info:
-                    return self.all
+                    return self._fallback('missing_file_dependencies')
                 # Compare the whole file, not edit text or patch IDs. Source readers
                 # remain selected even when executable structure is unchanged.
                 if original_dump == ast.dump(new_tree, include_attributes=False):
@@ -77,7 +86,7 @@ class Selector:
                 if path.startswith('tests/'):
                     # Class/session fixtures and collection hooks can affect tests
                     # beyond the context in which their setup ran.
-                    return self.all
+                    return self._fallback('test_module_global_effect')
                 lines = info.get('lines', {})
                 functions = [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
                 def callable_kinds(node):
@@ -85,26 +94,26 @@ class Selector:
                              any(isinstance(child, (ast.Yield, ast.YieldFrom)) for child in ast.walk(n)))
                             for n in ast.walk(node) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
                 if callable_kinds(tree) != callable_kinds(new_tree):
-                    return self.all
+                    return self._fallback('changed_callable_kind')
                 for line in changed:
                     enclosing = [n for n in functions if n.lineno <= line <= n.end_lineno]
                     if not enclosing:
                         # Imports, class attributes and registration tables affect later consumers.
                         if self.class_guard is None:
-                            return self.all
+                            return self._fallback('global_effect_without_guard')
                         from class_selection import class_candidates
                         consumers = (self.class_candidate(tree, new_tree, line, info, path, changed_paths)
                                      if self.class_candidate is not None else
                                      class_candidates(tree, new_tree, line, info))
                         if consumers is None:
-                            return self.all
+                            return self._fallback('unproved_class_effect')
                         selected.update(self.numbers(consumers))
                         narrowed_class = True
                         continue
                     function = min(enclosing, key=lambda n: n.end_lineno - n.lineno)
                     body_start = function.body[0].lineno if isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)) else function.lineno
                     if line < body_start or any(body_start <= recorded <= function.end_lineno for recorded in info.get('collection_lines', [])):
-                        return self.all
+                        return self._fallback('definition_or_collection_effect')
                     # Function coverage includes callers affected by inserted paths
                     # and continuation lines without their own trace event.
                     statement = function
@@ -118,15 +127,16 @@ class Selector:
                 selected.update(self.unmapped)
             else:
                 if not info or not info.get('tests') or info.get('collection_read'):
-                    return self.all
+                    return self._fallback('unknown_fixture_or_global_reader')
                 selected.update(self.numbers(info['tests']))
                 selected.update(self.unmapped)
         if narrowed_class:
             try:
                 if not self.class_guard(patch):
-                    return self.all
+                    return self._fallback('class_import_guard_failed')
             except Exception:
-                return self.all
+                return self._fallback('class_import_guard_exception')
+        self.last_selection_status = {'complete': True, 'reason': 'dependency_selection'}
         return selected
 
 
@@ -137,6 +147,9 @@ def main():
     parser.add_argument('--source', type=Path, default=Path('/opt/sqlglot'))
     parser.add_argument('--class-guard', action='store_true', help='enable class-literal selection after successful cold import and collection checks')
     parser.add_argument('--factory-proofs', type=Path, help='opt-in baseline factory proofs; requires --class-guard')
+    parser.add_argument('--experimental-comparisons', action='store_true', help='research only; explicitly enable conditional comparison proposals')
+    parser.add_argument('--comparison-evidence', type=Path, default=ROOT / 'maps/comparison-experimental.json.gz')
+    parser.add_argument('--comparison-manifest', type=Path, default=ROOT / 'maps/comparison-experimental-manifest.json')
     parser.add_argument('--metrics', action='store_true', help='write local CPU and guard counts to stderr')
     args = parser.parse_args()
     if args.factory_proofs is not None and not args.class_guard:
@@ -157,10 +170,17 @@ def main():
             proof_data = {}
         candidate = FactoryCandidates(args.source, proof_data)
     selector = Selector(tests, mapping, args.source, class_guard=guard, class_candidate=candidate)
+    comparisons = None
+    if args.experimental_comparisons:
+        from comparison_selection import ExperimentalComparisons
+        comparisons = ExperimentalComparisons(tests, mapping, args.source, args.comparison_evidence, args.comparison_manifest, enabled=True)
     cache = {}
     for patch in sorted((args.data / 'commits').glob('*.patch')):
         try:
-            selected = selector.select(patch.read_text())
+            patch_text = patch.read_text()
+            selected = selector.select(patch_text)
+            if comparisons is not None:
+                selected = comparisons.propose(patch_text, selected, selector.last_selection_status)
         except Exception as exc:
             print(f'{patch.stem}: conservative fallback: {exc}', file=sys.stderr)
             selected = selector.all

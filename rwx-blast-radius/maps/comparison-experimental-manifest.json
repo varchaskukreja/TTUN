@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "experimental_only": true,
+  "production_authorized": false,
+  "python_version": [
+    3,
+    13
+  ],
+  "compressed_sha256": "9419528e7d1d8420263119855b53565c466604f382bd856909f7c70e913fb7cc",
+  "expanded_sha256": "a6539d18d873c7ce13728e29ce55865aaff55f77136b0bae020417d63cac081a",
+  "runtime_hashes": {
+    "comparison_proof.py": "514537540dd32701a29339d28db5567762743b7f7ff8e3c9986b890e6b10756b",
+    "comparison_audit.py": "0ac4fe5b5796e139b4a54e9fce094c896906314b5cbbca595a709507eee79211",
+    "comparison_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
+    "patches.py": "4d5e4e7878ee6797211c9fce46bec04ffba0563ab02f371054914883b93f7d20",
+    "comparison_selection.py": "35778041c56cb504069ea168411389f89242e1f4952a003ab61b9595c77b6af8",
+    "selector.py": "88ff7219abc5f1573103a2cc53efc99772093e01b48eda28e4eea8d54f5dc6c3"
+  },
+  "origin": "baseline comparison full-v3; semantic completeness not authorized"
+}

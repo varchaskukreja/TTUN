@@ -1,0 +1,24 @@
+{
+  "kind": "isolated_opt_in_comparison_integration_validation",
+  "production_authorized": false,
+  "sites": 1671,
+  "equivalent_modulo_required_unstable_retention": true,
+  "fallback_policy_checks": 6684,
+  "proof_and_capture_functions_ast_identical": true,
+  "answers_read": false,
+  "artifact_sha256": "9419528e7d1d8420263119855b53565c466604f382bd856909f7c70e913fb7cc",
+  "base_commit": "cdc3e36646f6e1729e20fcff4609e4a052370d53",
+  "branch": "blast-radius/comparison-prototype",
+  "tests": "36 passed (12 comparison integration +24 existing selector)",
+  "unstable_retention_delta_sites": 27,
+  "all_site_report_sha256": "95df51d3ab77486e514ef2a551bb152b00585ed51bf8f83ad0c7e56904ec519f",
+  "all_site_report": "integration-all-sites.json",
+  "build_performed": false,
+  "activation_performed": false,
+  "default_docker_command_unchanged": true,
+  "limits": [
+    "Observed-type/reader/order coverage remains conditional, as in frozen capture.",
+    "Normalized per-site proof-policy comparison does not bypass actual equal-width whole-patch gate.",
+    "Additional conservative base fallback and unstable retention can reduce projected gains."
+  ]
+}

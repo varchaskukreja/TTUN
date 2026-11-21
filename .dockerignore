@@ -15,3 +15,9 @@
 !rwx-blast-radius/factory_selection.py
 !rwx-blast-radius/factory_proof_format.py
 !rwx-blast-radius/maps/factory_proofs.json
+!rwx-blast-radius/comparison_selection.py
+!rwx-blast-radius/comparison_proof.py
+!rwx-blast-radius/comparison_edit.py
+!rwx-blast-radius/comparison_audit.py
+!rwx-blast-radius/maps/comparison-experimental.json.gz
+!rwx-blast-radius/maps/comparison-experimental-manifest.json
