@@ -41,6 +41,12 @@ class Brain {
   targetId = -1
   targetT = -99
   mechHitBearing = 0
+  accountedKills = new Set<number>()
+  coverThreatId = -1
+  coverUntil = -1
+  coverAtMe: [number, number] = [0, 0]
+  coverAtThreat: [number, number] = [0, 0]
+  coverGoal: [number, number] | null = null
   npcMem = new Map<number, { pos: number[]; vel: number[]; t: number; hp: number }>()
   cubeMem = new Map<number, { pos: number[]; t: number }>()
   pickMem = new Map<number, { pos: number[]; kind: string; t: number }>()
@@ -104,7 +110,10 @@ class Brain {
         this.threatBearing = e.bearing
         this.threatT = t
       }
-      if (e.type === "kill") this.tracks.delete(e.target)
+      if (e.type === "kill") {
+        this.tracks.delete(e.target)
+        if (e.target >= 0 && e.target < 16) this.accountedKills.add(e.target)
+      }
     }
     for (const s of o.sounds) {
       if (["gun", "laser", "laser_charge", "lightning", "mortar", "boost", "step", "jet"].includes(s.kind) && s.dist !== "far") {
@@ -195,6 +204,11 @@ class Brain {
         target = tr
       }
     }
+    // Once two other eliminations have occurred, let independent opponents
+    // spend resources on one another. Re-enter while there are six mechs left.
+    const otherEliminations = 16 - o.alive - this.accountedKills.size
+    const preservePlace = otherEliminations >= 2 && o.alive > 6
+    if (preservePlace) target = null
     if (target) {
       this.targetId = target.id
       this.targetT = t
@@ -519,6 +533,56 @@ class Brain {
           if (!npc && crate && dd < 25) moveGoal = [crate.pos[0], crate.pos[1]]
           mode += "+shoot"
         }
+      }
+    }
+
+    if (preservePlace) {
+      let nearestThreat: Track | null = null, nearestThreatD = 1e9
+      for (const tr of this.tracks.values()) {
+        const age = t - tr.t
+        if (age > 1.5) continue
+        const d = hyp2(x, y, tr.pos[0], tr.pos[1])
+        if (d < 150 && d < nearestThreatD) {
+          nearestThreat = tr
+          nearestThreatD = d
+        }
+      }
+      if (nearestThreat) {
+        const tr = nearestThreat
+        const cacheValid = this.coverThreatId === tr.id && t < this.coverUntil &&
+          hyp2(x, y, this.coverAtMe[0], this.coverAtMe[1]) < 8 &&
+          hyp2(tr.pos[0], tr.pos[1], this.coverAtThreat[0], this.coverAtThreat[1]) < 8 &&
+          (!this.coverGoal || hyp2(x, y, this.coverGoal[0], this.coverGoal[1]) > 8)
+        if (!cacheValid) {
+          this.coverThreatId = tr.id
+          this.coverUntil = t + 0.6
+          this.coverAtMe = [x, y]
+          this.coverAtThreat = [tr.pos[0], tr.pos[1]]
+          this.coverGoal = map?.coverFrom(x, y, tr.pos[0], tr.pos[1], tr.pos[2] + 8, 60) ?? null
+        }
+        const safeCover = this.coverGoal
+        const coverOK = safeCover && hyp2(safeCover[0], safeCover[1], zn.next_center[0], zn.next_center[1]) < zn.next_radius * 0.9
+        if (coverOK && (me.in_zone || !zoneGoal || hyp2(x, y, zn.center[0], zn.center[1]) < curR * 0.75)) {
+          moveGoal = safeCover
+          mode = "evade-cover"
+          boost = nearestThreatD < 55 && me.energy > 20
+        } else if (me.in_zone && !zoneGoal) {
+          const awayX = x - tr.pos[0], awayY = y - tr.pos[1]
+          const awayD = Math.hypot(awayX, awayY) || 1
+          moveGoal = [x + awayX / awayD * 55, y + awayY / awayD * 55]
+          mode = "evade"
+          boost = nearestThreatD < 65 && me.energy > 20
+        } else if (!moveGoal && zoneGoal) {
+          moveGoal = zoneGoal
+          mode = "zone-evade"
+          boost = !me.in_zone && me.energy > 20
+        }
+      }
+      if (zoneGoal && (!me.in_zone || (shrinking && needNext))) {
+        moveGoal = zoneGoal
+        mode = "zone-evade"
+        slow = false
+        boost = !me.in_zone && me.energy > 20
       }
     }
 
