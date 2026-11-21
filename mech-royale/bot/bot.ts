@@ -8,12 +8,6 @@ const wrap = (a: number) => {
   return a - Math.PI
 }
 const hyp2 = (ax: number, ay: number, bx: number, by: number) => Math.hypot(bx - ax, by - ay)
-const ENV = (globalThis as any).process?.env ?? {}
-const OPT_ISO = ENV.P_ISO !== "0"
-const OPT_DODGE = ENV.P_DODGE !== "0"
-const LIGHT_CONE = ENV.P_CONE === "0" ? 0.45 : 0.8
-// 0: pickups override isolation; 1: isolation wins unless the pickup is close
-const ISO_PICK = Number(ENV.P_ISOPICK ?? 1)
 
 type Track = { id: number; pos: number[]; vel: number[]; hp: number; maxHp: number; t: number; weapons: string[]; charging: boolean; aim: number[]; cubes: number }
 
@@ -47,7 +41,6 @@ class Brain {
   targetId = -1
   targetT = -99
   mechHitBearing = 0
-  chargeSeen = new Map<number, number>() // id -> time we first saw its laser charging
   npcMem = new Map<number, { pos: number[]; vel: number[]; t: number; hp: number }>()
   cubeMem = new Map<number, { pos: number[]; t: number }>()
   pickMem = new Map<number, { pos: number[]; kind: string; t: number }>()
@@ -91,8 +84,6 @@ class Brain {
     // ---------- memory
     for (const m of o.mechs) {
       if (m.kind !== "mech") continue
-      if (!m.charging) this.chargeSeen.delete(m.id)
-      else if (!this.chargeSeen.has(m.id)) this.chargeSeen.set(m.id, t)
       this.tracks.set(m.id, {
         id: m.id, pos: m.pos, vel: m.vel, hp: m.hp ?? 1400, maxHp: m.max_hp ?? 1400, t, weapons: m.weapons ?? [],
         charging: !!m.charging, aim: m.aim, cubes: m.cubes ?? 0,
@@ -262,7 +253,6 @@ class Brain {
     let jump = false
     let strafe = 0
     let laserCharging = laserS >= 0 && (me.weapons[laserS]?.charge ?? 0) > 0
-    let laserDodge = false
 
     if (target) {
       const tp = target.pos
@@ -314,7 +304,7 @@ class Brain {
         // lightning
         if (lightS >= 0) {
           const L = me.weapons[lightS]!
-          if (d < L.stats.range - 1 && yawErr < ((L.stats.cone_deg * Math.PI) / 180) * LIGHT_CONE && me.energy > L.stats.energy + 2) fire[lightS] = true
+          if (d < L.stats.range - 1 && yawErr < ((L.stats.cone_deg * Math.PI) / 180) * 0.45 && me.energy > L.stats.energy + 2) fire[lightS] = true
         }
       }
       // laser: charge while target is around, release when full and aligned
@@ -400,80 +390,18 @@ class Brain {
           else moveGoal = [x + mx * 10, y + my * 10]
         } else moveGoal = [x + mx * 10, y + my * 10]
       }
-      // several enemies with a line on us: shift to a nearby spot only the target can see
-      let iso = false
-      if (OPT_ISO && map && !losing) {
-        const others: Track[] = []
-        for (const tr of this.tracks.values()) {
-          if (tr.id === target.id || t - tr.t > 1.5) continue
-          if (hyp2(x, y, tr.pos[0], tr.pos[1]) > 150) continue
-          if (map.los(tr.pos[0], tr.pos[1], tr.pos[2] + 7, x, y, z + 4.5 * scale)) others.push(tr)
-        }
-        if (others.length) {
-          let best: [number, number] | null = null, bs = others.length * 100
-          for (let r = 6; r <= 18 && performance.now() - t0 < 15; r += 6)
-            for (let a = 0; a < 16; a++) {
-              const ang = (a / 16) * TAU
-              const px = x + Math.cos(ang) * r, py = y + Math.sin(ang) * r
-              if (!map.walkable(px, py)) continue
-              const pz = map.groundAt(px, py)
-              let s = r * 1.5
-              for (const tr of others) if (map.los(tr.pos[0], tr.pos[1], tr.pos[2] + 7, px, py, pz + 4.5)) s += 100
-              if (s >= bs) continue
-              if (!map.los(px, py, pz + 7, tp[0], tp[1], tcz)) s += 25
-              if (s < bs) {
-                bs = s
-                best = [px, py]
-              }
-            }
-          if (best) {
-            moveGoal = best
-            iso = true
-            mode += "+iso"
-          }
-        }
-      }
-      const isoBlock = iso && ISO_PICK === 1
-      if (nearCube && nearCubeD < (losing ? 12 : isoBlock ? 15 : hpFrac > 0.5 ? 70 : 40)) {
+      if (nearCube && nearCubeD < (losing ? 12 : hpFrac > 0.5 ? 70 : 40)) {
         moveGoal = [nearCube[0], nearCube[1]]
         mode += "+cube"
-      } else if (nearPick && !losing && nearPickD < (isoBlock ? 12 : onlyGun ? 60 : 35)) {
+      } else if (nearPick && !losing && nearPickD < (onlyGun ? 60 : 35)) {
         moveGoal = [nearPick[0], nearPick[1]]
         mode += "+weapon"
-      }
-      // a laser charging at us: break its line of sight so the shot is wasted on a wall
-      if (OPT_DODGE && map) {
-        let thr: Track | null = null, bd = 1e9
-        for (const tr of this.tracks.values()) {
-          if (!tr.charging || t - tr.t > 0.11) continue
-          const dd = hyp2(x, y, tr.pos[0], tr.pos[1])
-          const toMe = Math.atan2(y - tr.pos[1], x - tr.pos[0])
-          if (Math.abs(wrap(tr.aim[0] - toMe)) > Math.atan2(6, dd) + 0.06) continue
-          if (!map.los(tr.pos[0], tr.pos[1], tr.pos[2] + 7, x, y, z + 4.5 * scale)) continue
-          if (dd < bd) {
-            bd = dd
-            thr = tr
-          }
-        }
-        if (thr) {
-          const left = (this.cfg.weapons.laser.charge ?? 0.75) - (t - (this.chargeSeen.get(thr.id) ?? t))
-          const reachR = Math.min(18, Math.max(6, (left + 0.25) * (me.stats.boost_speed ?? 19.5)))
-          const cov = map.coverFrom(x, y, thr.pos[0], thr.pos[1], thr.pos[2] + 7, reachR)
-          if (cov) {
-            moveGoal = cov
-            boost = me.energy > 5
-            laserDodge = true
-            mode += "+ldodge"
-          }
-        }
       }
       if (zoneGoal && (!me.in_zone || shrinking)) {
         // zone overrides when outside
         if (!me.in_zone) moveGoal = null
       }
       void myDps
-      // charging halves our speed: don't start a charge while running for cover
-      if (laserDodge && laserS >= 0 && !laserCharging) fire[laserS] = false
     }
 
     // heal: hold still (silent) out of sight until HP is back
@@ -493,6 +421,23 @@ class Brain {
             slow = true
           }
         }
+      }
+    }
+    // weak and near a drone: get out of its aggro range so it can't finish us
+    if (!target && hpFrac < 0.5 && (healing || !zoneGoal)) {
+      let nn: { pos: number[] } | null = null, nd = 1e9
+      for (const nm of this.npcMem.values()) {
+        const d = hyp2(x, y, nm.pos[0], nm.pos[1])
+        if (t - nm.t < 10 && d < nd) {
+          nd = d
+          nn = nm
+        }
+      }
+      if (nn && nd < 58) {
+        const k = 75 / Math.max(nd, 1)
+        moveGoal = [nn.pos[0] + (x - nn.pos[0]) * k, nn.pos[1] + (y - nn.pos[1]) * k]
+        slow = false
+        mode = "npc-flee"
       }
     }
     if (!moveGoal && !healing) {
@@ -656,7 +601,7 @@ class Brain {
         dy += ny
         urgent = true
       }
-      if (urgent && !laserDodge) {
+      if (urgent) {
         const l = Math.hypot(dx, dy)
         if (l > 0.01) {
           mv = [mv[0] * 0.3 + (dx / l) * 0.95, mv[1] * 0.3 + (dy / l) * 0.95]

@@ -304,10 +304,6 @@ export class WorldMap {
     return [bi / l, bj / l]
   }
 
-  walkable(x: number, y: number) {
-    return this.walk[this.cellOf(x, y)] === 1
-  }
-
   // Nearby walkable point that hides from (ex,ey,ez) eye, searching rings around (x,y).
   coverFrom(x: number, y: number, ex: number, ey: number, ez: number, maxR = 40): [number, number] | null {
     let best: [number, number] | null = null, bs = 1e9
