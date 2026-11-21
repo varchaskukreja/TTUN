@@ -3,11 +3,12 @@
   "map_sha256": "22fbaf3378b0d0cbba33ad2fa3586e684cb3c492e2d1ec319900bb8015cf32c5",
   "sample": {
     "commits": 30,
-    "simulated_seconds": 262.603,
+    "simulated_seconds": 225.976,
     "missed_commits": 0,
-    "observed_process_cpu_seconds": 23.85411,
+    "observed_process_cpu_seconds": 11.194804,
     "guard_calls": 4,
-    "guard_passed": 4
+    "guard_passed": 4,
+    "evidence": "comparison-default-docker.json"
   },
   "runtime": "Fresh root Dockerfile build; Linux/amd64, 2 CPU, 4GB RAM, nobody, read-only filesystem, 64MB tmpfs, no network, 256 PIDs",
   "holdouts": {
@@ -68,15 +69,15 @@
     "Hidden leaderboard results for this candidate are not yet available.",
     "Coverage dependencies are observed baseline behavior, not a proof of all possible runtime effects.",
     "Shared dialect registry mutation full-catalog validation timed out at180s; no audited missed-test count available.",
-    "Local container CPU varied with concurrent validation; adjacent old/new measurements were 23.288363 and 23.854110 seconds, not leaderboard CPU estimates."
+    "Local container CPU varied with concurrent validation; adjacent old/new measurements were 23.288363 and 23.854110 seconds, not leaderboard CPU estimates.",
+    "Comparison certificates are conditional on observed types and incomplete reader/native/shared-state coverage; reviewed cold controls are empirical evidence, not universal proof."
   ],
   "production_exclusions": [
-    "statement-level narrowing",
-    "comparison type experiment"
+    "statement-level narrowing"
   ],
   "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
   "tests": {
-    "primary_passed": 129,
+    "primary_passed": 145,
     "factory_policy_passed": 22,
     "granularity_counterexample_tests_passed": 16,
     "class_export_and_propagation_passed": 13,
@@ -95,5 +96,29 @@
     "evidence": "research-definition-expressions.json",
     "sample_selection_cost_change_seconds": 0,
     "scope": "Additive function/lambda header captures; not complete Python binding analysis."
+  },
+  "pre_comparison_sample": {
+    "commits": 30,
+    "simulated_seconds": 262.603,
+    "missed_commits": 0,
+    "observed_process_cpu_seconds": 23.85411,
+    "guard_calls": 4,
+    "guard_passed": 4
+  },
+  "comparison_refinement": {
+    "deployment_authorized": true,
+    "semantic_completeness_proved": false,
+    "artifact_sha256": "9419528e7d1d8420263119855b53565c466604f382bd856909f7c70e913fb7cc",
+    "manifest_sha256": "9d84904a9b8463d8e7639d5c49450f5e430dc47ea9fc23ffc896a2cb5f07da16",
+    "default_docker_validation": "comparison-default-docker.json",
+    "cold_baseline": "comparison-cold-baseline-v3.json",
+    "cold_mutants": "comparison-cold-mutants-v3.json",
+    "preserved_guards": [
+      "base fallback provenance",
+      "persistent class state",
+      "source/code readers",
+      "baseline unstable tests",
+      "unknown/unmapped contexts"
+    ]
   }
 }

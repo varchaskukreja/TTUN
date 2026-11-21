@@ -1,0 +1,97 @@
+{
+  "kind": "approved_comparison_default_docker_validation",
+  "deployment_authorized": true,
+  "semantic_completeness_proved": false,
+  "built_commit": "4e6790ee3051592fe5a9a598a11b27d3eff3a1ae",
+  "image_id": "sha256:fe270e9d3c6b61f824de476f7e09d5a2cf1701dae80685dd5f9bc87fe5f9c4d5",
+  "image_default_command": [
+    "python",
+    "/app/selector.py",
+    "--class-guard",
+    "--factory-proofs",
+    "/app/maps/factory_proofs.json",
+    "--metrics",
+    "--experimental-comparisons"
+  ],
+  "outputs_frozen_before_scoring": true,
+  "freeze_sha256": "a362a084523537aa5116719ae33d43d9e0023aa136a6ec52c40665aec66e9f0f",
+  "frozen_utc": "2026-11-21T03:31:13.272409+00:00",
+  "scored_utc": "2026-11-21T03:31:28.147965+00:00",
+  "tests": "145 passed",
+  "all_site_checks": 1671,
+  "fallback_checks": 8355,
+  "sample": {
+    "selection_milliseconds": 225976,
+    "missed_test_count": 0,
+    "missed_commits": [],
+    "byte_identical_to_prior_explicit_enable": true
+  },
+  "run": {
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      "--network",
+      "none",
+      "--cpus",
+      "2",
+      "--memory",
+      "4096m",
+      "--memory-swap",
+      "4096m",
+      "--pids-limit",
+      "256",
+      "--read-only",
+      "--tmpfs",
+      "/tmp:rw,size=64m,mode=1777",
+      "--cap-drop",
+      "ALL",
+      "--security-opt",
+      "no-new-privileges",
+      "--user",
+      "65534:65534",
+      "--env",
+      "HOME=/tmp",
+      "--volume",
+      "${WORKTREE}/rwx-blast-radius/sample/commits:/data/commits:ro",
+      "--volume",
+      "${WORKTREE}/rwx-blast-radius/sample/tests.json:/data/tests.json:ro",
+      "ttun-comparison-final-review"
+    ],
+    "exitcode": 0,
+    "wall_seconds": 10.252557542000432,
+    "output_sha256": "ac325174d36f813b25586f262086798dbd83ee8e2426b796032dbe36d38d292f",
+    "stderr_sha256": "66cae1e3159d3f9d38dbb55782d2d1419550857abe2d2a8ce58592646907f455",
+    "metrics": {
+      "cpu_seconds": 11.194804,
+      "guard_calls": 4,
+      "guard_passed": 4
+    }
+  },
+  "code_artifact_sha256": {
+    "Dockerfile": "11c3ac1d4ab29c71834e15e1c10b60a6f0ddfb94dceb20417e03197b69f2c62b",
+    ".dockerignore": "869d089a75a134fdb42070de2bbc82ff5ef9d8d8ddac392ffd90afc5ca63a37d",
+    "rwx-blast-radius/selector.py": "33c7c996ac99785142685ab1bb19af0b0d3fa113c184af8e7d538813393f8b45",
+    "rwx-blast-radius/comparison_selection.py": "a0af5b5cf6e6bbf305f3fb7cce0940003992a4e08513625c4a5732c737f280c4",
+    "rwx-blast-radius/comparison_proof.py": "514537540dd32701a29339d28db5567762743b7f7ff8e3c9986b890e6b10756b",
+    "rwx-blast-radius/comparison_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
+    "rwx-blast-radius/comparison_audit.py": "0ac4fe5b5796e139b4a54e9fce094c896906314b5cbbca595a709507eee79211",
+    "rwx-blast-radius/maps/coverage.json.gz": "22fbaf3378b0d0cbba33ad2fa3586e684cb3c492e2d1ec319900bb8015cf32c5",
+    "rwx-blast-radius/maps/factory_proofs.json": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
+    "rwx-blast-radius/maps/comparison-experimental.json.gz": "9419528e7d1d8420263119855b53565c466604f382bd856909f7c70e913fb7cc",
+    "rwx-blast-radius/maps/comparison-experimental-manifest.json": "9d84904a9b8463d8e7639d5c49450f5e430dc47ea9fc23ffc896a2cb5f07da16"
+  },
+  "code_hashes_unchanged": true,
+  "cold_evidence_sha256": {
+    "comparison-cold-baseline-v3.json": "e64c1987f3ed3448562a91dee2cb174aef78f751ac84623428c56810cae91ce5",
+    "comparison-cold-mutants-v3.json": "a16eb6bf0f411514cc59e3a15d732728e519156870517ddaf111a455f9efbf6f"
+  },
+  "limits": [
+    "Deployment approval is operational acceptance of a conditional observed-type policy, not an exhaustive semantic proof.",
+    "Observed types, effective slot stability, instrumentation transparency, reflective/native readers and downstream state remain empirical limitations.",
+    "Single local amd64-emulated CPU measurement is not a leaderboard prediction."
+  ],
+  "main_merged_or_remote_pushed": false
+}
