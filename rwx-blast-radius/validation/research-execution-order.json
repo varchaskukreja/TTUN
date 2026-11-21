@@ -1,0 +1,35 @@
+{
+  "kind": "comparison_execution_order_review",
+  "runtime_narrowing_authorized": false,
+  "finding": "No explicit oracle test-order or per-test process-isolation guarantee was found in the supplied scoring materials.",
+  "evidence": [
+    {
+      "source": "SCORING.md",
+      "section": "Inputs",
+      "fact": "Catalog numbers follow listed order; no oracle execution order is specified."
+    },
+    {
+      "source": "SCORING.md",
+      "section": "Reading your output / Cost of one commit / Misses",
+      "fact": "Submitted worker ordering is simulated from durations; selected numbers are compared with precomputed failing IDs."
+    }
+  ],
+  "consequence": "A complete warm trace is observational evidence for that trajectory, not proof of equivalence under cold or reordered execution.",
+  "conditional_next_checks": {
+    "prerequisite": "Complete capture and worthwhile conditional gain reviewed first.",
+    "mutants": "At most two representative eligible exact-operator edits, selected before observing mutant outcomes.",
+    "catalog": "All 1620 nodes, matched unmodified controls.",
+    "modes": [
+      "normal full suite",
+      "reversed collected order",
+      "fixed-seed shuffled collected order",
+      "fresh interpreter per test"
+    ],
+    "constraints": [
+      "Explicit deadlines; unfinished modes remain incomplete.",
+      "Preserve full phase and subtest outcomes and exact catalog identity.",
+      "Require stable controls and no missed failures across completed modes.",
+      "Results remain empirical and do not establish an undocumented oracle guarantee."
+    ]
+  }
+}
