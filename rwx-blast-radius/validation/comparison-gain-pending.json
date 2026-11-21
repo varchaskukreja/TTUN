@@ -1,0 +1,10 @@
+{
+  "capture_issues": [
+    "comparison capture unavailable: FileNotFoundError"
+  ],
+  "conditional_analysis": false,
+  "kind": "conditional_comparison_gain_research",
+  "no_selected_output": true,
+  "runtime_narrowing_authorized": false,
+  "status": "incomplete"
+}

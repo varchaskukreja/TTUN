@@ -1,0 +1,108 @@
+{
+  "format": 1,
+  "kind": "optional_comparison_prototype_research",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "production_enabled": false,
+  "synthetic_tests": {
+    "passed": 30,
+    "seconds": 0.017,
+    "command": ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_comparison_types.py"
+  },
+  "coarse_pilot": {
+    "eligible_named_test_site_pairs": 9,
+    "reader_retained_pairs": 9,
+    "conditionally_unblocked_pairs": 0
+  },
+  "granularity_pilots": {
+    "v2": {
+      "registered_sites": 1415,
+      "observed_sites": 156,
+      "algebraically_eligible_sites_including_collection": 24,
+      "eligible_named_test_site_pairs": 9,
+      "reader_retained_pairs": 0,
+      "conditionally_unblocked_pairs": 9,
+      "code_object_reader_records": 98,
+      "preexisting_modules": {},
+      "timing": {
+        "plain_seconds": 0.843784666999909,
+        "plain_exitcode": 0,
+        "instrumented_seconds": 2.951033708999603,
+        "instrumented_exitcode": 0
+      },
+      "baseline_results": {
+        "selected": [
+          "tests/test_helper.py::TestHelper::test_merge_ranges",
+          "tests/test_parser.py::TestParser::test_distinct_from",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata"
+        ],
+        "outcomes": {
+          "tests/test_helper.py::TestHelper::test_merge_ranges": "passed",
+          "tests/test_parser.py::TestParser::test_distinct_from": "passed",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata": "passed"
+        },
+        "exitstatus": 0
+      },
+      "preexisting_metadata_captured": false
+    },
+    "v3": {
+      "registered_sites": 1415,
+      "observed_sites": 156,
+      "algebraically_eligible_sites_including_collection": 24,
+      "eligible_named_test_site_pairs": 9,
+      "reader_retained_pairs": 0,
+      "conditionally_unblocked_pairs": 9,
+      "code_object_reader_records": 98,
+      "preexisting_modules": {},
+      "timing": {
+        "plain_seconds": 0.9366772909997962,
+        "plain_exitcode": 0,
+        "instrumented_seconds": 3.3492989999999736,
+        "instrumented_exitcode": 0
+      },
+      "baseline_results": {
+        "selected": [
+          "tests/test_helper.py::TestHelper::test_merge_ranges",
+          "tests/test_parser.py::TestParser::test_distinct_from",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata"
+        ],
+        "outcomes": {
+          "tests/test_helper.py::TestHelper::test_merge_ranges": "passed",
+          "tests/test_parser.py::TestParser::test_distinct_from": "passed",
+          "tests/test_typing.py::TestTyping::test_no_redundant_expression_metadata": "passed"
+        },
+        "exitstatus": 0
+      },
+      "preexisting_metadata_captured": true
+    }
+  },
+  "semantics": [
+    "Operands evaluated once left-to-right; original operator return value and dispatch preserved.",
+    "All observed type pairs at a site must qualify globally; unsafe producer contexts reject the entire site because they may change shared state.",
+    "Whole-patch eligibility requires exact single equal-width Is/Eq text replacement with every other character unchanged; IsNot/NotEq is algebra-only and rejected for whole patches to avoid unrelated same-line code position changes.",
+    "Code acquisition audits record qualname/firstline and recursively all nested code constants. Collection acquisition retains all tests only for affected code objects.",
+    "Source readers retain file precision. Cached code objects acquired before hook and direct co_code/co_consts access remain an audit coverage gap.",
+    "Preexisting target modules are explicit and permanently ineligible even if later reloaded."
+  ],
+  "limitations": [
+    "No unconditional skip authorization; certificates are conditional operand algebra observations.",
+    "Untracked subprocesses, missing context receipts, unknown/failed/skipped executions preclude global completeness.",
+    "Full trace not run; separate successful spawn helper pilot awaits core integration and raw observation merging.",
+    "Fixed deterministic warm-suite trajectory induction does not establish cold/reordered or nondeterministic execution equivalence.",
+    "Instrumentation changes stack, globals, timing and reference lifetimes; reflection coverage remains empirical."
+  ],
+  "artifacts": {
+    "rwx-blast-radius/tools/comparison_types.py": "95371b6039ff54feee7321e64c90d8e3aeb6e165e50e8876ab5dd8d2ab9de8c1",
+    "rwx-blast-radius/tools/test_comparison_types.py": "6a0110ec84ccaf4514045ac473803dd29fa832136fcf7bc2c7ab422ef8074b98"
+  },
+  "v2_extensions": {
+    "serialization_cache": "bounded4096 cache of JSON strings keyed by fresh primitive operand descriptors; no type/slot/value/result caches",
+    "backed_enum": "same exact standard EnumType; both operands canonical members; exact str/int eq/ne slots; distinct member identities have distinct actual builtin values; aliases allowed; raw values never persisted",
+    "full_v1": {
+      "plain": "1620 tests and25440subtests passed,44.12s",
+      "instrumented": "intentionalabortafter1490tests/23119subtests passed483.44s",
+      "reason": "untracked plain Python Popen gap and validated recorder performance fix",
+      "all_receipt_pids_terminal": true,
+      "globally_complete": false
+    }
+  }
+}

@@ -2,13 +2,13 @@
 //! software prefetch. Key 0 is the empty slot: it would be the empty string, which is never
 //! inserted.
 
-use crate::keys::mix;
+use crate::keys::mix64;
 
 #[derive(Clone, Copy)]
-#[repr(C, align(32))]
+#[repr(C, align(16))]
 struct Slot {
-    key: u128,
-    val: u128,
+    key: u64,
+    val: u64,
 }
 
 pub struct PTable {
@@ -24,11 +24,11 @@ impl PTable {
     }
 
     #[inline(always)]
-    pub fn slot_of(&self, k: u128) -> usize {
-        (mix(k) as usize) & self.mask
+    pub fn slot_of(&self, k: u64) -> usize {
+        (mix64(k) as usize) & self.mask
     }
 
-    pub fn insert(&mut self, k: u128, v: u128) {
+    pub fn insert(&mut self, k: u64, v: u64) {
         let mut i = self.slot_of(k);
         loop {
             let s = &mut self.slots[i];
@@ -50,7 +50,7 @@ impl PTable {
     }
 
     #[inline(always)]
-    pub fn prefetch(&self, k: u128) {
+    pub fn prefetch(&self, k: u64) {
         let p = unsafe { self.slots.as_ptr().add(self.slot_of(k)) } as *const i8;
         #[cfg(target_arch = "x86_64")]
         unsafe {
@@ -64,7 +64,7 @@ impl PTable {
 
     /// The person of `k`: its mapped name if linked, else itself.
     #[inline(always)]
-    pub fn person(&self, k: u128) -> u128 {
+    pub fn person(&self, k: u64) -> u64 {
         let mut i = self.slot_of(k);
         loop {
             let s = unsafe { self.slots.get_unchecked(i) };

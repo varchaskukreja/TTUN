@@ -1,0 +1,193 @@
+{
+  "purpose": "Baseline-only spawn capture validation. No full suite, production integration, or narrowing authorization.",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "files_sha256": {
+    "tools/comparison_spawn.py": "d70df958b6d9a84e01e62885159a96761108c9afd6ceff8d3fc2d8b36de5300d",
+    "tools/comparison_bootstrap/sitecustomize.py": "362e8c61f4129c001b2952924a21fe2fe3320f26515b7e29ed6a6642578531e8",
+    "tools/test_comparison_spawn.py": "0b0107598a373144853d66d2bc2e4681c6fed2ed4b3c28979b17ca4e916dacb9",
+    "tools/comparison_types.py": "82733ef267ce4fd203dbdc0a62796858d50a78edc20e1365eb1bbd619328de74"
+  },
+  "commands": {
+    "reused_worker": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -e OPENBLAS_NUM_THREADS=1 -e OMP_NUM_THREADS=1 -e PYTHONDONTWRITEBYTECODE=1 -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/test_comparison_spawn.py /opt/sqlglot",
+    "real_baseline_pool": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -e OPENBLAS_NUM_THREADS=1 -e OMP_NUM_THREADS=1 -e PYTHONDONTWRITEBYTECODE=1 -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/test_comparison_spawn.py /opt/sqlglot --baseline"
+  },
+  "reused_worker": {
+    "reuse_passed": true,
+    "missing_receipt_retained": true,
+    "untracked_activity_retained": true,
+    "report": {
+      "submitted": 2,
+      "must_retain": [],
+      "errors": [],
+      "worker_contexts": {
+        "8": [
+          "first",
+          "second"
+        ]
+      },
+      "untracked_child_activity_checked": true,
+      "activity_audit_exhaustive": false,
+      "narrowing_authorized": false
+    },
+    "observed_contexts": [
+      "first",
+      "second"
+    ],
+    "sites": 662
+  },
+  "real_baseline_pool": {
+    "activity_audit_exhaustive": false,
+    "errors": [],
+    "must_retain": [],
+    "narrowing_authorized": false,
+    "observation_shards": 2,
+    "outcomes": {
+      "tests/test_optimizer.py::TestOptimizer::test_eliminate_subqueries": "passed"
+    },
+    "pytest_exitcode": 0,
+    "submitted": 28,
+    "untracked_child_activity_checked": true,
+    "worker_contexts": {
+      "17": [
+        "tests/test_optimizer.py::TestOptimizer::test_eliminate_subqueries"
+      ],
+      "20": [
+        "tests/test_optimizer.py::TestOptimizer::test_eliminate_subqueries"
+      ]
+    }
+  },
+  "pytest_summary": [
+    "1 passed, 28 subtests passed in 6.35s"
+  ],
+  "api": {
+    "install_parent": "install_parent(context_getter, source, output_dir) returns restore callback; invoke before constructing spawn pools.",
+    "bootstrap": "Separate sitecustomize activates Finder/Recorder before spawn callable unpickling; records preexisting modules before activation.",
+    "events": "events-PID.jsonl append-only submitted/process_start/worker_start/job_start/job_end/worker_end/untracked_activity receipts; job UUID joins parent and child.",
+    "snapshots": "observations-PID.json cumulative Recorder snapshots, atomically replaced after each job and at finalization. Full observations, execution_codes, readers, preexisting_modules and ineligible_files preserved.",
+    "context": "Each submitted job carries exact current parent context. Import, initializer, serialization and between-job work uses @worker-unassigned:PID; merge must expand this context to ALL worker_contexts for that PID.",
+    "merge": "Not implemented here: union identical site/typepairs, execution-code contexts+ancestry, source/code/code_object readers and preexisting/ineligible metadata. Never overwrite one worker with another.",
+    "audit": "audit_receipts(output_dir) requires unique job start/end, worker start/end and parseable snapshot. Gaps, unsupported process starts and observed untracked activity retain affected contexts. Returns narrowing_authorized=false."
+  },
+  "limits": [
+    "Audit hooks and Process.start interception do not prove absence of all native/untracked child activity; activity_audit_exhaustive=false.",
+    "Only ProcessPoolExecutor spawn jobs supported. Fork/forkserver/custom processes stay conservative.",
+    "Final snapshot uses multiprocessing Finalize at negative sys.maxsize priority; arbitrary later native shutdown activity is not proved observed.",
+    "Unassigned bootstrap observations/readers require transitive propagation to all worker jobs, even when initialization happened before the first job.",
+    "Instrumentation changes stacks/globals/refcounts/timing; this pilot establishes capture plumbing, not semantic transparency.",
+    "Future mergers must treat malformed/missing shards and any source/code reader gaps conservatively. No production map or selector changed."
+  ],
+  "v2": {
+    "provenance": {
+      "captured_at": 1795222775.9606662,
+      "files": {
+        "comparison_types.py": {
+          "sha256": "5db3a8401b0fe45a90568f458a8ebb6bf701410d41d6b362064be77abb3fef98",
+          "mtime_ns": 1795222749128944726
+        },
+        "comparison_spawn.py": {
+          "sha256": "d70fe6a86a02d1b4210194a666aa6a1d477aca00170e9aa9b0e46a80c0d5fd3d",
+          "mtime_ns": 1795222738063042024
+        },
+        "comparison_subprocess.py": {
+          "sha256": "9265f54747cb5d493d7f76e5ec9afabc36ba4645765d78531ac38fe3ce26af77",
+          "mtime_ns": 1795222702744692581
+        },
+        "comparison_bootstrap/sitecustomize.py": {
+          "sha256": "362e8c61f4129c001b2952924a21fe2fe3320f26515b7e29ed6a6642578531e8",
+          "mtime_ns": 1795221623666343307
+        }
+      },
+      "plain_control_reference": ".work/comparison-full-v1/parent.json.plain.pilot.json",
+      "operational_provenance": "Coverage agent captured this file/hash/mtime manifest immediately before V2 launch; all helper owners acknowledged source freeze until terminal. End hashes and mtimes must match at merger. This is operational provenance, not per-worker cryptographic attestation."
+    },
+    "popen_integration": {
+      "ordinary_nested_passed": true,
+      "missing_end_rejected": true,
+      "unsupported_flags_retained": true,
+      "one_parse_per_pid": true,
+      "successful_capture": {
+        "submitted": 0,
+        "python_subprocesses": 3,
+        "must_retain": [],
+        "errors": [],
+        "worker_contexts": {
+          "11311": [
+            "ordinary"
+          ],
+          "11312": [
+            "nested"
+          ],
+          "11313": [
+            "nested"
+          ]
+        },
+        "parsed_observation_shards": 3,
+        "untracked_child_activity_checked": true,
+        "activity_audit_exhaustive": false,
+        "narrowing_authorized": false
+      }
+    },
+    "reused_worker_regression": {
+      "reuse_passed": true,
+      "missing_receipt_retained": true,
+      "untracked_activity_retained": true,
+      "report": {
+        "submitted": 2,
+        "python_subprocesses": 0,
+        "must_retain": [],
+        "errors": [],
+        "worker_contexts": {
+          "11349": [
+            "first",
+            "second"
+          ]
+        },
+        "parsed_observation_shards": 1,
+        "untracked_child_activity_checked": true,
+        "activity_audit_exhaustive": false,
+        "narrowing_authorized": false
+      },
+      "observed_contexts": [
+        "first",
+        "second"
+      ],
+      "sites": 662
+    },
+    "combined_smoke": {
+      "submitted": 28,
+      "python_subprocesses": 1,
+      "must_retain": [],
+      "errors": [],
+      "worker_contexts": {
+        "11362": [
+          "tests/test_optimizer.py::TestOptimizer::test_eliminate_subqueries"
+        ],
+        "11363": [
+          "tests/test_optimizer.py::TestOptimizer::test_eliminate_subqueries"
+        ],
+        "11360": [
+          "tests/dialects/test_dialect.py::TestDialect::test_lazy_load"
+        ]
+      },
+      "parsed_observation_shards": 3,
+      "untracked_child_activity_checked": true,
+      "activity_audit_exhaustive": false,
+      "narrowing_authorized": false
+    },
+    "combined_smoke_summary": "3 tests and 28 subtests passed in 7.14 seconds: lazy_load, eliminate_subqueries, distinct_from.",
+    "new_tests": [
+      "5 pure launch classifier tests passed native Python3.13.",
+      "200 jobs sharing1worker: snapshot parsed exactly once; malformed snapshot retained all200 contexts.",
+      "Ordinary and nested Python-c launches preserve context; missing child-end invalidates capture; unsupported-S stays conservative."
+    ],
+    "commands": [
+      ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_comparison_subprocess.py",
+      ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_comparison_audit.py",
+      ".work/venv/bin/python rwx-blast-radius/tools/test_comparison_popen.py \"$PWD/.work/sqlglot\"",
+      ".work/venv/bin/python rwx-blast-radius/tools/test_comparison_spawn.py \"$PWD/.work/sqlglot\""
+    ],
+    "popen_contract": "Only shell=False, no preexec, explicit string argv resolving to same interpreter, generic python -c and known capture env are supported. Unique token joins launch/childstart/childend/exit+PID; command/cwd/allowlisted environment identity must match. Nested supported launches receive fresh tokens; unsupported or unverifiable launches cause global audit errors.",
+    "public_environment_provenance": "Only explicit runtime/capture allowlist hash; no arbitrary environment values or full-host environment digest persisted.",
+    "audit_complexity": "Index receipts once by kind/job/token/PID; parse each cumulative observation shard once per audit call."
+  }
+}
