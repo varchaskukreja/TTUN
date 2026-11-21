@@ -1,0 +1,489 @@
+{
+  "kind": "research_class_receiver_lifecycle_provenance",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "production_links_removed": false,
+  "narrowing_authorized": false,
+  "target_class": "sqlglot.expressions.ddl.TriggerProperties",
+  "baseline_probe": {
+    "node": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+    "result": "1 passed, 57 subtests passed in 34.18s",
+    "records": [
+      {
+        "pid": 16776,
+        "requested_test": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "class": "sqlglot.expressions.ddl.TriggerProperties",
+        "events": [
+          {
+            "file": "sqlglot/expressions/core.py",
+            "function": "Expr.__init_subclass__",
+            "line": 104,
+            "count": 1,
+            "stack": [
+              {
+                "file": "sqlglot/expressions/ddl.py",
+                "function": "<module>",
+                "line": 76
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "sqlglot/expressions/__init__.py",
+                "function": "<module>",
+                "line": 19
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_handle_fromlist",
+                "line": 1415
+              },
+              {
+                "file": "sqlglot/__init__.py",
+                "function": "<module>",
+                "line": 16
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "tests/test_executor.py",
+                "function": "<module>",
+                "line": 15
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              }
+            ],
+            "lifecycle": "class_initialization"
+          }
+        ],
+        "proves_unused": false
+      },
+      {
+        "pid": 16782,
+        "requested_test": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "class": "sqlglot.expressions.ddl.TriggerProperties",
+        "events": [],
+        "proves_unused": false
+      },
+      {
+        "pid": 16783,
+        "requested_test": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "class": "sqlglot.expressions.ddl.TriggerProperties",
+        "events": [
+          {
+            "file": "sqlglot/expressions/core.py",
+            "function": "Expr.__init_subclass__",
+            "line": 104,
+            "count": 1,
+            "stack": [
+              {
+                "file": "sqlglot/expressions/ddl.py",
+                "function": "<module>",
+                "line": 76
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "sqlglot/expressions/__init__.py",
+                "function": "<module>",
+                "line": 19
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_handle_fromlist",
+                "line": 1415
+              },
+              {
+                "file": "sqlglot/__init__.py",
+                "function": "<module>",
+                "line": 16
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "tests/test_executor.py",
+                "function": "<module>",
+                "line": 15
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              }
+            ],
+            "lifecycle": "class_initialization"
+          }
+        ],
+        "proves_unused": false
+      },
+      {
+        "pid": 16785,
+        "requested_test": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "class": "sqlglot.expressions.ddl.TriggerProperties",
+        "events": [
+          {
+            "file": "sqlglot/expressions/core.py",
+            "function": "Expr.__init_subclass__",
+            "line": 104,
+            "count": 1,
+            "stack": [
+              {
+                "file": "sqlglot/expressions/ddl.py",
+                "function": "<module>",
+                "line": 76
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "sqlglot/expressions/__init__.py",
+                "function": "<module>",
+                "line": 19
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_handle_fromlist",
+                "line": 1415
+              },
+              {
+                "file": "sqlglot/__init__.py",
+                "function": "<module>",
+                "line": 16
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load",
+                "line": 1360
+              },
+              {
+                "file": "tests/test_executor.py",
+                "function": "<module>",
+                "line": 15
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_call_with_frames_removed",
+                "line": 488
+              },
+              {
+                "file": "<frozen importlib._bootstrap_external>",
+                "function": "_LoaderBasics.exec_module",
+                "line": 1026
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_load_unlocked",
+                "line": 935
+              },
+              {
+                "file": "<frozen importlib._bootstrap>",
+                "function": "_find_and_load_unlocked",
+                "line": 1331
+              }
+            ],
+            "lifecycle": "class_initialization"
+          }
+        ],
+        "proves_unused": false
+      }
+    ],
+    "observed_initialization_calls": 3,
+    "observed_runtime_receiver_calls": 0
+  },
+  "old_raw_evidence": {
+    "warm_parent_contexts": [
+      "tests/dialects/test_duckdb.py::TestDuckDB::test_create_trigger",
+      "tests/dialects/test_postgres.py::TestPostgres::test_ddl",
+      "tests/dialects/test_postgres.py::TestPostgres::test_postgres_create_trigger"
+    ],
+    "child_only_contexts": {
+      "tests/dialects/test_dialect.py::TestDialect::test_lazy_load": 1,
+      "tests/test_executor.py::TestExecutor::test_execute_tpcds": 10,
+      "tests/test_executor.py::TestExecutor::test_execute_tpch": 5,
+      "tests/test_optimizer.py::TestOptimizer::test_canonicalize": 10,
+      "tests/test_optimizer.py::TestOptimizer::test_optimize": 10
+    },
+    "limitation": "Old class snapshots deduplicate context/class and do not retain callsites; child-only does not prove import-only."
+  },
+  "hypothetical_schedule_seconds": {
+    "current_8consumers": 25.454,
+    "without_only_tpcds": 7.71,
+    "only_3warm_parent_consumers": 2.078,
+    "not_a_proposed_selection": true
+  },
+  "generic_refinement_requirements": [
+    "Record initialization vs later receiver provenance without deleting any existing links.",
+    "Do not equate import-only receiver calls with absent dependencies: initialization may build registries or copy values into unrelated classes.",
+    "Require attribute-level initializer side-effect/dataflow proof plus complete downstream alias/derived-value/export closure before treating any initialization-only link as redundant.",
+    "Preserve repaired global registry fallback, static alias propagation, lexical outer links, and separately bound Parser/Generator links.",
+    "Full-catalog physical cold/reordered holdouts and complete baseline provenance would still be needed; no further full capture authorized by this report."
+  ],
+  "unresolved_risks": [
+    "No observation of class-attribute reads performed by free functions or native/C code.",
+    "Only one actual TPCDS test was probed; other four child-only contexts remain unresolved.",
+    "Source/code-object/reflection readers and initialization-dependent import failures can observe changes without later class receiver calls.",
+    "Comparison/receiver trace absence is not a proof under unseen execution orders, inputs or test isolation."
+  ],
+  "files_sha256": {
+    "tools/class_provenance_probe.py": "4114e54e10a7478e8f5238de1010417355d1a7cf381040ff725061df9b6d56bb",
+    "tools/class_provenance_bootstrap/sitecustomize.py": "509aee2017d104e8f0cb7b20e589dc8b078f39227025d01e4223b88ff59f1b20",
+    "tools/test_class_provenance_probe.py": "9a675d94f506d295484c5b598aca4664afb8da62786f61c68bfd5a7dfad85518"
+  },
+  "probe_command": "CLASS_PROVENANCE_SOURCE=\"$PWD/.work/sqlglot\" CLASS_PROVENANCE_OUTPUT=\"$PWD/.work/class-provenance-trigger\" CLASS_PROVENANCE_MODULE=sqlglot.expressions.ddl CLASS_PROVENANCE_CLASS=TriggerProperties CLASS_PROVENANCE_NODE=tests/test_executor.py::TestExecutor::test_execute_tpcds PYTHONPATH=\"$PWD/rwx-blast-radius/tools/class_provenance_bootstrap:$PWD/rwx-blast-radius/tools:$PWD/.work/sqlglot\" PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 PYTHON_CPU_COUNT=2 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .work/venv/bin/python -m pytest .work/sqlglot/tests/test_executor.py::TestExecutor::test_execute_tpcds -q -p no:cacheprovider --assert=plain",
+  "unit_test": "One synthetic fresh-process check confirms import initializer and later receiver use are both captured distinctly."
+}
