@@ -559,7 +559,6 @@ class Brain {
     // dodge incoming bullets and shells
     {
       let dx = 0, dy = 0, urgent = false
-      const cz = z + 4.5 * scale
       const mg = this.cfg.weapons.mortar.gravity ?? 22
       for (const p of o.projectiles) {
         const [px, py, pz] = p.pos
@@ -581,17 +580,18 @@ class Brain {
           }
           continue
         }
-        const rx = x - px, ry = y - py, rz = cz - pz
-        const vv = vx * vx + vy * vy + vz * vz
-        if (vv < 1) continue
-        const tc = (rx * vx + ry * vy + rz * vz) / vv
+        // Predict the projectile relative to our moving game collision cylinder.
+        const rvx = vx - me.vel[0], rvy = vy - me.vel[1]
+        const relativeSpeed2 = rvx * rvx + rvy * rvy
+        if (relativeSpeed2 < 1) continue
+        const tc = ((x - px) * rvx + (y - py) * rvy) / relativeSpeed2
         if (tc < 0 || tc > 0.9) continue
-        const mx = px + vx * tc - x, my = py + vy * tc - y, mz = pz + vz * tc - cz
-        const miss = Math.hypot(mx, my, mz * 0.5)
-        if (miss > 3.6 * scale) continue
-        // move perpendicular to the bullet path, away from its closest point
-        const hv = Math.hypot(vx, vy) || 1
-        let nx = -vy / hv, ny = vx / hv
+        const mx = px - x + rvx * tc, my = py - y + rvy * tc
+        const relativeZ = pz - z + (vz - me.vel[2]) * tc
+        if (relativeZ < -0.5 || relativeZ > me.stats.height + 0.5) continue
+        if (Math.hypot(mx, my) > me.stats.radius + 0.8) continue
+        const hv = Math.sqrt(relativeSpeed2)
+        let nx = -rvy / hv, ny = rvx / hv
         if (nx * -mx + ny * -my < 0) {
           nx = -nx
           ny = -ny
