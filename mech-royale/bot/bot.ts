@@ -38,6 +38,8 @@ class Brain {
   attackers = new Map<number, number>() // id -> last time they hit us
   hideUntil = 0
   mechHitT = -99
+  targetId = -1
+  targetT = -99
   mechHitBearing = 0
   npcMem = new Map<number, { pos: number[]; vel: number[]; t: number; hp: number }>()
 
@@ -167,11 +169,16 @@ class Brain {
       const age = t - tr.t
       if (age > 4) continue
       const hitUs = t - (this.attackers.get(tr.id) ?? -99) < 3 ? 50 : 0
-      const s = d + (tr.hp / tr.maxHp) * 80 + age * 30 - hitUs
+      const stick = tr.id === this.targetId && t - this.targetT < 2 ? 40 : 0
+      const s = d + (tr.hp / 1400) * 90 + age * 30 - hitUs - stick
       if (s < tScore) {
         tScore = s
         target = tr
       }
+    }
+    if (target) {
+      this.targetId = target.id
+      this.targetT = t
     }
     const npcs = o.mechs.filter((m) => m.kind === "npc")
     for (const n of npcs) this.npcMem.set(n.id, { pos: n.pos, vel: n.vel, t, hp: n.hp ?? 350 })
@@ -309,7 +316,8 @@ class Brain {
       const myDps = (gunS >= 0 ? 150 : 0) + (lightS >= 0 && d < 45 ? 200 : 0) + (laserS >= 0 ? 120 : 0)
       const theirHp = target.hp
       const theirFrac = theirHp / target.maxHp
-      const losing = (hpFrac < 0.35 && theirFrac > hpFrac + 0.1) || (threats >= 2 && hpFrac < 0.55) || (threats >= 3 && hpFrac < 0.8)
+      const finishing = theirFrac < 0.2 && hpFrac > 0.2 && threats <= 2
+      const losing = !finishing && ((hpFrac < 0.35 && theirFrac > hpFrac + 0.1) || (threats >= 2 && hpFrac < 0.55) || (threats >= 3 && hpFrac < 0.8))
       if (losing) this.hideUntil = t + 6
       const prefer = lightS >= 0 ? 28 : laserS >= 0 ? 110 : 70
       if (losing && map) {

@@ -1,4 +1,4 @@
-"""Bounded modern SolidWorks container reader and conservative XML metadata edits.
+"""Bounded SolidWorks reader, XML metadata edits, and fixed-size path references.
 
 Format research references (no third-party implementation copied):
 https://github.com/schwitters/openswx (MIT)
@@ -16,7 +16,8 @@ import struct
 import zlib
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape, unescape
-from .native import compile_identity_mapping, replace_identity_match
+from .matching import compile_identity_mapping, replace_identity_match
+from .native_reference import rewrite_reference_strings, reference_strings
 
 MARKER = b'\x14\x00\x06\x00\x08\x00'
 MAX_STREAM = 128 * 1024 * 1024
@@ -111,6 +112,16 @@ def _directory_entries(data: bytes, streams: list[Stream], target: Stream) -> li
             result.append(start)
 
 
+XML_VALUE_ATTRIBUTES = {'swPath', 'swName', 'swFileRef', 'Name', 'Description', 'Text', 'Value'}
+REFERENCE_METADATA_STREAMS = {'Header2', 'Contents/CMgr', 'SwDocMgrTempStorage/ReplaceRef', 'SwDocContentMgr/SwDocContentMgrInfo'}
+
+
+def _reference_metadata(name: str) -> bool:
+    return (name in REFERENCE_METADATA_STREAMS or
+            bool(re.fullmatch(r'Contents/Config-\d+-ModelHeader', name)) or
+            bool(re.fullmatch(r'_MO_VERSION_\d+/Biography', name)))
+
+
 def _edit_xml(payload: bytes, mapping: Mapping[str, str]) -> bytes:
     """Edit text values only, retaining XML markup, namespaces and keys."""
     text = payload.decode('utf-8')
@@ -124,30 +135,55 @@ def _edit_xml(payload: bytes, mapping: Mapping[str, str]) -> bytes:
         changed = pattern.sub(lambda m: replace_identity_match(m, normalized), decoded)
         return '>' + (escape(changed) if changed != decoded else original) + '<'
     changed = re.sub(r'>([^<>]*)<', value, text)
+    # Attribute editing is restricted to observed textual identity/path fields.
+    # Numeric IDs, geometry, materials, units, schemas and namespaces stay exact.
+    def tag(match):
+        def attribute(attr):
+            if attr[1] not in XML_VALUE_ATTRIBUTES:
+                return attr.group()
+            decoded = unescape(attr[3], {'&quot;': '"', '&apos;': "'"})
+            replacement = pattern.sub(lambda m: replace_identity_match(m, normalized), decoded)
+            if replacement == decoded:
+                return attr.group()
+            escaped = escape(replacement, {'"': '&quot;', "'": '&apos;'})
+            return attr[1] + '=' + attr[2] + escaped + attr[2]
+        return re.sub(r'([A-Za-z_:][\w:.-]*)\s*=\s*([\"\'])(.*?)\2', attribute, match.group())
+    changed = re.sub(r'<[^>]*>', tag, changed)
     ET.fromstring(changed)
     return changed.encode('utf-8')
 
 
 def rewrite_bytes(data: bytes, mapping: Mapping[str, str]) -> tuple[bytes, dict]:
-    """Edit docProps XML with fixed compressed spans and synchronized CRCs.
+    """Edit metadata XML and allowlisted fixed-size framed path strings.
 
-    Every other stream and gap remains byte-identical except matching directory
-    CRC/decoded-size fields. Overflow is refused rather than shifting offsets.
+    Geometry streams and unrelated gaps remain byte-identical. Matching directory
+    CRC/decoded-size fields are synchronized; compressed-span overflow is refused.
     """
     streams, issues = read_streams(data)
     report = {'changed_streams': 0, 'rejected_streams': 0, 'issues': list(issues),
               'unprocessed_streams': 0, 'complete_deidentification': False,
-              'vendor_reopen_verified': False}
+              'vendor_reopen_verified': False, 'changed_references': 0, 'rejected_references': 0}
     output = bytearray(data)
     for stream in streams:
-        if not stream.name.startswith('docProps/') or not stream.name.endswith('.xml'):
+        is_xml = ((stream.name.startswith('docProps/') and stream.name.endswith('.xml')) or
+                  stream.name.startswith('swXmlContents/'))
+        reference_report = {'changed_references': 0, 'rejected_references': 0}
+        if is_xml and stream.payload:
+            # KeyWords uses an observed one-byte marker before standalone XML.
+            prefix = b'\x86' if stream.name == 'swXmlContents/KeyWords' and stream.payload.startswith(b'\x86<?xml') else b''
+            try:
+                changed = prefix + _edit_xml(stream.payload[len(prefix):], mapping)
+            except (UnicodeError, ET.ParseError):
+                report['issues'].append('invalid_metadata_xml')
+                report['rejected_streams'] += 1
+                continue
+        elif _reference_metadata(stream.name):
+            changed, reference_report = rewrite_reference_strings(stream.payload, mapping)
+            report['rejected_references'] += reference_report['rejected_references']
+            if reference_report['rejected_references']:
+                report['issues'].append('native_reference_requires_length_change')
+        else:
             report['unprocessed_streams'] += 1
-            continue
-        try:
-            changed = _edit_xml(stream.payload, mapping)
-        except (UnicodeError, ET.ParseError):
-            report['issues'].append('invalid_metadata_xml')
-            report['rejected_streams'] += 1
             continue
         if changed == stream.payload:
             continue
@@ -168,6 +204,7 @@ def rewrite_bytes(data: bytes, mapping: Mapping[str, str]) -> tuple[bytes, dict]
             struct.pack_into('<I', output, start + 14, crc)
             struct.pack_into('<I', output, start + 22, len(changed))
         report['changed_streams'] += 1
+        report['changed_references'] += reference_report['changed_references']
     result = bytes(output)
     checked, errors = read_streams(result)
     if len(result) != len(data) or errors != issues or len(checked) != len(streams):

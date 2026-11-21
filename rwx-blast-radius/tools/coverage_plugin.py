@@ -14,6 +14,8 @@ IDS = {t['id'] for t in CATALOG}
 RETRY = os.environ.get('BLAST_RETRY')
 if RETRY:
     IDS = set(json.loads(RETRY))
+elif os.environ.get('BLAST_SELECT'):
+    IDS = set(json.loads(os.environ['BLAST_SELECT']))
 context = ''
 reads = {}
 results = {}
@@ -37,7 +39,7 @@ def audit(event, args):
         rel = os.path.relpath(path, ROOT)
         if not rel.startswith('.git/') and not rel.endswith(('.pyc', '.coverage')):
             consumers = {context}
-            if not rel.endswith('.py') and context:
+            if not rel.endswith('.py') and context and not context.startswith('@scope|'):
                 frame = sys._getframe(1)
                 while frame is not None:
                     if frame.f_code.co_name == 'setUpClass':
@@ -99,6 +101,26 @@ def pytest_runtest_protocol(item, nextitem):
     context = ''
     os.environ.pop('BLAST_CONTEXT', None)
 
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_fixture_setup(fixturedef, request):
+    global context
+    previous = context
+    if fixturedef.scope != 'function':
+        context = '@scope|' + fixturedef.scope + '|' + request.node.nodeid
+        cov.switch_context(context)
+        os.environ['BLAST_CONTEXT'] = context
+    try:
+        yield
+    finally:
+        if fixturedef.scope != 'function':
+            context = previous
+            cov.switch_context(context)
+            if context:
+                os.environ['BLAST_CONTEXT'] = context
+            else:
+                os.environ.pop('BLAST_CONTEXT', None)
 
 def pytest_runtest_logreport(report):
     if report.when == 'call' and type(report).__name__ != 'SubtestReport':

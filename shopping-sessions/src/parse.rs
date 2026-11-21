@@ -92,9 +92,86 @@ fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
     era * 146097 + doe - 719468
 }
 
-/// F1 `YYYY-MM-DDTHH:MM:SSZ`, F2 `YYYY-MM-DDTHH:MM:SS±HH:MM`, F3 digits = epoch ms.
-#[inline]
+#[inline(always)]
+fn dig(b: u8, bad: &mut u8) -> i64 {
+    let d = b.wrapping_sub(b'0');
+    *bad |= (d > 9) as u8;
+    d as i64
+}
+
+const DIM: [u8; 13] = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+/// Same result as `parse_ts_ref`, with the checks folded into flags instead of branches.
+#[inline(always)]
 pub fn parse_ts(b: &[u8]) -> Option<i64> {
+    let n = b.len();
+    if (n == 20 || n == 25) && b[4] == b'-' {
+        let b: &[u8; 20] = b[..20].try_into().unwrap();
+        let mut bad = (b[7] != b'-') as u8 | (b[10] != b'T') as u8 | (b[13] != b':') as u8 | (b[16] != b':') as u8;
+        let y = dig(b[0], &mut bad) * 1000 + dig(b[1], &mut bad) * 100 + dig(b[2], &mut bad) * 10 + dig(b[3], &mut bad);
+        let mo = dig(b[5], &mut bad) * 10 + dig(b[6], &mut bad);
+        let d = dig(b[8], &mut bad) * 10 + dig(b[9], &mut bad);
+        let h = dig(b[11], &mut bad) * 10 + dig(b[12], &mut bad);
+        let mi = dig(b[14], &mut bad) * 10 + dig(b[15], &mut bad);
+        let s = dig(b[17], &mut bad) * 10 + dig(b[18], &mut bad);
+        bad |= (mo.wrapping_sub(1) as u64 >= 12) as u8 | (h > 23) as u8 | (mi > 59) as u8 | (s > 59) as u8;
+        if bad != 0 {
+            return None;
+        }
+        let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
+        let dim = DIM[mo as usize] as i64 + (mo == 2 && leap) as i64;
+        if d < 1 || d > dim {
+            return None;
+        }
+        let off = if n == 20 {
+            if b[19] != b'Z' {
+                return None;
+            }
+            0
+        } else {
+            parse_off(unsafe { &*(b.as_ptr().add(19) as *const [u8; 6]) })?
+        };
+        let secs = days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s - off;
+        return Some(secs * 1000);
+    }
+    if n != 0 && n <= 18 {
+        return parse_digits(b);
+    }
+    parse_ts_ref(b)
+}
+
+#[inline(always)]
+fn parse_off(o: &[u8; 6]) -> Option<i64> {
+    let mut bad = (o[3] != b':') as u8;
+    let oh = dig(o[1], &mut bad) * 10 + dig(o[2], &mut bad);
+    let om = dig(o[4], &mut bad) * 10 + dig(o[5], &mut bad);
+    bad |= (oh > 23) as u8 | (om > 59) as u8;
+    let o2 = oh * 3600 + om * 60;
+    match o[0] {
+        b'+' if bad == 0 => Some(o2),
+        b'-' if bad == 0 => Some(-o2),
+        _ => None,
+    }
+}
+
+/// 1 to 18 digits, so no overflow is possible.
+#[inline(always)]
+fn parse_digits(b: &[u8]) -> Option<i64> {
+    let mut bad = 0u8;
+    let mut v = 0i64;
+    for &c in b {
+        v = v * 10 + dig(c, &mut bad);
+    }
+    if bad == 0 {
+        Some(v)
+    } else {
+        None
+    }
+}
+
+/// F1 `YYYY-MM-DDTHH:MM:SSZ`, F2 `YYYY-MM-DDTHH:MM:SS±HH:MM`, F3 digits = epoch ms.
+#[inline(never)]
+pub fn parse_ts_ref(b: &[u8]) -> Option<i64> {
     let n = b.len();
     if n == 0 {
         return None;
@@ -194,5 +271,72 @@ mod tests {
         assert_eq!(parse_ts(b"2026-10-03T23:58:10+0200"), None);
         assert_eq!(parse_ts(b"2026-10-03 23:58:10Z"), None);
         assert_eq!(parse_ts(b"99999999999999999999999"), None);
+    }
+
+    #[test]
+    fn fast_matches_ref() {
+        let mut x: u64 = 0x1234_5678_9abc_def1;
+        let mut rnd = || {
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            x
+        };
+        let seeds: &[&[u8]] = &[
+            b"2027-12-18T22:22:54Z",
+            b"2028-02-29T00:00:00Z",
+            b"2100-02-29T00:00:00Z",
+            b"2000-02-29T23:59:59Z",
+            b"2027-12-21T10:03:10-02:00",
+            b"2027-12-21T10:03:10+14:30",
+            b"1829168499000",
+            b"000000000000000000",
+            b"999999999999999999",
+            b"9223372036854775807",
+            b"9223372036854775808",
+            b"",
+            b"1",
+        ];
+        let alphabet = b"0123456789-T:Z+ x9";
+        for s in seeds {
+            assert_eq!(parse_ts(s), parse_ts_ref(s), "{:?}", std::str::from_utf8(s));
+            for _ in 0..200_000 {
+                let mut v = s.to_vec();
+                for _ in 0..(rnd() % 3) {
+                    if v.is_empty() {
+                        break;
+                    }
+                    let i = (rnd() as usize) % v.len();
+                    v[i] = alphabet[(rnd() as usize) % alphabet.len()];
+                }
+                if rnd() % 8 == 0 {
+                    v.truncate((rnd() as usize) % (v.len() + 1));
+                }
+                assert_eq!(parse_ts(&v), parse_ts_ref(&v), "{:?}", std::str::from_utf8(&v));
+            }
+        }
+        for _ in 0..2_000_000 {
+            let r = |m: u64, v: u64| v % m;
+            let mut s = format!(
+                "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}",
+                1890 + r(240, rnd()),
+                r(14, rnd()),
+                r(33, rnd()),
+                r(26, rnd()),
+                r(62, rnd()),
+                r(62, rnd())
+            );
+            if rnd() % 2 == 0 {
+                s.push('Z');
+            } else {
+                s += &format!("{}{:02}:{:02}", if rnd() % 2 == 0 { '+' } else { '-' }, r(26, rnd()), r(62, rnd()));
+            }
+            assert_eq!(parse_ts(s.as_bytes()), parse_ts_ref(s.as_bytes()), "{s}");
+        }
+        for _ in 0..2_000_000 {
+            let n = (rnd() % 27) as usize;
+            let v: Vec<u8> = (0..n).map(|_| alphabet[(rnd() as usize) % alphabet.len()]).collect();
+            assert_eq!(parse_ts(&v), parse_ts_ref(&v));
+        }
     }
 }

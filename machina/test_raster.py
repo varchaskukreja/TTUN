@@ -84,3 +84,98 @@ def test_distant_labels_not_joined():
     edits, limits = _regions(lines, {'ACME ENGINEERING': 'Company_001'}, 85)
     assert not edits
     assert 'disconnected_identity_tokens_preserved' in limits
+
+
+def test_png_grayscale_alpha_and_metadata_preserved():
+    import io
+    from PIL import Image, PngImagePlugin
+    from machina.raster import transform_image
+    for mode in ('L', 'LA', 'RGBA'):
+        image = Image.new(mode, (300, 160), {'L': 170, 'LA': (170, 100), 'RGBA': (100, 150, 200, 75)}[mode])
+        metadata = PngImagePlugin.PngInfo()
+        metadata.add_text('Author', 'ACME ENGINEERING')
+        metadata.add_text('Units', 'mm')
+        source = io.BytesIO(); image.save(source, format='PNG', dpi=(300,300), pnginfo=metadata)
+        output, report = transform_image(source.getvalue(), {'ACME ENGINEERING':'Company_001'}, ocr_report=ocr())
+        with Image.open(io.BytesIO(output)) as result:
+            assert result.mode == mode
+            assert result.format == 'PNG'
+            assert result.info['Author'] == 'Company_001'
+            assert result.info['Units'] == 'mm'
+            assert abs(result.info['dpi'][0] - 300) < 0.1
+            assert result.crop((0,50,300,160)).tobytes() == image.crop((0,50,300,160)).tobytes()
+            if 'A' in mode:
+                assert result.getpixel((200,100))[-1] == image.getpixel((200,100))[-1]
+                assert result.getpixel((21,23))[-1] == 255
+        assert report['pixel_preservation'] == 'exact_outside_regions'
+
+
+def test_jpeg_format_dimensions_exif_and_lossy_warning():
+    import io
+    from PIL import Image
+    from machina.raster import transform_image
+    image = Image.new('RGB', (300,160), (170,180,190))
+    exif = Image.Exif(); exif[315] = 'ACME ENGINEERING'; exif[274] = 6
+    source = io.BytesIO(); image.save(source, format='JPEG', exif=exif, dpi=(200,200))
+    output, report = transform_image(source.getvalue(), {'ACME ENGINEERING':'Company_001'}, ocr_report=ocr())
+    with Image.open(io.BytesIO(output)) as result:
+        assert result.format == 'JPEG'
+        assert result.size == image.size
+        assert result.getexif()[315] == 'Company_001'
+        assert result.getexif()[274] == 6
+        assert result.info['dpi'] == (200,200)
+    assert report['pixel_preservation'] == 'lossy_jpeg_recompression'
+    assert 'jpeg_recompression_changes_pixels_outside_regions' in report['limitations']
+
+
+def test_tiff_multiframe_preserves_pixels_and_per_frame_metadata():
+    import io
+    from PIL import Image, TiffImagePlugin
+    from machina.raster import transform_image
+    frames = [Image.new('L', (300,160), 125), Image.new('L',(300,160),220)]
+    source = io.BytesIO()
+    with TiffImagePlugin.AppendingTiffWriter(source) as writer:
+        for i,frame in enumerate(frames):
+            tags = TiffImagePlugin.ImageFileDirectory_v2()
+            tags[315] = 'ACME ENGINEERING'
+            tags[270] = 'Frame '+str(i)
+            tags[282] = 300+i
+            tags[283] = 300+i
+            tags[296] = 2
+            frame.save(writer, format='TIFF', tiffinfo=tags)
+            writer.newFrame()
+    scan = ocr(); scan['pages'].append({'page':1, 'lines':[]})
+    output, report = transform_image(source.getvalue(), {'ACME ENGINEERING':'Company_001'}, ocr_report=scan)
+    with Image.open(io.BytesIO(output)) as result:
+        assert result.format == 'TIFF'
+        assert result.n_frames == 2
+        for i in range(2):
+            result.seek(i)
+            assert result.tag_v2[315] == 'Company_001'
+            assert result.tag_v2[270] == 'Frame '+str(i)
+            assert result.tag_v2[282] == 300+i
+            assert result.crop((0,50,300,160)).tobytes() == frames[i].crop((0,50,300,160)).tobytes()
+    assert report['frames'] == 2
+
+
+def test_16_bit_png_preserves_original_sample_values_outside_regions():
+    import io
+    from PIL import Image
+    from machina.raster import transform_image
+    image=Image.new('I;16',(300,160),12345)
+    source=io.BytesIO();image.save(source,format='PNG')
+    output, report=transform_image(source.getvalue(),{'ACME ENGINEERING':'Company_001'},ocr_report=ocr())
+    with Image.open(io.BytesIO(output)) as result:
+        assert result.mode=='I;16'
+        assert result.getpixel((200,100))==12345
+        assert result.getpixel((21,23))==65535
+
+
+def test_total_tiff_frame_budget_rejects_partial_outputs():
+    import io,pytest
+    from PIL import Image
+    from machina.raster import transform_image
+    source=io.BytesIO()
+    Image.new('L',(20,20)).save(source,format='TIFF',save_all=True,append_images=[Image.new('L',(20,20))])
+    with pytest.raises(ValueError,match='pixel budget'):
+        transform_image(source.getvalue(),{},ocr_report={'limitations':[],'pages':[]},max_pixels=600)

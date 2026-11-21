@@ -16,12 +16,13 @@ def read_json(path):
 
 
 class Selector:
-    def __init__(self, tests, mapping, source):
+    def __init__(self, tests, mapping, source, class_guard=None):
         self.tests = tests
         self.mapping = mapping
         self.source = source
         self.source_cache = {}
         self.ast_cache = {}
+        self.class_guard = class_guard
         self.all = {t['number'] for t in tests}
         by_id = {t['id']: t['number'] for t in tests}
         self.translate = {i: by_id[name] for i, name in enumerate(mapping.get('test_ids', [])) if name in by_id}
@@ -34,6 +35,7 @@ class Selector:
 
     def select(self, patch):
         selected = set()
+        narrowed_class = False
         for change in parse_patch(patch):
             path = change['path']
             baseline = self.source / path
@@ -48,6 +50,9 @@ class Selector:
                 selected.update(self.numbers(info.get('read_tests', [])))
             if path.endswith('.py'):
                 try:
+                    # AST-only parsing accepts context-invalid constructs such as
+                    # break outside a loop. Import failures require full fallback.
+                    compile(updated.encode('utf-8'), path, 'exec')
                     if path not in self.ast_cache:
                         parsed = compile(source.encode('utf-8'), path, 'exec', ast.PyCF_ONLY_AST)
                         self.ast_cache[path] = (parsed, ast.dump(parsed, include_attributes=False))
@@ -78,7 +83,15 @@ class Selector:
                     enclosing = [n for n in functions if n.lineno <= line <= n.end_lineno]
                     if not enclosing:
                         # Imports, class attributes and registration tables affect later consumers.
-                        return self.all
+                        if self.class_guard is None:
+                            return self.all
+                        from class_selection import class_candidates
+                        consumers = class_candidates(tree, new_tree, line, info)
+                        if consumers is None:
+                            return self.all
+                        selected.update(self.numbers(consumers))
+                        narrowed_class = True
+                        continue
                     function = min(enclosing, key=lambda n: n.end_lineno - n.lineno)
                     body_start = function.body[0].lineno if isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)) else function.lineno
                     if line < body_start or any(body_start <= recorded <= function.end_lineno for recorded in info.get('collection_lines', [])):
@@ -99,6 +112,12 @@ class Selector:
                     return self.all
                 selected.update(self.numbers(info['tests']))
                 selected.update(self.unmapped)
+        if narrowed_class:
+            try:
+                if not self.class_guard(patch):
+                    return self.all
+            except Exception:
+                return self.all
         return selected
 
 
