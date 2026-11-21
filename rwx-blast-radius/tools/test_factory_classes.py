@@ -45,6 +45,16 @@ class FactoryClassTests(unittest.TestCase):
     def test_proven_call_constant_edit_with_arbitrary_unchanged_branch(self):
         self.assertEqual(self.candidates(), {0})
 
+    def test_factory_proof_does_not_override_global_registry_export(self):
+        tests = [{'id': 'receiver', 'number': 10, 'seconds': .1},
+                 {'id': 'registry_reader', 'number': 11, 'seconds': .1}]
+        mapping = {'test_ids': ['receiver', 'registry_reader'], 'files': {
+            'sqlglot/consumer.py': {'class_consumers': {'Example': [0]}, 'lines': {},
+                                  'class_attribute_global_exports': {'Example': ['REG']}}}}
+        engine = FactorySelector(tests, mapping, self.root, build_proofs(self.root), lambda patch: True)
+        self.assertEqual(engine.select(diff('sqlglot/consumer.py', CONSUMER,
+                                           CONSUMER.replace('target=True', 'target=False'))), {10, 11})
+
     def test_string_argument_constant_change(self):
         self.assertEqual(self.candidates(after=CONSUMER.replace("'THING'", "'OTHER'")), {0})
 

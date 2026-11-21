@@ -85,7 +85,9 @@ def factory_candidates(tree, new_tree, line, info, proofs, path, changed_paths, 
                         continue
                     if any(not isinstance(target, ast.Name) or (target.id.startswith('__') and target.id.endswith('__')) for target in targets):
                         continue
-                    consumers = info.get('class_consumers', {}).get('.'.join(owner.name for owner in classes))
+                    consumers = class_selection.assignment_consumers(
+                        info, '.'.join(owner.name for owner in classes),
+                        [target.id for target in targets])
                     if not consumers:
                         continue
                     changed_paths_in_value = []

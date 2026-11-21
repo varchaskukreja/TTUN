@@ -1,11 +1,11 @@
 {
   "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
-  "map_sha256": "314b0c6d8991d18a090715fccf93a21284513d4b0de7e6478811404200a32b7e",
+  "map_sha256": "aaf3a027b39c63b28ac4dab939fc761f642c7b9e67460ff8dfa99fe93b6e869a",
   "sample": {
     "commits": 30,
-    "simulated_seconds": 251.306,
+    "simulated_seconds": 254.914,
     "missed_commits": 0,
-    "observed_process_cpu_seconds": 11.299505,
+    "observed_process_cpu_seconds": 11.054837,
     "guard_calls": 4,
     "guard_passed": 4
   },
@@ -31,6 +31,14 @@
     "postgres_factory_argument": {
       "failing_tests": 3,
       "missed": 0
+    },
+    "class_external_reads": {
+      "mutations": 3,
+      "failing_test_occurrences": 63,
+      "original_missed_occurrences": 9,
+      "repaired_missed_occurrences": 0,
+      "evidence": "class-external-reads-repaired.json",
+      "method": "Reuse full-catalog physical mutation failures and verify repaired selection includes every failure; retain every previously selected test."
     }
   },
   "limitations": [
@@ -44,8 +52,9 @@
   ],
   "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
   "tests": {
-    "primary_passed": 119,
-    "factory_policy_passed": 21,
-    "granularity_counterexample_tests_passed": 16
+    "primary_passed": 121,
+    "factory_policy_passed": 22,
+    "granularity_counterexample_tests_passed": 16,
+    "class_export_and_propagation_passed": 9
   }
 }
