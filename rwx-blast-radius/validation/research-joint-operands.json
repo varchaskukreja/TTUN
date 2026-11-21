@@ -1,0 +1,112 @@
+{
+  "format": 1,
+  "tests_passed": 5,
+  "iterations": 2000,
+  "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "results": [
+    {
+      "workload": "token_enum",
+      "cpu_seconds": {
+        "reference": [
+          0.15925100000000003,
+          0.15884200000000004,
+          0.16320199999999996
+        ],
+        "joint": [
+          0.087428,
+          0.08812199999999998,
+          0.08829100000000001
+        ]
+      },
+      "medians": {
+        "reference": 0.15925100000000003,
+        "joint": 0.08812199999999998
+      },
+      "speedup": 1.8071650666121974,
+      "descriptors_equal": true
+    },
+    {
+      "workload": "normalization_enum",
+      "cpu_seconds": {
+        "reference": [
+          0.01278899999999994,
+          0.01258999999999999,
+          0.012724999999999986
+        ],
+        "joint": [
+          0.0065870000000000095,
+          0.006704999999999961,
+          0.006628999999999996
+        ]
+      },
+      "medians": {
+        "reference": 0.012724999999999986,
+        "joint": 0.006628999999999996
+      },
+      "speedup": 1.9195957157942365,
+      "descriptors_equal": true
+    },
+    {
+      "workload": "none",
+      "cpu_seconds": {
+        "reference": [
+          0.004286000000000012,
+          0.0044279999999999875,
+          0.004193000000000002
+        ],
+        "joint": [
+          0.0022929999999999895,
+          0.0024969999999999715,
+          0.0023340000000000583
+        ]
+      },
+      "medians": {
+        "reference": 0.004286000000000012,
+        "joint": 0.0023340000000000583
+      },
+      "speedup": 1.8363324764352635,
+      "descriptors_equal": true
+    },
+    {
+      "workload": "mixed",
+      "cpu_seconds": {
+        "reference": [
+          0.08406399999999992,
+          0.08452000000000015,
+          0.08519900000000002
+        ],
+        "joint": [
+          0.08467400000000003,
+          0.08430199999999988,
+          0.08550100000000005
+        ]
+      },
+      "medians": {
+        "reference": 0.08452000000000015,
+        "joint": 0.08467400000000003
+      },
+      "speedup": 0.998181259890877,
+      "descriptors_equal": true
+    }
+  ],
+  "persistent_cache": false,
+  "limitations": [
+    "Concurrent member/type mutation inside one observation is outside the deterministic baseline assumption.",
+    "Synthetic speedup does not measure fullsuite speedup."
+  ],
+  "capture_modified": true,
+  "real_pilot": {
+    "original": {
+      "seconds": 3.76393625000037,
+      "exitcode": 0
+    },
+    "candidate": {
+      "seconds": 3.297031125000103,
+      "exitcode": 0
+    },
+    "exact_snapshot_equal": true,
+    "reader_dependencies_equal": true,
+    "site_observations_equal": true
+  },
+  "integration": "Fresh joint scan integrated into research Recorder only; no persistent type/member cache and no production edits."
+}

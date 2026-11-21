@@ -34,7 +34,9 @@ def interpreter_issues(mapping, proofs):
         for metadata in (mapping, mapping.get('capture_report', {})):
             if isinstance(metadata, dict) and 'python_version' in metadata:
                 version = metadata['python_version']
-                if type(version) is not list or any(type(n) is not int for n in version) or version != current:
+                list_match = type(version) is list and all(type(n) is int for n in version) and version == current
+                string_match = type(version) is str and version == '.'.join(map(str, current))
+                if not (list_match or string_match):
                     issues.append('comparison capture Python minor does not match analysis interpreter')
     return sorted(set(issues))
 
