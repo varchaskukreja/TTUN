@@ -1,0 +1,82 @@
+{
+  "kind": "comparison_artifact_packaging_research",
+  "narrowing_authorized": false,
+  "preferred": "plain gzip whole merged mapping",
+  "load_benchmark": {
+    "measurements": {
+      "plain": {
+        "load_verify_cpu_seconds": [
+          0.293075,
+          0.2853809999999999,
+          0.2553399999999999
+        ],
+        "median": 0.2853809999999999
+      },
+      "dag": {
+        "load_verify_cpu_seconds": [
+          1.1647410000000002,
+          1.2682909999999996,
+          1.6460719999999993
+        ],
+        "median": 1.2682909999999996
+      }
+    },
+    "preferred": "plain",
+    "plain_bytes": 3107324,
+    "plain_sha256": "9419528e7d1d8420263119855b53565c466604f382bd856909f7c70e913fb7cc",
+    "expanded_sha256": "a6539d18d873c7ce13728e29ce55865aaff55f77136b0bae020417d63cac081a",
+    "reason": "Both fit repository budget; plain gzip avoids Python DAG traversal and canonical reserialization."
+  },
+  "dag_artifact": {
+    "kind": "lossless_comparison_evidence_research",
+    "narrowing_authorized": false,
+    "input_sha256": "a6539d18d873c7ce13728e29ce55865aaff55f77136b0bae020417d63cac081a",
+    "artifact_sha256": "4d16d0a8be7ef244147e1ac7bc4e64c04529475dd47afb68898b6d995c1b589c",
+    "expanded_sha256": "a6539d18d873c7ce13728e29ce55865aaff55f77136b0bae020417d63cac081a",
+    "input_bytes": 44881432,
+    "plain_gzip_bytes": 3107324,
+    "dag_json_bytes": 3667065,
+    "artifact_bytes": 614353,
+    "nodes": 47721,
+    "sites": 1671,
+    "lossless_equality": true,
+    "pack_cpu_seconds": 0.9551989999999999,
+    "load_verify_cpu_seconds": 1.807835
+  },
+  "site_count": 1671,
+  "all_site_certificate_and_retention_equal": true,
+  "decisions": {
+    "retain_production_selection": 1404,
+    "conditional_research_proposal": 267
+  },
+  "capture_issues": [],
+  "source_bound_qualification": {
+    "files": 98,
+    "eligible": 11,
+    "full_cpu_median": 0.03631999999999991,
+    "full_cpu_max": 1.4043990000000006,
+    "full_cpu_sum": 9.231109000000002
+  },
+  "qualifier_hashes": {
+    "comparison_types.py": "77247e3688c2ad79dd846d9e8782d7f608eec1c647c4c7df55469015e8c2b57e",
+    "fast_comparison_qualifier.py": "007107bebbf2b974607c4ccdff794ebcd71e57d9f99d33acbcb03c5fbca84e66",
+    "linear_operator_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
+    "patches.py": "4d5e4e7878ee6797211c9fce46bec04ffba0563ab02f371054914883b93f7d20"
+  },
+  "tool_hashes": {
+    "rwx-blast-radius/tools/compact_comparison_evidence.py": "190081412d7be1f637c30d0f74033cdf99833e1c7a1e8b5099968ac2be261fb8",
+    "rwx-blast-radius/tools/validate_compact_comparison_evidence.py": "39cfba58e3be9e568714d4fda2628f18c33dfc57b7e13d4cd4f44c08b4ed201f",
+    "rwx-blast-radius/tools/test_compact_comparison_evidence.py": "8f292fa49fe601157d815ddd45d157fb312ad6536d80d23b474fc73ed8702e95",
+    "rwx-blast-radius/tools/test_validate_compact_comparison_evidence.py": "ab5e6d9aaf2fcec4a80819ba5955d5913f3df180641b3736c0fac67a41e70596"
+  },
+  "full_validation_artifact": ".work/comparison-full-v3/compact-plain-equivalence.json",
+  "full_validation_sha256": "babfc756e78438bfd480d7c9101f636b81cae66bc4d6f3f7c99e462b047f6e08",
+  "tests": "7 passed; includes noncanonical plain JSON expanded digest",
+  "answers_read": false,
+  "required_integration_delta": "Explicitly retain/add baseline_unstable_tests; current analyzer does not inspect this key. Unknown IDs globally reject narrowing.",
+  "commands": [
+    ".work/venv/bin/python rwx-blast-radius/tools/compact_comparison_evidence.py --input .work/comparison-full-v3/merged.json --encoding plain --output .work/comparison-full-v3/compact-plain.json.gz --report .work/comparison-full-v3/compact-plain-report.json",
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_*compact_comparison_evidence.py",
+    ".work/venv/bin/python rwx-blast-radius/tools/validate_compact_comparison_evidence.py --full .work/comparison-full-v3/merged.json --compact .work/comparison-full-v3/compact-plain.json.gz --encoding plain --catalog rwx-blast-radius/sample/tests.json --production-map rwx-blast-radius/maps/coverage.json.gz --source .work/sqlglot --output .work/comparison-full-v3/compact-plain-equivalence.json"
+  ]
+}
