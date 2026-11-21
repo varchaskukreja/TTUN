@@ -31,6 +31,9 @@ class Selector:
         self.unmapped = self.all - set(self.translate.values())
         self.unmapped.update(by_id[name] for name in mapping.get('missing_tests', []) if name in by_id)
         self.unmapped.update(by_id[name] for name, outcome in mapping.get('baseline_outcomes', {}).items() if outcome != 'passed' and name in by_id)
+        # Failures in unmodified order/isolation controls cannot be excluded
+        # using dependencies observed in a different baseline execution.
+        self.unmapped.update(by_id[name] for name in mapping.get('baseline_unstable_tests', []) if name in by_id)
 
     def numbers(self, indices):
         return {self.translate[i] for i in indices if i in self.translate}

@@ -1,11 +1,11 @@
 {
   "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
-  "map_sha256": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
+  "map_sha256": "22fbaf3378b0d0cbba33ad2fa3586e684cb3c492e2d1ec319900bb8015cf32c5",
   "sample": {
     "commits": 30,
-    "simulated_seconds": 256.055,
+    "simulated_seconds": 262.603,
     "missed_commits": 0,
-    "observed_process_cpu_seconds": 11.166898,
+    "observed_process_cpu_seconds": 12.336167,
     "guard_calls": 4,
     "guard_passed": 4
   },
@@ -44,12 +44,19 @@
       "failing_tests": 146,
       "missed": 0,
       "evidence": "final-class-bindings-holdouts.json"
+    },
+    "captured_copy_budget_defaults": {
+      "failing_tests": 5,
+      "original_selected": 96,
+      "original_missed": 0,
+      "new_selection_retains_all_original_tests": true
     }
   },
   "limitations": [
     "Local sample score excludes official container CPU accounting.",
     "Hidden leaderboard results for this candidate are not yet available.",
-    "Coverage dependencies are observed baseline behavior, not a proof of all possible runtime effects."
+    "Coverage dependencies are observed baseline behavior, not a proof of all possible runtime effects.",
+    "Shared dialect registry mutation full-catalog validation timed out at180s; no audited missed-test count available."
   ],
   "production_exclusions": [
     "statement-level narrowing",
@@ -57,11 +64,24 @@
   ],
   "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
   "tests": {
-    "primary_passed": 121,
+    "primary_passed": 122,
     "factory_policy_passed": 22,
     "granularity_counterexample_tests_passed": 16,
-    "class_export_and_propagation_passed": 13
+    "class_export_and_propagation_passed": 13,
+    "definition_expression_passed": 10
   },
   "transitive_export_evidence": "transitive-class-exports.json",
-  "class_value_binding_evidence": "research-class-bindings.json"
+  "class_value_binding_evidence": "research-class-bindings.json",
+  "baseline_instability_retention": {
+    "test_count": 2,
+    "evidence": "baseline-unstable-tests-v3.json",
+    "sample_added_seconds": 6.548,
+    "scope": "Observed unmodified reversed/shuffle baseline failures; arbitrary-order completeness not proven."
+  },
+  "definition_expression_captures": {
+    "recognized": 13,
+    "evidence": "research-definition-expressions.json",
+    "sample_selection_cost_change_seconds": 0,
+    "scope": "Additive function/lambda header captures; not complete Python binding analysis."
+  }
 }

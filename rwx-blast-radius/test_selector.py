@@ -84,6 +84,12 @@ class SelectorTests(unittest.TestCase):
         old = self.add_source("m.py", 'def f():\n    return "café"\n', lines={"2": [0]})
         self.assertEqual(self.select("m.py", old, "# coding: ascii\n" + old), {10, 11, 12, 13})
 
+    def test_baseline_instability_survives_unrelated_and_nonexecuting_edits(self):
+        self.mapping['baseline_unstable_tests'] = ['test::2', 'removed::test']
+        old = self.add_source('m.py', 'def f():\n    return 1\n', lines={'2': [0]})
+        self.assertEqual(self.select('m.py', old, old.replace('return 1', 'return 2')), {10, 12})
+        self.assertEqual(self.select('m.py', old, '# comment\n' + old), {12})
+
     def test_unknown_encoding_comment_cannot_hide_import_failure(self):
         old = self.add_source("m.py", "def f():\n    return 1\n", lines={"2": [0]})
         self.assertEqual(self.select("m.py", old, "# coding: not-a-codec\n" + old), {10, 11, 12, 13})
