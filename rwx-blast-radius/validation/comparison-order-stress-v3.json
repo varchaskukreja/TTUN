@@ -1,0 +1,272 @@
+{
+  "all_runs_completed": true,
+  "all_runs_passed": false,
+  "attribution": "BigQuery original and conditional sets both omit the two preexisting unstable baseline nodes; these raw misses were not introduced by comparison narrowing. Known baseline failures are explicitly accounted for, not silently excluded.",
+  "freeze": ".work/comparison-robustness-v3/freeze.json",
+  "freeze_sha256": "e99da239cefdf16afa81756077ef0a59737709c81ba289e82382751f5952b0ed",
+  "frozen_plan_sha256": "5bd463d95d1302189784672b03d8bd0d4110f6e540982d8595cf501821cb9177",
+  "kind": "matched_order_comparison_stress",
+  "no_new_failures_in_complete_matched_runs": true,
+  "normal_order_reference_sha256": "82e0336641e9ec0222586aee7842b4002fff3975fc90b0cbb519197bb61ae5f6",
+  "orders": [
+    {
+      "baseline": {
+        "collected_count": 1620,
+        "complete_scope": true,
+        "exact_requested_order": true,
+        "failing_ids": [
+          "tests/dialects/test_dialect.py::TestDialect::test_enum",
+          "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+        ],
+        "finished_count": 1620,
+        "phase_counts": {
+          "call:failed": 1,
+          "call:passed": 1619,
+          "setup:passed": 1620,
+          "teardown:passed": 1620
+        },
+        "report": "/Users/dylanli/Documents/TTUN/.work/comparison-robustness-v3/orders/reversed/baseline/pytest.json",
+        "report_sha256": "6034be206d14d8e3d70cff33d43c46c82e5cce0723dcb7cd1671e79be2471109",
+        "source_cleaned": true,
+        "subtest_counts": {
+          "failed": 3,
+          "passed": 25437
+        },
+        "wall_seconds": 51.363
+      },
+      "mutations": [
+        {
+          "baseline_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "baseline_unstable_not_selected_ids": [],
+          "baseline_unstable_omitted_by_original_ids": [],
+          "collected_count": 1620,
+          "complete_scope": true,
+          "conditional_selected_count": 1504,
+          "exact_requested_order": true,
+          "failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "finished_count": 1620,
+          "missing_after_accounting_for_baseline_ids": [],
+          "new_failing_ids": [],
+          "new_failure_missing_ids": [],
+          "original_raw_total_missing_ids": [],
+          "original_selected_count": 1620,
+          "patch_sha256": "697e1b0c3de4d03cb8c8b71d0cc85a8b47edbd27063d8ef21b1945b8cf1195f9",
+          "phase_counts": {
+            "call:failed": 1,
+            "call:passed": 1619,
+            "setup:passed": 1620,
+            "teardown:passed": 1620
+          },
+          "raw_conditional_total_missing_ids": [],
+          "report": "/Users/dylanli/Documents/TTUN/.work/comparison-robustness-v3/orders/reversed/mutant-0/pytest.json",
+          "report_sha256": "77b2f5b056e616a658cac918265d530c5f804c5a25a078c68316f774611898f8",
+          "site": "sqlglot/parser.py:8399:11:8399:44",
+          "source_cleaned": true,
+          "subtest_counts": {
+            "failed": 3,
+            "passed": 25437
+          },
+          "total_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "wall_seconds": 54.104
+        },
+        {
+          "baseline_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "baseline_unstable_not_selected_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "baseline_unstable_omitted_by_original_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "collected_count": 1620,
+          "complete_scope": true,
+          "conditional_selected_count": 8,
+          "exact_requested_order": true,
+          "failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "finished_count": 1620,
+          "missing_after_accounting_for_baseline_ids": [],
+          "new_failing_ids": [],
+          "new_failure_missing_ids": [],
+          "original_raw_total_missing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "original_selected_count": 10,
+          "patch_sha256": "878fe53b492681348918710cc54a3fa368529a88f9127b160387979bb945b44c",
+          "phase_counts": {
+            "call:failed": 1,
+            "call:passed": 1619,
+            "setup:passed": 1620,
+            "teardown:passed": 1620
+          },
+          "raw_conditional_total_missing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "report": "/Users/dylanli/Documents/TTUN/.work/comparison-robustness-v3/orders/reversed/mutant-1/pytest.json",
+          "report_sha256": "a0c6bcedfc12dc903540463b941e3c98f4446d7f88fa837f88b93b9fcd870868",
+          "site": "sqlglot/generators/bigquery.py:220:13:220:25",
+          "source_cleaned": true,
+          "subtest_counts": {
+            "failed": 3,
+            "passed": 25437
+          },
+          "total_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "wall_seconds": 81.167
+        }
+      ],
+      "order": "reversed",
+      "seed": 0
+    },
+    {
+      "baseline": {
+        "collected_count": 1620,
+        "complete_scope": true,
+        "exact_requested_order": true,
+        "failing_ids": [
+          "tests/dialects/test_dialect.py::TestDialect::test_enum",
+          "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+        ],
+        "finished_count": 1620,
+        "phase_counts": {
+          "call:failed": 1,
+          "call:passed": 1619,
+          "setup:passed": 1620,
+          "teardown:passed": 1620
+        },
+        "report": "/Users/dylanli/Documents/TTUN/.work/comparison-robustness-v3/orders/shuffle/baseline/pytest.json",
+        "report_sha256": "bc386b0fda1a51faf00d5614b2add192fd72182328b526fe598824852abfa1ca",
+        "source_cleaned": true,
+        "subtest_counts": {
+          "failed": 3,
+          "passed": 25437
+        },
+        "wall_seconds": 140.456
+      },
+      "mutations": [
+        {
+          "baseline_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "baseline_unstable_not_selected_ids": [],
+          "baseline_unstable_omitted_by_original_ids": [],
+          "collected_count": 1620,
+          "complete_scope": true,
+          "conditional_selected_count": 1504,
+          "exact_requested_order": true,
+          "failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "finished_count": 1620,
+          "missing_after_accounting_for_baseline_ids": [],
+          "new_failing_ids": [],
+          "new_failure_missing_ids": [],
+          "original_raw_total_missing_ids": [],
+          "original_selected_count": 1620,
+          "patch_sha256": "697e1b0c3de4d03cb8c8b71d0cc85a8b47edbd27063d8ef21b1945b8cf1195f9",
+          "phase_counts": {
+            "call:failed": 1,
+            "call:passed": 1619,
+            "setup:passed": 1620,
+            "teardown:passed": 1620
+          },
+          "raw_conditional_total_missing_ids": [],
+          "report": "/Users/dylanli/Documents/TTUN/.work/comparison-robustness-v3/orders/shuffle/mutant-0/pytest.json",
+          "report_sha256": "4a30f20a13fd22abf78c1b8aca1b78f791e28e262a6697db583888466a7a1756",
+          "site": "sqlglot/parser.py:8399:11:8399:44",
+          "source_cleaned": true,
+          "subtest_counts": {
+            "failed": 3,
+            "passed": 25437
+          },
+          "total_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "wall_seconds": 157.563
+        },
+        {
+          "baseline_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "baseline_unstable_not_selected_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "baseline_unstable_omitted_by_original_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "collected_count": 1620,
+          "complete_scope": true,
+          "conditional_selected_count": 8,
+          "exact_requested_order": true,
+          "failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "finished_count": 1620,
+          "missing_after_accounting_for_baseline_ids": [],
+          "new_failing_ids": [],
+          "new_failure_missing_ids": [],
+          "original_raw_total_missing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "original_selected_count": 10,
+          "patch_sha256": "878fe53b492681348918710cc54a3fa368529a88f9127b160387979bb945b44c",
+          "phase_counts": {
+            "call:failed": 1,
+            "call:passed": 1619,
+            "setup:passed": 1620,
+            "teardown:passed": 1620
+          },
+          "raw_conditional_total_missing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "report": "/Users/dylanli/Documents/TTUN/.work/comparison-robustness-v3/orders/shuffle/mutant-1/pytest.json",
+          "report_sha256": "39e7ba7265ec0932f98ff14ee9a9e6f07e9ed9d8a0e3923abbca025ed607a81a",
+          "site": "sqlglot/generators/bigquery.py:220:13:220:25",
+          "source_cleaned": true,
+          "subtest_counts": {
+            "failed": 3,
+            "passed": 25437
+          },
+          "total_failing_ids": [
+            "tests/dialects/test_dialect.py::TestDialect::test_enum",
+            "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+          ],
+          "wall_seconds": 177.443
+        }
+      ],
+      "order": "shuffle",
+      "seed": 20261120
+    }
+  ],
+  "raw_orders": ".work/comparison-robustness-v3/orders.json",
+  "raw_orders_sha256": "e2ffbb8db004778b471c4fa8bd458de26c42adbf93b3470a2418b538f5587e16",
+  "runtime_narrowing_authorized": false
+}

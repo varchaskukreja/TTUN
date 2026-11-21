@@ -1,0 +1,61 @@
+{
+  "arbitrary_order_completeness_proven": false,
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "derived_only_from_unmodified_baselines": true,
+  "evidence": [
+    {
+      "all_passed": true,
+      "catalog_count": 1620,
+      "collection_order_sha256": "0ea4768d7a1b69045fd178e0a21159022c39a186881ebd014efa72630d30ed69",
+      "complete_catalog": true,
+      "failing_ids": [],
+      "order": "normal",
+      "report": ".work/comparison-holdouts-v3/execution/reference/pytest.json",
+      "report_sha256": "82e0336641e9ec0222586aee7842b4002fff3975fc90b0cbb519197bb61ae5f6",
+      "seed": 0
+    },
+    {
+      "all_passed": false,
+      "catalog_count": 1620,
+      "collection_order_sha256": "f26aeb14f339079448cfb0b6c2de342e6f4cb29586949cde9febd3cb3a200962",
+      "complete_catalog": true,
+      "failing_ids": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ],
+      "order": "reversed",
+      "report": ".work/comparison-robustness-v3/orders/reversed/baseline/pytest.json",
+      "report_sha256": "6034be206d14d8e3d70cff33d43c46c82e5cce0723dcb7cd1671e79be2471109",
+      "seed": 0
+    },
+    {
+      "all_passed": false,
+      "catalog_count": 1620,
+      "collection_order_sha256": "a18f40735b3bd70f1c85a8bb1aeb101fe8ec05d87c74f6e69ef0414cabf34f56",
+      "complete_catalog": true,
+      "failing_ids": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ],
+      "order": "shuffle",
+      "report": ".work/comparison-robustness-v3/orders/shuffle/baseline/pytest.json",
+      "report_sha256": "bc386b0fda1a51faf00d5614b2add192fd72182328b526fe598824852abfa1ca",
+      "seed": 20261120
+    }
+  ],
+  "failure_ids": [
+    "tests/dialects/test_dialect.py::TestDialect::test_enum",
+    "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+  ],
+  "kind": "unmodified_baseline_instability_union",
+  "limitations": [
+    "These are observed failures in normal/reversed/one fixed-seed shuffle only; retaining them does not prove completeness for arbitrary order or hidden state.",
+    "Normal reference belongs to the original matched normal experiment; current reversed/shuffled controls used the separately frozen CPU2 environment."
+  ],
+  "normal_baseline_all_passed": true,
+  "production_map_modified": false,
+  "source": {
+    "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395",
+    "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa"
+  }
+}
