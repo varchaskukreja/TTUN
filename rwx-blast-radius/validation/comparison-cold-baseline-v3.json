@@ -1,0 +1,55 @@
+{
+  "complete": true,
+  "all_passed": true,
+  "node_count": 1620,
+  "phase_counts": {
+    "passed": 4860
+  },
+  "subtest_counts": {
+    "passed": 25440
+  },
+  "baseline_summary_sha256": "1bd6b184bec12d57a677766e4c33b792c49b7705a34be86637f18e1bf9e12ba4",
+  "freeze_sha256": "e99da239cefdf16afa81756077ef0a59737709c81ba289e82382751f5952b0ed",
+  "source": {
+    "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395",
+    "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa"
+  },
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "plan_sha256": "5bd463d95d1302189784672b03d8bd0d4110f6e540982d8595cf501821cb9177",
+  "receipt_count": 1620,
+  "report_count": 1620,
+  "unknown_ids": [],
+  "failing_ids": [],
+  "owned_source_trees_remaining": 0,
+  "runtime_narrowing_authorized": false,
+  "raw_baseline": ".work/comparison-robustness-v3/cold/baseline",
+  "wall_seconds_approx": 1043.934,
+  "concurrency_notes": ".work/comparison-robustness-v3/concurrency-notes.json",
+  "concurrency_notes_sha256": "1741fd372dd376e26a58d6f939db6cdd3c762cd008a8246b7071bb8a42289245",
+  "concurrency_audit": {
+    "baseline_primary_limit": 2,
+    "performance_benchmark_purity_claimed": false,
+    "authorized_overlaps": [
+      {
+        "owner": "coverage",
+        "scope": "Four targeted registry sequence/alone controls",
+        "wall_seconds": [
+          4.082,
+          1.675,
+          1.189,
+          1.632
+        ],
+        "terminal": true,
+        "root_authorized": true
+      },
+      {
+        "owner": "root",
+        "scope": "Constrained isolated shared-class-state Docker validation",
+        "announced_at_unix": 1795229310.0122108,
+        "root_authorized": true,
+        "terminal_status": "root reported terminal",
+        "process_cpu_seconds": 33.96
+      }
+    ]
+  }
+}

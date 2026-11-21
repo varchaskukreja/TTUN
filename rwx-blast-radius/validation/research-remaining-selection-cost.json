@@ -1,0 +1,371 @@
+{
+  "kind": "frozen_experimental_remaining_selection_cost",
+  "output_sha256": "ac325174d36f813b25586f262086798dbd83ee8e2426b796032dbe36d38d292f",
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "answers_consulted": false,
+  "scheduled_ms": 225976,
+  "top_four_scheduled_ms": 101816,
+  "rows": [
+    {
+      "commit": "2jrq",
+      "selected": 34,
+      "scheduled_ms": 25454,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1106,
+        "id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "file": "tests/test_executor.py",
+        "seconds": 21.454
+      }
+    },
+    {
+      "commit": "3utz",
+      "selected": 39,
+      "scheduled_ms": 25454,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1106,
+        "id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "file": "tests/test_executor.py",
+        "seconds": 21.454
+      }
+    },
+    {
+      "commit": "5y72",
+      "selected": 11,
+      "scheduled_ms": 25454,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1106,
+        "id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "file": "tests/test_executor.py",
+        "seconds": 21.454
+      }
+    },
+    {
+      "commit": "ktz3",
+      "selected": 10,
+      "scheduled_ms": 25454,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1106,
+        "id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "file": "tests/test_executor.py",
+        "seconds": 21.454
+      }
+    },
+    {
+      "commit": "4d63",
+      "selected": 359,
+      "scheduled_ms": 12686,
+      "workers": 3,
+      "longest_selected_test": {
+        "number": 1224,
+        "id": "tests/test_generator.py::TestGenerator::test_generator_memory",
+        "file": "tests/test_generator.py",
+        "seconds": 6.686
+      }
+    },
+    {
+      "commit": "535z",
+      "selected": 172,
+      "scheduled_ms": 11240,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1224,
+        "id": "tests/test_generator.py::TestGenerator::test_generator_memory",
+        "file": "tests/test_generator.py",
+        "seconds": 6.686
+      }
+    },
+    {
+      "commit": "ary6",
+      "selected": 114,
+      "scheduled_ms": 9280,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1428,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_scope",
+        "file": "tests/test_optimizer.py",
+        "seconds": 2.533
+      }
+    },
+    {
+      "commit": "6ze8",
+      "selected": 38,
+      "scheduled_ms": 9169,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1224,
+        "id": "tests/test_generator.py::TestGenerator::test_generator_memory",
+        "file": "tests/test_generator.py",
+        "seconds": 6.686
+      }
+    },
+    {
+      "commit": "fryt",
+      "selected": 38,
+      "scheduled_ms": 9169,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1224,
+        "id": "tests/test_generator.py::TestGenerator::test_generator_memory",
+        "file": "tests/test_generator.py",
+        "seconds": 6.686
+      }
+    },
+    {
+      "commit": "2haz",
+      "selected": 33,
+      "scheduled_ms": 8388,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1107,
+        "id": "tests/test_executor.py::TestExecutor::test_execute_tpch",
+        "file": "tests/test_executor.py",
+        "seconds": 3.863
+      }
+    },
+    {
+      "commit": "j6uz",
+      "selected": 12,
+      "scheduled_ms": 6649,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1295,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_annotate_funcs",
+        "file": "tests/test_optimizer.py",
+        "seconds": 1.963
+      }
+    },
+    {
+      "commit": "rszg",
+      "selected": 13,
+      "scheduled_ms": 6478,
+      "workers": 2,
+      "longest_selected_test": {
+        "number": 1295,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_annotate_funcs",
+        "file": "tests/test_optimizer.py",
+        "seconds": 1.963
+      }
+    },
+    {
+      "commit": "66ks",
+      "selected": 3,
+      "scheduled_ms": 5893,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1107,
+        "id": "tests/test_executor.py::TestExecutor::test_execute_tpch",
+        "file": "tests/test_executor.py",
+        "seconds": 3.863
+      }
+    },
+    {
+      "commit": "2qn5",
+      "selected": 11,
+      "scheduled_ms": 4651,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1382,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_qualify_columns",
+        "file": "tests/test_optimizer.py",
+        "seconds": 1.406
+      }
+    },
+    {
+      "commit": "bj7g",
+      "selected": 7,
+      "scheduled_ms": 4356,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1382,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_qualify_columns",
+        "file": "tests/test_optimizer.py",
+        "seconds": 1.406
+      }
+    },
+    {
+      "commit": "8y7j",
+      "selected": 6,
+      "scheduled_ms": 4146,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1382,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_qualify_columns",
+        "file": "tests/test_optimizer.py",
+        "seconds": 1.406
+      }
+    },
+    {
+      "commit": "gbav",
+      "selected": 38,
+      "scheduled_ms": 3364,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 773,
+        "id": "tests/dialects/test_snowflake.py::TestSnowflake::test_snowflake",
+        "file": "tests/dialects/test_snowflake.py",
+        "seconds": 0.662
+      }
+    },
+    {
+      "commit": "mthh",
+      "selected": 3,
+      "scheduled_ms": 3046,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1343,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_merge_subqueries",
+        "file": "tests/test_optimizer.py",
+        "seconds": 1.016
+      }
+    },
+    {
+      "commit": "egys",
+      "selected": 3,
+      "scheduled_ms": 2626,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1434,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_simplify",
+        "file": "tests/test_optimizer.py",
+        "seconds": 0.596
+      }
+    },
+    {
+      "commit": "986c",
+      "selected": 4,
+      "scheduled_ms": 2370,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1454,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_unnest_subqueries",
+        "file": "tests/test_optimizer.py",
+        "seconds": 0.329
+      }
+    },
+    {
+      "commit": "nwnx",
+      "selected": 3,
+      "scheduled_ms": 2122,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1378,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_pushdown_projection",
+        "file": "tests/test_optimizer.py",
+        "seconds": 0.092
+      }
+    },
+    {
+      "commit": "2vdj",
+      "selected": 3,
+      "scheduled_ms": 2113,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1377,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_pushdown_predicates",
+        "file": "tests/test_optimizer.py",
+        "seconds": 0.083
+      }
+    },
+    {
+      "commit": "bvw2",
+      "selected": 3,
+      "scheduled_ms": 2091,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1302,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_annotate_types",
+        "file": "tests/test_optimizer.py",
+        "seconds": 0.061
+      }
+    },
+    {
+      "commit": "gbhk",
+      "selected": 3,
+      "scheduled_ms": 2091,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1302,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_annotate_types",
+        "file": "tests/test_optimizer.py",
+        "seconds": 0.061
+      }
+    },
+    {
+      "commit": "6vvp",
+      "selected": 3,
+      "scheduled_ms": 2067,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 1383,
+        "id": "tests/test_optimizer.py::TestOptimizer::test_qualify_columns__invalid",
+        "file": "tests/test_optimizer.py",
+        "seconds": 0.037
+      }
+    },
+    {
+      "commit": "st8f",
+      "selected": 3,
+      "scheduled_ms": 2038,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 184,
+        "id": "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "file": "tests/dialects/test_dialect.py",
+        "seconds": 0.026
+      }
+    },
+    {
+      "commit": "f4bn",
+      "selected": 3,
+      "scheduled_ms": 2037,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 184,
+        "id": "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "file": "tests/dialects/test_dialect.py",
+        "seconds": 0.026
+      }
+    },
+    {
+      "commit": "9u5k",
+      "selected": 2,
+      "scheduled_ms": 2030,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 184,
+        "id": "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "file": "tests/dialects/test_dialect.py",
+        "seconds": 0.026
+      }
+    },
+    {
+      "commit": "bap8",
+      "selected": 2,
+      "scheduled_ms": 2030,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 184,
+        "id": "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "file": "tests/dialects/test_dialect.py",
+        "seconds": 0.026
+      }
+    },
+    {
+      "commit": "f4xa",
+      "selected": 2,
+      "scheduled_ms": 2030,
+      "workers": 1,
+      "longest_selected_test": {
+        "number": 184,
+        "id": "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "file": "tests/dialects/test_dialect.py",
+        "seconds": 0.026
+      }
+    }
+  ],
+  "conclusion": "Four selections each cost25.454seconds and include the21.454second TPCDS test. Scheduling cannot remove that duration; further savings require justified dependency/equivalence refinement. No new narrowing authorized."
+}
