@@ -1,0 +1,354 @@
+{
+  "kind": "research_definition_expression_exports",
+  "production_changed": false,
+  "tests": "9 passed",
+  "hashes": {
+    "rwx-blast-radius/tools/definition_expression_exports.py": "d38627ffca3d5d1683450fe505d56a98e6f09480ab97d5397d00f1e4895d667d",
+    "rwx-blast-radius/tools/test_definition_expression_exports.py": "fbc69e70a2419ec24a64bd7340af9313fea08330fad127096ad645ff46cdd9f3",
+    "rwx-blast-radius/maps/coverage.json.gz": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
+    ".work/coverage-definition-expressions-final.json.gz": "ac282d881897f6e858d04af0a5d433525165fe716b02228ebda0754773373b8d"
+  },
+  "captured_expressions": 28,
+  "added_consumer_links": 0,
+  "new_export_flags": [
+    {
+      "path": "sqlglot/dialects/dialect.py",
+      "class": "AliasPrecedence",
+      "added": [
+        "ALIAS"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/dialect.py",
+      "class": "Dialect",
+      "added": [
+        "ALIAS_POST_TABLESAMPLE",
+        "ALIAS_POST_VERSION",
+        "ALTER_TABLE_ADD_REQUIRED_FOR_EACH_COLUMN",
+        "ALTER_TABLE_DROP_REQUIRED_FOR_EACH_COLUMN",
+        "ALTER_TABLE_SUPPORTS_CASCADE",
+        "ANNOTATE_ALL_SCOPES",
+        "ARRAY_AGG_INCLUDES_NULLS",
+        "ARRAY_FUNCS_PROPAGATES_NULLS",
+        "ASCII_ONLY_NORMALIZATION",
+        "BIT_END",
+        "BIT_START",
+        "BYTE_END",
+        "BYTE_START",
+        "BYTE_STRINGS_SUPPORT_ESCAPED_SEQUENCES",
+        "BYTE_STRING_IS_BYTES_TYPE",
+        "COALESCE_COMPARISON_NON_STANDARD",
+        "COERCES_TO",
+        "COLUMN_ALIAS_PRECEDENCE",
+        "CONCAT_COALESCE",
+        "CONCAT_WS_COALESCE",
+        "COPY_PARAMS_ARE_CSV",
+        "CREATABLE_KIND_MAPPING",
+        "DATEINT_FORMAT",
+        "DATE_FORMAT",
+        "DATE_PART_MAPPING",
+        "DEFAULT_FUNCTIONS_COLUMN_NAMES",
+        "DEFAULT_NULL_TYPE",
+        "DISABLES_ALIAS_REF_EXPANSION",
+        "DPIPE_IS_STRING_CONCAT",
+        "ESCAPED_SEQUENCES",
+        "EXCLUDES_PSEUDOCOLUMNS_FROM_STAR",
+        "EXPAND_ONLY_GROUP_ALIAS_REF",
+        "FORCE_EARLY_ALIAS_REF_EXPANSION",
+        "FORMAT_MAPPING",
+        "FORMAT_TRIE",
+        "HAS_DISTINCT_ARRAY_CONSTRUCTORS",
+        "HEX_END",
+        "HEX_LOWERCASE",
+        "HEX_START",
+        "HEX_STRING_IS_INTEGER_TYPE",
+        "IDENTIFIERS_CAN_START_WITH_DIGIT",
+        "IDENTIFIER_END",
+        "IDENTIFIER_ESCAPED_SEQUENCES",
+        "IDENTIFIER_START",
+        "INDEX_OFFSET",
+        "INITCAP_DEFAULT_DELIMITER_CHARS",
+        "INITCAP_SUPPORTS_CUSTOM_DELIMITERS",
+        "INTERSECT_BINDS_TIGHTER_THAN_UNION_AND_EXCEPT",
+        "INVERSE_CREATABLE_KIND_MAPPING",
+        "INVERSE_FORMAT_MAPPING",
+        "INVERSE_FORMAT_TRIE",
+        "INVERSE_TIME_MAPPING",
+        "INVERSE_TIME_TRIE",
+        "INVERSE_VECTOR_TYPE_ALIASES",
+        "JSON_EXTRACT_SCALAR_SCALAR_ONLY",
+        "JSON_PATH_SINGLE_DOT_IS_WILDCARD",
+        "LEAST_GREATEST_IGNORES_NULLS",
+        "LOG_BASE_FIRST",
+        "NORMALIZATION_STRATEGY",
+        "NORMALIZE_FUNCTIONS",
+        "NORMALIZE_NOT_NULL",
+        "NULL_ORDERING",
+        "NUMBERS_CAN_BE_UNDERSCORE_SEPARATED",
+        "ON_CONDITION_EMPTY_BEFORE_ERROR",
+        "ORIGINAL_NAME_META_KEY",
+        "OUTER_COLUMNS_SHADOW_TABLE_ALIASES",
+        "PREFER_CTE_ALIAS_COLUMN",
+        "PRIORITIZE_NON_LITERAL_TYPES",
+        "PROJECTION_ALIASES_SHADOW_SOURCE_NAMES",
+        "PROMOTE_TO_INFERRED_DATETIME_TYPE",
+        "PSEUDOCOLUMNS",
+        "QUERY_RESULTS_ARE_STRUCTS",
+        "QUOTE_END",
+        "QUOTE_START",
+        "REGEXP_EXTRACT_DEFAULT_GROUP",
+        "REGEXP_EXTRACT_MISSING_GROUP_RETURNS_EMPTY",
+        "REGEXP_EXTRACT_NO_MATCH_RETURNS_NULL",
+        "REGEXP_EXTRACT_POSITION_OVERFLOW_RETURNS_NULL",
+        "REQUIRES_PARENTHESIZED_STRUCT_ACCESS",
+        "SAFE_DIVISION",
+        "SAFE_TO_ELIMINATE_DOUBLE_NEGATION",
+        "SET_OP_DISTINCT_BY_DEFAULT",
+        "STAR_ILIKE_BACKSLASH_ESCAPE",
+        "STRICT_JSON_PATH_SYNTAX",
+        "STRICT_STRING_CONCAT",
+        "STRINGS_SUPPORT_ESCAPED_SEQUENCES",
+        "SUPPORTED_SETTINGS",
+        "SUPPORTS_ALIAS_REFS_IN_JOIN_CONDITIONS",
+        "SUPPORTS_COLUMN_JOIN_MARKS",
+        "SUPPORTS_FIXED_SIZE_ARRAYS",
+        "SUPPORTS_LIMIT_ALL",
+        "SUPPORTS_NULL_TYPE",
+        "SUPPORTS_ORDER_BY_ALL",
+        "SUPPORTS_POSITIONAL_COLUMN_REFS",
+        "SUPPORTS_STRUCT_STAR_EXPANSION",
+        "SUPPORTS_USER_DEFINED_TYPES",
+        "SUPPORTS_VALUES_DEFAULT",
+        "TABLESAMPLE_SIZE_IS_PERCENT",
+        "TABLES_REFERENCEABLE_AS_COLUMNS",
+        "TABLE_ALIASES_SHADOW_COLUMN_NAMES",
+        "TIME_FORMAT",
+        "TIME_MAPPING",
+        "TIME_TRIE",
+        "TRY_CAST_REQUIRES_STRING",
+        "TYPED_DIVISION",
+        "UNESCAPED_SEQUENCES",
+        "UNICODE_END",
+        "UNICODE_START",
+        "UNNEST_COLUMN_ONLY",
+        "USING_COLUMN_ORDER",
+        "UUID_IS_STRING_TYPE",
+        "VALID_INTERVAL_UNITS",
+        "WEEK_OFFSET",
+        "generator_class",
+        "jsonpath_tokenizer_class",
+        "parser_class",
+        "tokenizer_class"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/dialect.py",
+      "class": "NormalizationStrategy",
+      "added": [
+        "CASE_INSENSITIVE",
+        "CASE_SENSITIVE"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/dialect.py",
+      "class": "_Dialect",
+      "added": [
+        "*"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/hive.py",
+      "class": "Hive",
+      "added": [
+        "*",
+        "ALIAS_POST_TABLESAMPLE",
+        "ALTER_TABLE_SUPPORTS_CASCADE",
+        "ARRAY_AGG_INCLUDES_NULLS",
+        "COERCES_TO",
+        "COLUMN_ALIAS_PRECEDENCE",
+        "CONCAT_WS_COALESCE",
+        "DATEINT_FORMAT",
+        "DATE_FORMAT",
+        "EXPRESSION_METADATA",
+        "Generator",
+        "IDENTIFIERS_CAN_START_WITH_DIGIT",
+        "INITCAP_DEFAULT_DELIMITER_CHARS",
+        "INTERSECT_BINDS_TIGHTER_THAN_UNION_AND_EXCEPT",
+        "NORMALIZATION_STRATEGY",
+        "Parser",
+        "REGEXP_EXTRACT_DEFAULT_GROUP",
+        "SAFE_DIVISION",
+        "SUPPORTS_USER_DEFINED_TYPES",
+        "TIME_FORMAT",
+        "TIME_MAPPING",
+        "UNESCAPED_SEQUENCES"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/mysql.py",
+      "class": "MySQL",
+      "added": [
+        "*",
+        "EXPRESSION_METADATA",
+        "TIME_FORMAT",
+        "TIME_MAPPING"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/postgres.py",
+      "class": "Postgres",
+      "added": [
+        "*",
+        "EXPRESSION_METADATA"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/presto.py",
+      "class": "Presto",
+      "added": [
+        "*",
+        "COLUMN_ALIAS_PRECEDENCE",
+        "EXPRESSION_METADATA",
+        "Generator",
+        "INDEX_OFFSET",
+        "INVERSE_JODA_TIME_MAPPING",
+        "INVERSE_JODA_TIME_TRIE",
+        "JODA_TIME_MAPPING",
+        "JODA_TIME_TRIE",
+        "LEAST_GREATEST_IGNORES_NULLS",
+        "LOG_BASE_FIRST",
+        "NORMALIZATION_STRATEGY",
+        "NULL_ORDERING",
+        "Parser",
+        "STRICT_STRING_CONCAT",
+        "SUPPORTED_SETTINGS",
+        "SUPPORTS_LIMIT_ALL",
+        "SUPPORTS_VALUES_DEFAULT",
+        "TABLESAMPLE_SIZE_IS_PERCENT",
+        "TIME_FORMAT",
+        "TIME_MAPPING",
+        "TYPED_DIVISION",
+        "UUID_IS_STRING_TYPE"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/spark.py",
+      "class": "Spark",
+      "added": [
+        "*",
+        "EXPRESSION_METADATA"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/spark2.py",
+      "class": "Spark2",
+      "added": [
+        "*",
+        "ALTER_TABLE_SUPPORTS_CASCADE",
+        "COLUMN_ALIAS_PRECEDENCE",
+        "EXPRESSION_METADATA",
+        "Generator",
+        "INITCAP_DEFAULT_DELIMITER_CHARS",
+        "INTERSECT_BINDS_TIGHTER_THAN_UNION_AND_EXCEPT",
+        "Parser",
+        "TIME_MAPPING"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/trino.py",
+      "class": "Trino",
+      "added": [
+        "*"
+      ]
+    },
+    {
+      "path": "sqlglot/dialects/tsql.py",
+      "class": "TSQL",
+      "added": [
+        "*",
+        "EXPRESSION_METADATA"
+      ]
+    },
+    {
+      "path": "sqlglot/errors.py",
+      "class": "ErrorLevel",
+      "added": [
+        "WARN"
+      ]
+    },
+    {
+      "path": "sqlglot/optimizer/merge_subqueries.py",
+      "class": "CopyBudget",
+      "added": [
+        "MAX_COPY_FACTOR",
+        "MIN_COPY_BUDGET"
+      ]
+    },
+    {
+      "path": "sqlglot/optimizer/scope.py",
+      "class": "ScopeType",
+      "added": [
+        "ROOT"
+      ]
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "class": "UnsupportedUnit",
+      "added": [
+        "*"
+      ]
+    },
+    {
+      "path": "sqlglot/trie.py",
+      "class": "TrieResult",
+      "added": [
+        "*"
+      ]
+    }
+  ],
+  "sample": {
+    "environment": "native Python3.13; paired selectors share actual ImportGuard decisions; four guards passed",
+    "base_milliseconds": 256055,
+    "candidate_milliseconds": 281634,
+    "base_misses": 0,
+    "candidate_misses": 0,
+    "changed_rows": [
+      {
+        "commit": "535z",
+        "before_selected": 171,
+        "after_selected": 1620,
+        "before_cost": 11238,
+        "after_cost": 36817
+      }
+    ]
+  },
+  "limits": [
+    "No physical mutation suite run by this agent; coverage owns it.",
+    "Syntactic binding candidates are not a closed-world symbol proof. Unknown aliases/local shadowing/relative imports remain unresolved, never evidence for removing links.",
+    "All recognized captures conservatively become global exports; a method default may be overselected.",
+    "Future annotations excluded from eager reads; lazy type-parameter references flagged conservatively.",
+    "The final regenerated map has identical file dependency payloads to the scored candidate; class_consumer_closure report ordering differs."
+  ],
+  "commands": [
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_definition_expression_exports.py",
+    ".work/venv/bin/python rwx-blast-radius/tools/definition_expression_exports.py --source .work/sqlglot --coverage rwx-blast-radius/maps/coverage.json.gz --output .work/coverage-definition-expressions-final.json.gz --report .work/definition-expression-report-final.json"
+  ],
+  "function_only_followup": {
+    "tests": "10 passed",
+    "hashes": {
+      "rwx-blast-radius/tools/definition_expression_exports.py": "2d0f852f838448c7c336729704f2ca9ec88d79bff41b5a0a75f48ae783ed87ae",
+      "rwx-blast-radius/tools/test_definition_expression_exports.py": "f48154ed32fdc43b13af5949528d628384e5f8122474a2faea5fb09f96e08744",
+      ".work/coverage-definition-functions.json.gz": "5f67a0b0c0e5fbf30cb5c4fc483e38ea09ad058c428768f8a7d32ed445f9fd0f"
+    },
+    "captures": 13,
+    "base_milliseconds": 256055,
+    "candidate_milliseconds": 256055,
+    "misses": 0,
+    "selection_differences": 0,
+    "guard_calls": 4,
+    "guard_passed": 4,
+    "broad_cost_cause": "Fabric.Tokenizer base TSQL.Tokenizer was classified as TSQL unknown attribute and became wildcard; this is excluded class-base handling, not a skipped function header.",
+    "limitations": "Same-name fields inside comprehension/lambda lexical scopes can be conservative false positives; relative imports/local aliases/shadowing remain unresolved. Additive recognized captures only, not complete binding analysis.",
+    "command": ".work/venv/bin/python rwx-blast-radius/tools/definition_expression_exports.py --source .work/sqlglot --coverage rwx-blast-radius/maps/coverage.json.gz --output .work/coverage-definition-functions.json.gz --report .work/definition-functions-report.json"
+  }
+}
