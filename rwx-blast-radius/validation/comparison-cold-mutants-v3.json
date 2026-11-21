@@ -1,0 +1,177 @@
+{
+  "complete": true,
+  "baseline_summary_sha256": "1bd6b184bec12d57a677766e4c33b792c49b7705a34be86637f18e1bf9e12ba4",
+  "baseline_evidence": "validation/comparison-cold-baseline-v3.json",
+  "freeze_sha256": "4306e888ecc2d4d7173297a09756b1a334df99ddd7a4210eb7101b4159f74171",
+  "results_sha256": "19f731640d0c3bd07c74e7f40fe8921f90a6db92d3ed9d0b3e5b3f575ed21835",
+  "plan_sha256": "5bd463d95d1302189784672b03d8bd0d4110f6e540982d8595cf501821cb9177",
+  "source": {
+    "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395",
+    "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa"
+  },
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "mutations": [
+    {
+      "site": "sqlglot/parser.py:8399:11:8399:44",
+      "patch_sha256": "697e1b0c3de4d03cb8c8b71d0cc85a8b47edbd27063d8ef21b1945b8cf1195f9",
+      "summary_sha256": "8c405607f2edcde99e1a38d443bc37d73970c69099807359c3b760ed77f5aaba",
+      "receipt_count": 1620,
+      "report_count": 1620,
+      "receipt_hash_map_sha256": "10ecb84438187a9cc4fedb54cd128588cf5e96932837d660cbf98ba795b8ce04",
+      "report_hash_map_sha256": "826c1ce7055120b1cce3c1fffa0d2db58c4328ab3d6bdb9bc2a1d09745647fa9",
+      "log_hash_map_sha256": "9ec3f3af27462fe5b7288caa2c691327fd5100b2608a5fe12b4c8095e5c7ba76",
+      "phase_counts": {
+        "passed": 4860
+      },
+      "subtest_counts": {
+        "passed": 25440
+      },
+      "full_catalog_complete": true,
+      "all_passed": true,
+      "failing_ids": [],
+      "unknown_ids": [],
+      "conditional_selected_count": 1504,
+      "conditional_selected_ids_sha256": "f8ea64332faeb81a46193229cbbcc1d5a31cbc28c68dbf835163a35009c25388",
+      "conditional_missing_ids": [],
+      "wall_seconds_approx": 877.337
+    },
+    {
+      "site": "sqlglot/generators/bigquery.py:220:13:220:25",
+      "patch_sha256": "878fe53b492681348918710cc54a3fa368529a88f9127b160387979bb945b44c",
+      "summary_sha256": "d7563f9a798ba43ea5cbc2fc5666747fcd017d0355d65a0d2a1f29752e716387",
+      "receipt_count": 1620,
+      "report_count": 1620,
+      "receipt_hash_map_sha256": "053fb8b19ff9770a79c77be1731b2f694074142d40bd1691a7d5692b2c7c94de",
+      "report_hash_map_sha256": "b56f9353f7631ce9ad56986bcc0cfce68fa024b6144f2249a2f75fd8aa667678",
+      "log_hash_map_sha256": "2a9810e5cdc5a4f49c8579bb14a7e1604039c5d64f90ebf82cfc86f6cb574900",
+      "phase_counts": {
+        "passed": 4860
+      },
+      "subtest_counts": {
+        "passed": 25440
+      },
+      "full_catalog_complete": true,
+      "all_passed": true,
+      "failing_ids": [],
+      "unknown_ids": [],
+      "conditional_selected_count": 8,
+      "conditional_selected_ids_sha256": "4d448277b784047abeac8aca94551c807d8c45a6886577040b5b6276b89e9751",
+      "conditional_missing_ids": [],
+      "wall_seconds_approx": 846.727
+    }
+  ],
+  "all_receipt_report_log_hashes_verified": true,
+  "owned_source_trees_remaining": 0,
+  "helper_sha256_verified": {
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/patches.py": "4d5e4e7878ee6797211c9fce46bec04ffba0563ab02f371054914883b93f7d20",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/run_comparison_holdouts.py": "5f6651f7a2f941d28b7501495c3a65f5ff94ac35bffc3c425a1f048aa2a5c242",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/validate_holdout.py": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/validate_comparison_robustness.py": "4126cb68b3f1ad82fad95696b2fed9ac6952fbdf549a281cd8a443bd701c3153",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/continue_comparison_cold.py": "df7dfcf774a339049fe68f335fe69ec6a22c703e2e345ea44dad6d23c52ccae7",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/class_selection.py": "78c0876727cd194914daea0194528b6004f59321fcbb9a2e0e50b80b8b5aa417",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/factory_selection.py": "436e7370e707eb121f76fd2b589d721d9e82b527d2f7150b2b328730721c7e93",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/import_guard.py": "9b4215d056944e927f8ffc70641913ae720926cefe28635583094c3b10741686",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/selector.py": "657eb1b3db9c9876ee84c09c259ea9c3c5454675ccb71a47f12c02f064bc4795",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/analyze_comparison_gain.py": "fe3dbef0fec66df2bca6c2bcd32249b51f2c913599a0fdae9eec8384236835bf",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/comparison_types.py": "77247e3688c2ad79dd846d9e8782d7f608eec1c647c4c7df55469015e8c2b57e",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/fast_comparison_qualifier.py": "007107bebbf2b974607c4ccdff794ebcd71e57d9f99d33acbcb03c5fbca84e66",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/linear_operator_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
+    "/Users/dylanli/Documents/TTUN/rwx-blast-radius/tools/validate_comparison_holdout.py": "fa62a024f0716b885b21d1d024cc10a451350674f5927730612d55f0eaf0d697"
+  },
+  "runtime": {
+    "distributions": [
+      [
+        "Pygments",
+        "2.21.0"
+      ],
+      [
+        "coverage",
+        "7.17.4"
+      ],
+      [
+        "duckdb",
+        "2.0.0"
+      ],
+      [
+        "iniconfig",
+        "2.3.1"
+      ],
+      [
+        "numpy",
+        "2.5.5"
+      ],
+      [
+        "packaging",
+        "26.3"
+      ],
+      [
+        "pandas",
+        "3.1.1"
+      ],
+      [
+        "pip",
+        "25.2"
+      ],
+      [
+        "pluggy",
+        "1.7.0"
+      ],
+      [
+        "pytest",
+        "9.2.0"
+      ],
+      [
+        "pytest-cov",
+        "7.1.0"
+      ],
+      [
+        "pytest-timeout",
+        "2.4.0"
+      ],
+      [
+        "python-dateutil",
+        "4.0.0"
+      ],
+      [
+        "pytz",
+        "2026.6"
+      ],
+      [
+        "setuptools",
+        "84.2.1"
+      ],
+      [
+        "typing_extensions",
+        "4.16.0"
+      ],
+      [
+        "tzdata",
+        "2026.6"
+      ]
+    ],
+    "executable": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+    "implementation": "cpython",
+    "inherited_environment_sha256": "2b6c83de474dc9f7e546db38cae82ead0feb41c0d50845107bb28aec9fe4bfb3",
+    "physical_runner_sha256": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7",
+    "platform": "macOS-26.1-arm64-arm-64bit-Mach-O",
+    "process_cpu_count": 2,
+    "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "runner_sha256": "5f6651f7a2f941d28b7501495c3a65f5ff94ac35bffc3c425a1f048aa2a5c242"
+  },
+  "actual_child_runtime_exact_match_at_preparation": true,
+  "final_external_semantic_runtime_mismatches": [],
+  "final_external_inherited_environment_match": false,
+  "external_environment_scope": "Independent tool session; its inherited environment differs, while interpreter/dependencies/platform/CPU/helper fields match. Child inherited environment matched baseline exactly at preparation.",
+  "runtime_narrowing_authorized": false,
+  "limitations": [
+    "Two specific frozen mutations; no proof for arbitrary unseen patches.",
+    "No failing positive control in these eligible cases."
+  ],
+  "raw_results": ".work/comparison-cold-continuation-v3/results.json",
+  "new_stage_budget_seconds": 2700,
+  "automatic_retries": 0,
+  "stage_elapsed_seconds_approx": 1724.075,
+  "driver_exit_code": 0,
+  "original_baseline_driver_exit_code": 0,
+  "final_owned_pid_check": ""
+}
