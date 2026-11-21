@@ -1,0 +1,1060 @@
+{
+  "purpose": "Generic baseline class-valued binding consumer propagation; additive structural fix, no fresh physical miss claimed.",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "input_map_sha256": "664b09a0cc8358d17aa91ef997b5b069081804e698d4fc04706df55752a31b50",
+  "candidate_sha256": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
+  "bindings": [
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.athena.Athena",
+      "kind": "class_valued_binding",
+      "line": 108,
+      "path": "sqlglot/dialects/athena.py",
+      "source": "sqlglot.parsers.athena.AthenaParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.athena.Athena",
+      "kind": "class_valued_binding",
+      "line": 110,
+      "path": "sqlglot/dialects/athena.py",
+      "source": "sqlglot.generators.athena.AthenaGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.bigquery.BigQuery",
+      "kind": "class_valued_binding",
+      "line": 192,
+      "path": "sqlglot/dialects/bigquery.py",
+      "source": "sqlglot.parsers.bigquery.BigQueryParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.bigquery.BigQuery",
+      "kind": "class_valued_binding",
+      "line": 194,
+      "path": "sqlglot/dialects/bigquery.py",
+      "source": "sqlglot.generators.bigquery.BigQueryGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.clickhouse.ClickHouse",
+      "kind": "class_valued_binding",
+      "line": 148,
+      "path": "sqlglot/dialects/clickhouse.py",
+      "source": "sqlglot.parsers.clickhouse.ClickHouseParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.clickhouse.ClickHouse",
+      "kind": "class_valued_binding",
+      "line": 150,
+      "path": "sqlglot/dialects/clickhouse.py",
+      "source": "sqlglot.generators.clickhouse.ClickHouseGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.databricks.Databricks",
+      "kind": "class_valued_binding",
+      "line": 42,
+      "path": "sqlglot/dialects/databricks.py",
+      "source": "sqlglot.parsers.databricks.DatabricksParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.databricks.Databricks",
+      "kind": "class_valued_binding",
+      "line": 44,
+      "path": "sqlglot/dialects/databricks.py",
+      "source": "sqlglot.generators.databricks.DatabricksGenerator"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.dax.DAX",
+      "kind": "class_valued_binding",
+      "line": 12,
+      "path": "sqlglot/dialects/dax.py",
+      "source": "sqlglot.generators.dax.DAXGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.dax.DAX",
+      "kind": "class_valued_binding",
+      "line": 20,
+      "path": "sqlglot/dialects/dax.py",
+      "source": "sqlglot.parsers.dax.DAXParser"
+    },
+    {
+      "attribute": "tokenizer_class",
+      "consumer": "sqlglot.dialects.dialect.Dialect",
+      "kind": "class_valued_binding",
+      "line": 948,
+      "path": "sqlglot/dialects/dialect.py",
+      "source": "sqlglot.tokens.Tokenizer"
+    },
+    {
+      "attribute": "jsonpath_tokenizer_class",
+      "consumer": "sqlglot.dialects.dialect.Dialect",
+      "kind": "class_valued_binding",
+      "line": 949,
+      "path": "sqlglot/dialects/dialect.py",
+      "source": "sqlglot.jsonpath.JSONPathTokenizer"
+    },
+    {
+      "attribute": "parser_class",
+      "consumer": "sqlglot.dialects.dialect.Dialect",
+      "kind": "class_valued_binding",
+      "line": 950,
+      "path": "sqlglot/dialects/dialect.py",
+      "source": "sqlglot.parsers.base.BaseParser"
+    },
+    {
+      "attribute": "generator_class",
+      "consumer": "sqlglot.dialects.dialect.Dialect",
+      "kind": "class_valued_binding",
+      "line": 951,
+      "path": "sqlglot/dialects/dialect.py",
+      "source": "sqlglot.generator.Generator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.doris.Doris",
+      "kind": "class_valued_binding",
+      "line": 24,
+      "path": "sqlglot/dialects/doris.py",
+      "source": "sqlglot.parsers.doris.DorisParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.doris.Doris",
+      "kind": "class_valued_binding",
+      "line": 26,
+      "path": "sqlglot/dialects/doris.py",
+      "source": "sqlglot.generators.doris.DorisGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.dremio.Dremio",
+      "kind": "class_valued_binding",
+      "line": 70,
+      "path": "sqlglot/dialects/dremio.py",
+      "source": "sqlglot.parsers.dremio.DremioParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.dremio.Dremio",
+      "kind": "class_valued_binding",
+      "line": 72,
+      "path": "sqlglot/dialects/dremio.py",
+      "source": "sqlglot.generators.dremio.DremioGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.drill.Drill",
+      "kind": "class_valued_binding",
+      "line": 61,
+      "path": "sqlglot/dialects/drill.py",
+      "source": "sqlglot.parsers.drill.DrillParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.drill.Drill",
+      "kind": "class_valued_binding",
+      "line": 63,
+      "path": "sqlglot/dialects/drill.py",
+      "source": "sqlglot.generators.drill.DrillGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.druid.Druid",
+      "kind": "class_valued_binding",
+      "line": 7,
+      "path": "sqlglot/dialects/druid.py",
+      "source": "sqlglot.parsers.druid.DruidParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.druid.Druid",
+      "kind": "class_valued_binding",
+      "line": 9,
+      "path": "sqlglot/dialects/druid.py",
+      "source": "sqlglot.generators.druid.DruidGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.duckdb.DuckDB",
+      "kind": "class_valued_binding",
+      "line": 157,
+      "path": "sqlglot/dialects/duckdb.py",
+      "source": "sqlglot.parsers.duckdb.DuckDBParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.duckdb.DuckDB",
+      "kind": "class_valued_binding",
+      "line": 159,
+      "path": "sqlglot/dialects/duckdb.py",
+      "source": "sqlglot.generators.duckdb.DuckDBGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.dune.Dune",
+      "kind": "class_valued_binding",
+      "line": 10,
+      "path": "sqlglot/dialects/dune.py",
+      "source": "sqlglot.parsers.dune.DuneParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.dune.Dune",
+      "kind": "class_valued_binding",
+      "line": 15,
+      "path": "sqlglot/dialects/dune.py",
+      "source": "sqlglot.generators.dune.DuneGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.exasol.Exasol",
+      "kind": "class_valued_binding",
+      "line": 68,
+      "path": "sqlglot/dialects/exasol.py",
+      "source": "sqlglot.parsers.exasol.ExasolParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.exasol.Exasol",
+      "kind": "class_valued_binding",
+      "line": 70,
+      "path": "sqlglot/dialects/exasol.py",
+      "source": "sqlglot.generators.exasol.ExasolGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.fabric.Fabric",
+      "kind": "class_valued_binding",
+      "line": 51,
+      "path": "sqlglot/dialects/fabric.py",
+      "source": "sqlglot.parsers.fabric.FabricParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.fabric.Fabric",
+      "kind": "class_valued_binding",
+      "line": 53,
+      "path": "sqlglot/dialects/fabric.py",
+      "source": "sqlglot.generators.fabric.FabricGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.hive.Hive",
+      "kind": "class_valued_binding",
+      "line": 144,
+      "path": "sqlglot/dialects/hive.py",
+      "source": "sqlglot.parsers.hive.HiveParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.hive.Hive",
+      "kind": "class_valued_binding",
+      "line": 146,
+      "path": "sqlglot/dialects/hive.py",
+      "source": "sqlglot.generators.hive.HiveGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.materialize.Materialize",
+      "kind": "class_valued_binding",
+      "line": 16,
+      "path": "sqlglot/dialects/materialize.py",
+      "source": "sqlglot.parsers.materialize.MaterializeParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.materialize.Materialize",
+      "kind": "class_valued_binding",
+      "line": 18,
+      "path": "sqlglot/dialects/materialize.py",
+      "source": "sqlglot.generators.materialize.MaterializeGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.mysql.MySQL",
+      "kind": "class_valued_binding",
+      "line": 178,
+      "path": "sqlglot/dialects/mysql.py",
+      "source": "sqlglot.parsers.mysql.MySQLParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.mysql.MySQL",
+      "kind": "class_valued_binding",
+      "line": 180,
+      "path": "sqlglot/dialects/mysql.py",
+      "source": "sqlglot.generators.mysql.MySQLGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.oracle.Oracle",
+      "kind": "class_valued_binding",
+      "line": 121,
+      "path": "sqlglot/dialects/oracle.py",
+      "source": "sqlglot.parsers.oracle.OracleParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.oracle.Oracle",
+      "kind": "class_valued_binding",
+      "line": 123,
+      "path": "sqlglot/dialects/oracle.py",
+      "source": "sqlglot.generators.oracle.OracleGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.postgres.Postgres",
+      "kind": "class_valued_binding",
+      "line": 165,
+      "path": "sqlglot/dialects/postgres.py",
+      "source": "sqlglot.parsers.postgres.PostgresParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.postgres.Postgres",
+      "kind": "class_valued_binding",
+      "line": 167,
+      "path": "sqlglot/dialects/postgres.py",
+      "source": "sqlglot.generators.postgres.PostgresGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.presto.Presto",
+      "kind": "class_valued_binding",
+      "line": 109,
+      "path": "sqlglot/dialects/presto.py",
+      "source": "sqlglot.parsers.presto.PrestoParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.presto.Presto",
+      "kind": "class_valued_binding",
+      "line": 111,
+      "path": "sqlglot/dialects/presto.py",
+      "source": "sqlglot.generators.presto.PrestoGenerator"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.prql.PRQL",
+      "kind": "class_valued_binding",
+      "line": 13,
+      "path": "sqlglot/dialects/prql.py",
+      "source": "sqlglot.generators.prql.PRQLGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.prql.PRQL",
+      "kind": "class_valued_binding",
+      "line": 32,
+      "path": "sqlglot/dialects/prql.py",
+      "source": "sqlglot.parsers.prql.PRQLParser"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.redshift.Redshift",
+      "kind": "class_valued_binding",
+      "line": 36,
+      "path": "sqlglot/dialects/redshift.py",
+      "source": "sqlglot.parsers.redshift.RedshiftParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.redshift.Redshift",
+      "kind": "class_valued_binding",
+      "line": 67,
+      "path": "sqlglot/dialects/redshift.py",
+      "source": "sqlglot.generators.redshift.RedshiftGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.risingwave.RisingWave",
+      "kind": "class_valued_binding",
+      "line": 24,
+      "path": "sqlglot/dialects/risingwave.py",
+      "source": "sqlglot.parsers.risingwave.RisingWaveParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.risingwave.RisingWave",
+      "kind": "class_valued_binding",
+      "line": 26,
+      "path": "sqlglot/dialects/risingwave.py",
+      "source": "sqlglot.generators.risingwave.RisingWaveGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.singlestore.SingleStore",
+      "kind": "class_valued_binding",
+      "line": 68,
+      "path": "sqlglot/dialects/singlestore.py",
+      "source": "sqlglot.parsers.singlestore.SingleStoreParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.singlestore.SingleStore",
+      "kind": "class_valued_binding",
+      "line": 70,
+      "path": "sqlglot/dialects/singlestore.py",
+      "source": "sqlglot.generators.singlestore.SingleStoreGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.snowflake.Snowflake",
+      "kind": "class_valued_binding",
+      "line": 129,
+      "path": "sqlglot/dialects/snowflake.py",
+      "source": "sqlglot.parsers.snowflake.SnowflakeParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.snowflake.Snowflake",
+      "kind": "class_valued_binding",
+      "line": 192,
+      "path": "sqlglot/dialects/snowflake.py",
+      "source": "sqlglot.generators.snowflake.SnowflakeGenerator"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.solr.Solr",
+      "kind": "class_valued_binding",
+      "line": 14,
+      "path": "sqlglot/dialects/solr.py",
+      "source": "sqlglot.generators.solr.SolrGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.solr.Solr",
+      "kind": "class_valued_binding",
+      "line": 16,
+      "path": "sqlglot/dialects/solr.py",
+      "source": "sqlglot.parsers.solr.SolrParser"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.spark.Spark",
+      "kind": "class_valued_binding",
+      "line": 52,
+      "path": "sqlglot/dialects/spark.py",
+      "source": "sqlglot.parsers.spark.SparkParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.spark.Spark",
+      "kind": "class_valued_binding",
+      "line": 54,
+      "path": "sqlglot/dialects/spark.py",
+      "source": "sqlglot.generators.spark.SparkGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.spark2.Spark2",
+      "kind": "class_valued_binding",
+      "line": 47,
+      "path": "sqlglot/dialects/spark2.py",
+      "source": "sqlglot.parsers.spark2.Spark2Parser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.spark2.Spark2",
+      "kind": "class_valued_binding",
+      "line": 49,
+      "path": "sqlglot/dialects/spark2.py",
+      "source": "sqlglot.generators.spark2.Spark2Generator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.sqlite.SQLite",
+      "kind": "class_valued_binding",
+      "line": 63,
+      "path": "sqlglot/dialects/sqlite.py",
+      "source": "sqlglot.parsers.sqlite.SQLiteParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.sqlite.SQLite",
+      "kind": "class_valued_binding",
+      "line": 65,
+      "path": "sqlglot/dialects/sqlite.py",
+      "source": "sqlglot.generators.sqlite.SQLiteGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.starrocks.StarRocks",
+      "kind": "class_valued_binding",
+      "line": 62,
+      "path": "sqlglot/dialects/starrocks.py",
+      "source": "sqlglot.parsers.starrocks.StarRocksParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.starrocks.StarRocks",
+      "kind": "class_valued_binding",
+      "line": 64,
+      "path": "sqlglot/dialects/starrocks.py",
+      "source": "sqlglot.generators.starrocks.StarRocksGenerator"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.tableau.Tableau",
+      "kind": "class_valued_binding",
+      "line": 16,
+      "path": "sqlglot/dialects/tableau.py",
+      "source": "sqlglot.generators.tableau.TableauGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.tableau.Tableau",
+      "kind": "class_valued_binding",
+      "line": 18,
+      "path": "sqlglot/dialects/tableau.py",
+      "source": "sqlglot.parsers.tableau.TableauParser"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.teradata.Teradata",
+      "kind": "class_valued_binding",
+      "line": 85,
+      "path": "sqlglot/dialects/teradata.py",
+      "source": "sqlglot.parsers.teradata.TeradataParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.teradata.Teradata",
+      "kind": "class_valued_binding",
+      "line": 87,
+      "path": "sqlglot/dialects/teradata.py",
+      "source": "sqlglot.generators.teradata.TeradataGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.trino.Trino",
+      "kind": "class_valued_binding",
+      "line": 24,
+      "path": "sqlglot/dialects/trino.py",
+      "source": "sqlglot.parsers.trino.TrinoParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.trino.Trino",
+      "kind": "class_valued_binding",
+      "line": 26,
+      "path": "sqlglot/dialects/trino.py",
+      "source": "sqlglot.generators.trino.TrinoGenerator"
+    },
+    {
+      "attribute": "Parser",
+      "consumer": "sqlglot.dialects.tsql.TSQL",
+      "kind": "class_valued_binding",
+      "line": 199,
+      "path": "sqlglot/dialects/tsql.py",
+      "source": "sqlglot.parsers.tsql.TSQLParser"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.dialects.tsql.TSQL",
+      "kind": "class_valued_binding",
+      "line": 201,
+      "path": "sqlglot/dialects/tsql.py",
+      "source": "sqlglot.generators.tsql.TSQLGenerator"
+    },
+    {
+      "attribute": "Generator",
+      "consumer": "sqlglot.executor.python.Python",
+      "kind": "class_valued_binding",
+      "line": 557,
+      "path": "sqlglot/executor/python.py",
+      "source": "sqlglot.generators.python.PythonGenerator"
+    },
+    {
+      "attribute": "Type",
+      "consumer": "sqlglot.expressions.datatypes.DataType",
+      "kind": "class_valued_binding",
+      "line": 193,
+      "path": "sqlglot/expressions/datatypes.py",
+      "source": "sqlglot.expressions.datatypes.DType"
+    },
+    {
+      "attribute": "Location",
+      "consumer": "sqlglot.expressions.properties.Properties",
+      "kind": "class_valued_binding",
+      "line": 681,
+      "path": "sqlglot/expressions/properties.py",
+      "source": "sqlglot.expressions.properties.PropertiesLocation"
+    }
+  ],
+  "added_class_test_links": 5052,
+  "changed_classes": {
+    "sqlglot.dialects.hive.Hive": {
+      "added": 16,
+      "after": 424,
+      "before": 408
+    },
+    "sqlglot.dialects.hive.Hive.JSONPathTokenizer": {
+      "added": 16,
+      "after": 424,
+      "before": 408
+    },
+    "sqlglot.dialects.hive.Hive.Tokenizer": {
+      "added": 16,
+      "after": 424,
+      "before": 408
+    },
+    "sqlglot.errors.ErrorLevel": {
+      "added": 54,
+      "after": 1586,
+      "before": 1532
+    },
+    "sqlglot.errors.ParseError": {
+      "added": 64,
+      "after": 1586,
+      "before": 1522
+    },
+    "sqlglot.errors.SqlglotError": {
+      "added": 58,
+      "after": 1586,
+      "before": 1528
+    },
+    "sqlglot.expressions.properties.PropertiesLocation": {
+      "added": 117,
+      "after": 117,
+      "before": 0
+    },
+    "sqlglot.generator.Generator": {
+      "added": 239,
+      "after": 1586,
+      "before": 1347
+    },
+    "sqlglot.generators.athena.AthenaGenerator": {
+      "added": 9,
+      "after": 33,
+      "before": 24
+    },
+    "sqlglot.generators.athena.AthenaTrinoGenerator": {
+      "added": 9,
+      "after": 33,
+      "before": 24
+    },
+    "sqlglot.generators.bigquery.BigQueryGenerator": {
+      "added": 67,
+      "after": 293,
+      "before": 226
+    },
+    "sqlglot.generators.clickhouse.ClickHouseGenerator": {
+      "added": 27,
+      "after": 150,
+      "before": 123
+    },
+    "sqlglot.generators.databricks.DatabricksGenerator": {
+      "added": 13,
+      "after": 171,
+      "before": 158
+    },
+    "sqlglot.generators.dax.DAXGenerator": {
+      "added": 5,
+      "after": 10,
+      "before": 5
+    },
+    "sqlglot.generators.doris.DorisGenerator": {
+      "added": 5,
+      "after": 44,
+      "before": 39
+    },
+    "sqlglot.generators.dremio.DremioGenerator": {
+      "added": 6,
+      "after": 37,
+      "before": 31
+    },
+    "sqlglot.generators.drill.DrillGenerator": {
+      "added": 4,
+      "after": 36,
+      "before": 32
+    },
+    "sqlglot.generators.druid.DruidGenerator": {
+      "added": 2,
+      "after": 7,
+      "before": 5
+    },
+    "sqlglot.generators.duckdb.DuckDBGenerator": {
+      "added": 60,
+      "after": 437,
+      "before": 377
+    },
+    "sqlglot.generators.dune.DuneGenerator": {
+      "added": 2,
+      "after": 8,
+      "before": 6
+    },
+    "sqlglot.generators.exasol.ExasolGenerator": {
+      "added": 2,
+      "after": 46,
+      "before": 44
+    },
+    "sqlglot.generators.fabric.FabricGenerator": {
+      "added": 2,
+      "after": 15,
+      "before": 13
+    },
+    "sqlglot.generators.hive.HiveGenerator": {
+      "added": 120,
+      "after": 424,
+      "before": 304
+    },
+    "sqlglot.generators.materialize.MaterializeGenerator": {
+      "added": 3,
+      "after": 16,
+      "before": 13
+    },
+    "sqlglot.generators.mysql.MySQLGenerator": {
+      "added": 199,
+      "after": 445,
+      "before": 246
+    },
+    "sqlglot.generators.oracle.OracleGenerator": {
+      "added": 19,
+      "after": 137,
+      "before": 118
+    },
+    "sqlglot.generators.postgres.PostgresGenerator": {
+      "added": 59,
+      "after": 320,
+      "before": 261
+    },
+    "sqlglot.generators.presto.PrestoGenerator": {
+      "added": 35,
+      "after": 235,
+      "before": 200
+    },
+    "sqlglot.generators.prql.PRQLGenerator": {
+      "added": 3,
+      "after": 6,
+      "before": 3
+    },
+    "sqlglot.generators.redshift.RedshiftGenerator": {
+      "added": 11,
+      "after": 107,
+      "before": 96
+    },
+    "sqlglot.generators.risingwave.RisingWaveGenerator": {
+      "added": 6,
+      "after": 17,
+      "before": 11
+    },
+    "sqlglot.generators.singlestore.SingleStoreGenerator": {
+      "added": 2,
+      "after": 36,
+      "before": 34
+    },
+    "sqlglot.generators.snowflake.SnowflakeGenerator": {
+      "added": 75,
+      "after": 358,
+      "before": 283
+    },
+    "sqlglot.generators.solr.SolrGenerator": {
+      "added": 2,
+      "after": 7,
+      "before": 5
+    },
+    "sqlglot.generators.spark.SparkGenerator": {
+      "added": 35,
+      "after": 306,
+      "before": 271
+    },
+    "sqlglot.generators.spark2.Spark2Generator": {
+      "added": 36,
+      "after": 308,
+      "before": 272
+    },
+    "sqlglot.generators.sqlite.SQLiteGenerator": {
+      "added": 13,
+      "after": 117,
+      "before": 104
+    },
+    "sqlglot.generators.starrocks.StarRocksGenerator": {
+      "added": 9,
+      "after": 73,
+      "before": 64
+    },
+    "sqlglot.generators.tableau.TableauGenerator": {
+      "added": 2,
+      "after": 17,
+      "before": 15
+    },
+    "sqlglot.generators.teradata.TeradataGenerator": {
+      "added": 9,
+      "after": 76,
+      "before": 67
+    },
+    "sqlglot.generators.trino.TrinoGenerator": {
+      "added": 31,
+      "after": 145,
+      "before": 114
+    },
+    "sqlglot.generators.tsql.TSQLGenerator": {
+      "added": 19,
+      "after": 171,
+      "before": 152
+    },
+    "sqlglot.helper.AutoName": {
+      "added": 1,
+      "after": 1587,
+      "before": 1586
+    },
+    "sqlglot.jsonpath.JSONPathTokenizer": {
+      "added": 809,
+      "after": 1586,
+      "before": 777
+    },
+    "sqlglot.optimizer.annotate_types.TypeAnnotator": {
+      "added": 7,
+      "after": 829,
+      "before": 822
+    },
+    "sqlglot.parser.IsPredicatePrecedence": {
+      "added": 67,
+      "after": 1586,
+      "before": 1519
+    },
+    "sqlglot.parser.Parser": {
+      "added": 67,
+      "after": 1586,
+      "before": 1519
+    },
+    "sqlglot.parsers.athena.AthenaParser": {
+      "added": 12,
+      "after": 33,
+      "before": 21
+    },
+    "sqlglot.parsers.athena.AthenaTrinoParser": {
+      "added": 12,
+      "after": 33,
+      "before": 21
+    },
+    "sqlglot.parsers.base.BaseParser": {
+      "added": 824,
+      "after": 1586,
+      "before": 762
+    },
+    "sqlglot.parsers.bigquery.BigQueryParser": {
+      "added": 72,
+      "after": 293,
+      "before": 221
+    },
+    "sqlglot.parsers.clickhouse.ClickHouseParser": {
+      "added": 44,
+      "after": 150,
+      "before": 106
+    },
+    "sqlglot.parsers.databricks.DatabricksParser": {
+      "added": 63,
+      "after": 171,
+      "before": 108
+    },
+    "sqlglot.parsers.dax.DAXParser": {
+      "added": 7,
+      "after": 10,
+      "before": 3
+    },
+    "sqlglot.parsers.doris.DorisParser": {
+      "added": 17,
+      "after": 44,
+      "before": 27
+    },
+    "sqlglot.parsers.dremio.DremioParser": {
+      "added": 6,
+      "after": 37,
+      "before": 31
+    },
+    "sqlglot.parsers.drill.DrillParser": {
+      "added": 21,
+      "after": 36,
+      "before": 15
+    },
+    "sqlglot.parsers.druid.DruidParser": {
+      "added": 4,
+      "after": 7,
+      "before": 3
+    },
+    "sqlglot.parsers.duckdb.DuckDBParser": {
+      "added": 190,
+      "after": 437,
+      "before": 247
+    },
+    "sqlglot.parsers.dune.DuneParser": {
+      "added": 6,
+      "after": 8,
+      "before": 2
+    },
+    "sqlglot.parsers.exasol.ExasolParser": {
+      "added": 16,
+      "after": 46,
+      "before": 30
+    },
+    "sqlglot.parsers.fabric.FabricParser": {
+      "added": 7,
+      "after": 15,
+      "before": 8
+    },
+    "sqlglot.parsers.hive.HiveParser": {
+      "added": 184,
+      "after": 424,
+      "before": 240
+    },
+    "sqlglot.parsers.materialize.MaterializeParser": {
+      "added": 8,
+      "after": 16,
+      "before": 8
+    },
+    "sqlglot.parsers.mysql.MySQLParser": {
+      "added": 214,
+      "after": 445,
+      "before": 231
+    },
+    "sqlglot.parsers.oracle.OracleParser": {
+      "added": 44,
+      "after": 137,
+      "before": 93
+    },
+    "sqlglot.parsers.postgres.PostgresParser": {
+      "added": 101,
+      "after": 320,
+      "before": 219
+    },
+    "sqlglot.parsers.presto.PrestoParser": {
+      "added": 84,
+      "after": 235,
+      "before": 151
+    },
+    "sqlglot.parsers.prql.PRQLParser": {
+      "added": 5,
+      "after": 6,
+      "before": 1
+    },
+    "sqlglot.parsers.redshift.RedshiftParser": {
+      "added": 41,
+      "after": 107,
+      "before": 66
+    },
+    "sqlglot.parsers.risingwave.RisingWaveParser": {
+      "added": 7,
+      "after": 17,
+      "before": 10
+    },
+    "sqlglot.parsers.singlestore.SingleStoreParser": {
+      "added": 4,
+      "after": 36,
+      "before": 32
+    },
+    "sqlglot.parsers.snowflake.SnowflakeParser": {
+      "added": 88,
+      "after": 359,
+      "before": 271
+    },
+    "sqlglot.parsers.solr.SolrParser": {
+      "added": 5,
+      "after": 7,
+      "before": 2
+    },
+    "sqlglot.parsers.spark.SparkParser": {
+      "added": 113,
+      "after": 306,
+      "before": 193
+    },
+    "sqlglot.parsers.spark2.Spark2Parser": {
+      "added": 113,
+      "after": 308,
+      "before": 195
+    },
+    "sqlglot.parsers.sqlite.SQLiteParser": {
+      "added": 42,
+      "after": 117,
+      "before": 75
+    },
+    "sqlglot.parsers.starrocks.StarRocksParser": {
+      "added": 25,
+      "after": 73,
+      "before": 48
+    },
+    "sqlglot.parsers.tableau.TableauParser": {
+      "added": 14,
+      "after": 17,
+      "before": 3
+    },
+    "sqlglot.parsers.teradata.TeradataParser": {
+      "added": 26,
+      "after": 76,
+      "before": 50
+    },
+    "sqlglot.parsers.trino.TrinoParser": {
+      "added": 55,
+      "after": 145,
+      "before": 90
+    },
+    "sqlglot.parsers.tsql.TSQLParser": {
+      "added": 58,
+      "after": 171,
+      "before": 113
+    },
+    "sqlglot.tokenizer_core.TokenType": {
+      "added": 8,
+      "after": 1586,
+      "before": 1578
+    },
+    "sqlglot.tokens.Tokenizer": {
+      "added": 8,
+      "after": 1586,
+      "before": 1578
+    },
+    "sqlglot.tokens._TokenizerBase": {
+      "added": 8,
+      "after": 1586,
+      "before": 1578
+    },
+    "sqlglot.trie.TrieResult": {
+      "added": 64,
+      "after": 1586,
+      "before": 1522
+    }
+  },
+  "unit_tests_passed": 13,
+  "sample": {
+    "simulated_seconds": 256.055,
+    "previous_simulated_seconds": 254.914,
+    "missing_tests": 0,
+    "guard_calls": 4,
+    "guard_passed": 4,
+    "changed_sample_selections": [
+      "gbav"
+    ],
+    "cpu_seconds": 10.961107
+  },
+  "commands": [
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_class_attribute_exports.py",
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_propagate_class_consumers.py",
+    ".work/venv/bin/python rwx-blast-radius/tools/propagate_class_consumers.py --source .work/sqlglot --coverage rwx-blast-radius/maps/coverage.json.gz --output .work/coverage-class-bindings.json.gz --report .work/class-bindings-report.json --lexical-outer",
+    "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -v \"$PWD:/workspace:ro\" --entrypoint python ttun-blast-transitive /workspace/rwx-blast-radius/selector.py --map /workspace/.work/coverage-class-bindings.json.gz --source /opt/sqlglot --data /workspace/rwx-blast-radius/sample --class-guard --factory-proofs /workspace/rwx-blast-radius/maps/factory_proofs.json --metrics",
+    ".work/venv/bin/python rwx-blast-radius/evaluate.py .work/class-bindings-sample.jsonl --json"
+  ],
+  "limitations": [
+    "Direct statically resolved class-valued assignments only; arbitrary dynamic class factories/reflection remain unresolved.",
+    "Consumer union is conservative and preserves all existing links; no patch/test-specific mapping enters the tool.",
+    "Sample evaluation is offline validation only and does not establish absence of other dependency gaps."
+  ],
+  "production_validation": {
+    "fresh_root_build": true,
+    "image": "ttun-blast-bindings",
+    "sample_simulated_seconds": 256.055,
+    "missed_commits": 0,
+    "process_cpu_seconds": 11.166898,
+    "guard_calls": 4,
+    "guard_passed": 4,
+    "constraints": "Linux/amd64,2CPU,4GB,nobody,read-only,64MB tmpfs,network none,pids256",
+    "holdout_recheck": "final-class-bindings-holdouts.json"
+  }
+}

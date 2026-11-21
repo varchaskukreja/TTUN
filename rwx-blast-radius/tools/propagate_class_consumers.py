@@ -29,6 +29,12 @@ def propagate(mapping, exports, lexical_outer=False):
             edges.add((source_class, destination_class))
             reasons.append({'source': source_class, 'consumer': destination_class, 'kind': 'class_body_reference' if flow['function'] is None else 'other_class_method_reference',
                             'path': flow['path'], 'line': flow['line'], 'attribute': flow['source'].rsplit('.', 1)[1]})
+    for binding in exports.get('class_value_bindings', []):
+        source, destination = binding['source'], binding['owner']
+        if source in definitions and destination in definitions and source != destination:
+            edges.add((source, destination))
+            reasons.append({'source': source, 'consumer': destination, 'kind': 'class_valued_binding',
+                            'path': binding['path'], 'line': binding['line'], 'attribute': binding['attribute']})
     # Runtime MRO tracing usually already covers inheritance, but retaining
     # explicit transitive subclass consumers makes the closure self-contained.
     for symbol, definition in definitions.items():

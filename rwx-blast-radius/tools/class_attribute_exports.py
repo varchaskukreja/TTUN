@@ -105,6 +105,37 @@ def analyze(source):
                 return reads, owner
         return set(), None
 
+    # Class-valued attributes connect separately declared implementations to
+    # their owning dialect/container without requiring an implementation receiver.
+    class_bindings = {}
+    changed = True
+    while changed:
+        changed = False
+        for owner, definition in classes.items():
+            for statement in definition['node'].body:
+                if not isinstance(statement, (ast.Assign, ast.AnnAssign)) or statement.value is None:
+                    continue
+                reference = chain(statement.value)
+                if not reference:
+                    continue
+                resolved = resolve(definition['module'], reference, owner)
+                source_class = resolved if resolved in classes else class_bindings.get(resolved, {}).get('source')
+                if source_class is None:
+                    local_reference = owner + '.' + reference
+                    source_class = class_bindings.get(local_reference, {}).get('source')
+                if source_class is None:
+                    continue
+                assigned = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+                for target in assigned:
+                    if not isinstance(target, ast.Name):
+                        continue
+                    key = owner + '.' + target.id
+                    evidence = {'source': source_class, 'owner': owner, 'attribute': target.id,
+                                'path': modules[definition['module']]['path'], 'line': statement.lineno}
+                    if key not in class_bindings:
+                        class_bindings[key] = evidence
+                        changed = True
+
     direct, dynamic, local, registries = [], [], [], []
     for module, record in modules.items():
         def walk(body, owner=None, function=None):
@@ -183,6 +214,7 @@ def analyze(source):
             'class_definitions': {key: {'path': modules[value['module']]['path'], 'qualname': value['qualname'], 'attributes': value['attributes'],
                 'bases': [resolve(value['module'], name) for base in value['node'].bases if (name := chain(base))]}
                 for key, value in classes.items()},
+            'class_value_bindings': list(class_bindings.values()),
             'direct_class_flows': direct, 'cross_receiver_flows': dynamic,
             'same_receiver_derivations': local, 'module_registry_flows': registries,
             'analysis_complete': False, 'narrowing_authorized': False,

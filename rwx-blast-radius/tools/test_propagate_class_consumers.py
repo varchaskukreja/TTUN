@@ -31,6 +31,12 @@ class C(B):
         self.assertEqual(mapping, before)
         self.assertFalse(report['analysis_complete'])
 
+    def test_separate_implementation_gets_outer_only_consumer(self):
+        mapping, exports = self.fixture("class Engine:\n    FLAG = True\nclass Outer:\n    Parser = Engine\n", {'Engine': [0], 'Outer': [1]})
+        result, report = propagate(mapping, exports)
+        self.assertEqual(result['files']['sqlglot/a.py']['class_consumers']['Engine'], [0, 1])
+        self.assertTrue(any(edge['kind'] == 'class_valued_binding' for edge in report['edges']))
+
     def test_nested_class_consumes_lexical_outer_contexts(self):
         mapping, exports = self.fixture('''class Outer:
     class Inner:
