@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from comparison_selection import ExperimentalComparisons,qualify
+from comparison_selection import ExperimentalComparisons,qualify,manifest_authorization
 from selector import Selector
 import sys
 sys.path.insert(0,str(Path(__file__).parent/'tools'))
@@ -115,5 +115,23 @@ class ComparisonSelectionTests(unittest.TestCase):
         self.assertEqual(selector.last_selection_status,{'complete':False,'reason':'persistent_class_state'})
         with patch('comparison_selection.qualify',side_effect=AssertionError('must not qualify fallback')):
             self.assertEqual(self.candidate().propose(text,original,selector.last_selection_status),original)
+
+    def test_authorization_profiles_are_explicit_and_consistent(self):
+        self.assertIs(manifest_authorization({'format':1,'experimental_only':True,'production_authorized':False}),False)
+        self.assertIs(manifest_authorization({'format':1,'experimental_only':False,'production_authorized':True}),True)
+        for values in ({}, {'experimental_only':True,'production_authorized':True},
+                       {'experimental_only':False,'production_authorized':False},
+                       {'experimental_only':0,'production_authorized':1}):
+            self.assertIsNone(manifest_authorization(dict(values,format=1)))
+
+    def test_deployment_authorization_changes_metadata_not_selection(self):
+        candidate=self.candidate()
+        original=candidate.propose(self.patch,{1,2,3,4},OK)
+        self.assertFalse(candidate.last_detail['production_authorized'])
+        candidate.production_authorized=True
+        self.assertEqual(candidate.propose(self.patch,{1,2,3,4},OK),original)
+        self.assertTrue(candidate.last_detail['production_authorized'])
+        with patch('comparison_selection.qualify',side_effect=AssertionError('fallback must remain guarded')):
+            self.assertEqual(candidate.propose(self.patch,{1,2,3,4},{'complete':False,'reason':'persistent_class_state'}),{1,2,3,4})
 
 if __name__=='__main__':unittest.main()

@@ -264,7 +264,7 @@ def main():
     parser.add_argument('--source', type=Path, default=Path('/opt/sqlglot'))
     parser.add_argument('--class-guard', action='store_true', help='enable class-literal selection after successful cold import and collection checks')
     parser.add_argument('--factory-proofs', type=Path, help='opt-in baseline factory proofs; requires --class-guard')
-    parser.add_argument('--experimental-comparisons', action='store_true', help='research only; explicitly enable conditional comparison proposals')
+    parser.add_argument('--experimental-comparisons', action='store_true', help='enable conditional observed-type refinement (legacy flag name)')
     parser.add_argument('--comparison-evidence', type=Path, default=ROOT / 'maps/comparison-experimental.json.gz')
     parser.add_argument('--comparison-manifest', type=Path, default=ROOT / 'maps/comparison-experimental-manifest.json')
     parser.add_argument('--metrics', action='store_true', help='write local CPU and guard counts to stderr')

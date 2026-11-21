@@ -1,7 +1,7 @@
 {
   "format": 1,
-  "experimental_only": true,
-  "production_authorized": false,
+  "experimental_only": false,
+  "production_authorized": true,
   "python_version": [
     3,
     13
@@ -13,8 +13,9 @@
     "comparison_audit.py": "0ac4fe5b5796e139b4a54e9fce094c896906314b5cbbca595a709507eee79211",
     "comparison_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
     "patches.py": "4d5e4e7878ee6797211c9fce46bec04ffba0563ab02f371054914883b93f7d20",
-    "comparison_selection.py": "35778041c56cb504069ea168411389f89242e1f4952a003ab61b9595c77b6af8",
-    "selector.py": "1483e09b7c253f762fa8e3d5e759cbb62c4d5664f37512a05198ee98f7f4bcb6"
+    "comparison_selection.py": "a0af5b5cf6e6bbf305f3fb7cce0940003992a4e08513625c4a5732c737f280c4",
+    "selector.py": "33c7c996ac99785142685ab1bb19af0b0d3fa113c184af8e7d538813393f8b45"
   },
-  "origin": "baseline comparison full-v3; semantic completeness not authorized"
+  "origin": "baseline comparison full-v3; semantic completeness not authorized",
+  "authorization_scope": "Deployment policy for conditional observed-type refinement; not a claim of exhaustive semantic coverage."
 }

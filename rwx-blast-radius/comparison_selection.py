@@ -1,4 +1,4 @@
-"""Explicitly opt-in experimental comparison proposals; no production approval.
+"""Conditional observed-type refinement with explicit deployment authorization.
 
 No outcomes/answers are loaded. An intact capture is still conditional evidence
 about observed executions, not proof of reader completeness or order stability.
@@ -49,11 +49,23 @@ def qualify(mapping, source, patch):
         return rejected
 
 
+def manifest_authorization(meta):
+    """Deployment policy, separate from the capture's semantic limitations."""
+    if meta.get('format') != 1:
+        return None
+    if meta.get('experimental_only') is True and meta.get('production_authorized') is False:
+        return False
+    if meta.get('experimental_only') is False and meta.get('production_authorized') is True:
+        return True
+    return None
+
+
 class ExperimentalComparisons:
     def __init__(self, tests, production_map, source, evidence=None, manifest=None, *, enabled=False):
         self.tests=tests; self.production=production_map; self.source=Path(source)
         self.by_id={t['id']:t['number'] for t in tests}; self.all=set(self.by_id.values())
-        self.enabled=enabled; self.mapping=None; self.issue='experimental comparison disabled'; self.last_detail={}
+        self.enabled=enabled; self.mapping=None; self.issue='comparison refinement disabled'; self.last_detail={}
+        self.production_authorized=False
         self.unstable=set(); self.invalid_protection=False
         values=production_map.get('baseline_unstable_tests',[])
         if type(values) is not list or any(type(n) is not str or n not in self.by_id for n in values):
@@ -62,8 +74,9 @@ class ExperimentalComparisons:
         if not enabled:return
         try:
             meta=_json(Path(manifest).read_bytes())
-            if meta.get('format') != 1 or meta.get('experimental_only') is not True or meta.get('production_authorized') is not False:
-                raise ValueError('not an experimental manifest')
+            authorization=manifest_authorization(meta)
+            if authorization is None:
+                raise ValueError('inconsistent comparison authorization manifest')
             if meta.get('python_version') != list(sys.version_info[:2]): raise ValueError('interpreter mismatch')
             directory=Path(__file__).resolve().parent
             expected={'comparison_proof.py','comparison_audit.py','comparison_edit.py','patches.py','comparison_selection.py','selector.py'}
@@ -84,6 +97,7 @@ class ExperimentalComparisons:
             if any(v not in (current,list(sys.version_info[:2])) for v in versions):issues.append('capture interpreter mismatch')
             if issues:raise ValueError('; '.join(issues))
             self.mapping=mapping;self.issue=None
+            self.production_authorized=authorization
         except (OSError,ValueError,TypeError,KeyError,AttributeError,EOFError,RecursionError,zlib.error) as exc:
             self.issue=str(exc)
 
@@ -125,7 +139,7 @@ class ExperimentalComparisons:
             protected.update(self.by_id[n] for n in uncertain)
             exact={self.by_id[n] for n in observed&executing if n in self.by_id}
             selected=(original-exact)|protected
-            self.last_detail={'decision':'conditional_experimental_proposal','site':cert['site'],'removed_count':len(original-selected),'production_authorized':False}
+            self.last_detail={'decision':'conditional_observed_type_refinement','site':cert['site'],'removed_count':len(original-selected),'production_authorized':self.production_authorized}
             return selected
         except (ValueError,TypeError,KeyError,AttributeError,OSError) as exc:
             return self.retain(original,'invalid dependency metadata: '+type(exc).__name__)
