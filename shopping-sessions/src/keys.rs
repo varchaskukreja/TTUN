@@ -29,6 +29,20 @@ pub fn pack(s: &[u8]) -> u128 {
     }
 }
 
+/// `pack`, reading 16 bytes at once when `s` has 16 readable bytes before `end`.
+#[inline(always)]
+pub fn pack_in(s: &[u8], end: usize) -> u128 {
+    let n = s.len();
+    if n <= 15 && s.as_ptr() as usize + 16 <= end {
+        let v = unsafe { std::ptr::read_unaligned(s.as_ptr() as *const [u8; 16]) };
+        let be = u128::from_be_bytes(v);
+        let mask = if n == 0 { 0 } else { !0u128 << (8 * (16 - n)) };
+        (be & mask) | n as u128
+    } else {
+        pack(s)
+    }
+}
+
 #[cold]
 fn pack_long(s: &[u8]) -> u128 {
     let h1 = hash64(s, 0x243F_6A88_85A3_08D3);
