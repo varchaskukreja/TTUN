@@ -14,6 +14,13 @@ class ExportTests(unittest.TestCase):
                 (root / 'sqlglot' / name).write_text(content)
             return analyze(root)
 
+    def test_imported_class_binding_and_binding_alias(self):
+        result = self.analyze({'a.py': 'class Implementation:\n    FLAG = True\n',
+            'b.py': 'from sqlglot.a import Implementation as Impl\nclass Outer:\n    Parser = Impl\nclass Other:\n    Parser = Outer.Parser\n'})
+        bindings = result['class_value_bindings']
+        self.assertEqual({b['source'] for b in bindings}, {'sqlglot.a.Implementation'})
+        self.assertEqual({b['owner'] for b in bindings}, {'sqlglot.b.Outer', 'sqlglot.b.Other'})
+
     def test_imported_alias_copy_to_other_class(self):
         result = self.analyze({'a.py': 'class Original:\n    MAPPING = {"x": "y"}\n',
                               'b.py': 'from sqlglot.a import Original as O\nclass Other:\n    MAPPING = O.MAPPING\n'})

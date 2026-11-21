@@ -31,6 +31,12 @@ class C(B):
         self.assertEqual(mapping, before)
         self.assertFalse(report['analysis_complete'])
 
+    def test_separate_implementation_gets_outer_only_consumer(self):
+        mapping, exports = self.fixture("class Engine:\n    FLAG = True\nclass Outer:\n    Parser = Engine\n", {'Engine': [0], 'Outer': [1]})
+        result, report = propagate(mapping, exports)
+        self.assertEqual(result['files']['sqlglot/a.py']['class_consumers']['Engine'], [0, 1])
+        self.assertTrue(any(edge['kind'] == 'class_valued_binding' for edge in report['edges']))
+
     def test_nested_class_consumes_lexical_outer_contexts(self):
         mapping, exports = self.fixture('''class Outer:
     class Inner:
@@ -61,6 +67,33 @@ def read():
 ''', {'C': [0]})
         result, _ = propagate(mapping, exports)
         self.assertEqual(result['files']['sqlglot/a.py']['class_attribute_global_exports']['C'], ['VALUE'])
+
+
+    def test_exported_derived_alias_reaches_original_literal(self):
+        mapping, exports = self.fixture("""class A:
+    VALUE = [1]
+    DERIVED = tuple(VALUE)
+class B:
+    COPY = A.DERIVED
+GLOBAL = B.COPY
+""", {'A': [0], 'B': [1]})
+        result, report = propagate(mapping, exports)
+        flags = result['files']['sqlglot/a.py']['class_attribute_global_exports']
+        self.assertEqual(flags['A'], ['DERIVED', 'VALUE'])
+        self.assertEqual(flags['B'], ['COPY'])
+        self.assertIn('sqlglot.a.A.VALUE', report['propagated_global_exports'])
+
+    def test_export_through_subclass_blocks_ancestor_provider(self):
+        mapping, exports = self.fixture("""class Base:
+    VALUE = [1]
+class Child(Base):
+    pass
+def read():
+    return Child.VALUE
+""", {'Base': [0], 'Child': [1]})
+        result, _ = propagate(mapping, exports)
+        flags = result['files']['sqlglot/a.py']['class_attribute_global_exports']
+        self.assertEqual(flags['Base'], ['VALUE'])
 
 
 if __name__ == '__main__':

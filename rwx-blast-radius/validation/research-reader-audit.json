@@ -1,0 +1,207 @@
+{
+  "format": 1,
+  "kind": "reader_audit_isolated_research",
+  "capture_modified": false,
+  "production_modified": false,
+  "full_trace_started": false,
+  "benchmark": {
+    "format": 1,
+    "kind": "reader_audit_event_local_benchmark",
+    "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "iterations": 500,
+    "repeats": 3,
+    "results": [
+      {
+        "workload": "outer_code",
+        "cpu_seconds": {
+          "original": [
+            0.883377,
+            0.881519,
+            0.884406
+          ],
+          "candidate": [
+            0.03295099999999973,
+            0.03300700000000001,
+            0.0327630000000001
+          ]
+        },
+        "median_cpu_seconds": {
+          "original": 0.883377,
+          "candidate": 0.03295099999999973
+        },
+        "speedup": 26.808807016479232,
+        "snapshots_equal": true
+      },
+      {
+        "workload": "frame_ancestors",
+        "cpu_seconds": {
+          "original": [
+            1.3324920000000002,
+            1.3513330000000003,
+            1.3367200000000006
+          ],
+          "candidate": [
+            0.059983000000000786,
+            0.056710000000000704,
+            0.07099999999999973
+          ]
+        },
+        "median_cpu_seconds": {
+          "original": 1.3367200000000006,
+          "candidate": 0.059983000000000786
+        },
+        "speedup": 22.284980744544004,
+        "snapshots_equal": true
+      }
+    ],
+    "capture_modified": false,
+    "limitations": [
+      "Synthetic timings do not predict full-suite speedup.",
+      "Filesystem resolution is shared only within one synchronous event; concurrent external symlink mutation during the event is not modeled.",
+      "Context getter is assumed pure and stable during one event, as in the baseline tracer.",
+      "No persistent code/type/operand caches and no source/code-reader contexts discarded."
+    ],
+    "tests_passed": 4
+  },
+  "real_parser_pilot": {
+    "original": {
+      "seconds": 3.710698957999739,
+      "exitcode": 0
+    },
+    "candidate": {
+      "seconds": 3.9353522920000614,
+      "exitcode": 0
+    },
+    "exact_snapshot_equal": true,
+    "reader_dependencies_equal": true,
+    "site_observations_equal": true
+  },
+  "real_profiles": {
+    "reader-real-profile": {
+      "profile_total_seconds": 10.876780767,
+      "functions": [
+        {
+          "function": "compare",
+          "calls": 36730,
+          "self_seconds": 0.15438911400000002,
+          "cumulative_seconds": 3.443537183
+        },
+        {
+          "function": "compile",
+          "calls": 97,
+          "self_seconds": 0.15750613300000002,
+          "cumulative_seconds": 6.263542332
+        },
+        {
+          "function": "describe_operand",
+          "calls": 73460,
+          "self_seconds": 2.2607402960000003,
+          "cumulative_seconds": 3.1592699430000004
+        },
+        {
+          "function": "describe_type",
+          "calls": 73460,
+          "self_seconds": 0.105226042,
+          "cumulative_seconds": 0.27227785600000004
+        }
+      ]
+    },
+    "reader-typing-profile": {
+      "profile_total_seconds": 12.136506440999527,
+      "functions": [
+        {
+          "function": "describe_operand",
+          "calls": 72872,
+          "self_seconds": 2.544934934,
+          "cumulative_seconds": 3.531296541
+        },
+        {
+          "function": "describe_type",
+          "calls": 72872,
+          "self_seconds": 0.117533887,
+          "cumulative_seconds": 0.302633926
+        },
+        {
+          "function": "compare",
+          "calls": 36436,
+          "self_seconds": 0.17237026,
+          "cumulative_seconds": 3.8514701610000004
+        },
+        {
+          "function": "compile",
+          "calls": 104,
+          "self_seconds": 0.177641571,
+          "cumulative_seconds": 6.970591418000001
+        }
+      ]
+    },
+    "reader-real-audit-profile": {
+      "profile_total_seconds": 14.060661731999582,
+      "functions": [
+        {
+          "function": "record_frame",
+          "calls": 1,
+          "self_seconds": 6.9295e-05,
+          "cumulative_seconds": 0.008036625
+        },
+        {
+          "function": "compare",
+          "calls": 36730,
+          "self_seconds": 0.24743387900000002,
+          "cumulative_seconds": 4.709772745
+        },
+        {
+          "function": "compile",
+          "calls": 97,
+          "self_seconds": 0.18425945600000002,
+          "cumulative_seconds": 7.6140048380000005
+        },
+        {
+          "function": "audit",
+          "calls": 99936,
+          "self_seconds": 0.024412947,
+          "cumulative_seconds": 0.303281624
+        },
+        {
+          "function": "describe_operand",
+          "calls": 73460,
+          "self_seconds": 3.0253411530000003,
+          "cumulative_seconds": 4.230322826
+        },
+        {
+          "function": "record_code",
+          "calls": 1246,
+          "self_seconds": 0.004004349,
+          "cumulative_seconds": 0.173047218
+        },
+        {
+          "function": "describe_type",
+          "calls": 73460,
+          "self_seconds": 0.16608804100000002,
+          "cumulative_seconds": 0.40444728300000005
+        }
+      ]
+    }
+  },
+  "scaled_max_nodes_shape": [
+    {
+      "width": 10,
+      "depth": 100,
+      "cpu_seconds": 1.4927709999999998,
+      "linear_width10000_seconds": 1492.771
+    },
+    {
+      "width": 20,
+      "depth": 100,
+      "cpu_seconds": 2.859652,
+      "linear_width10000_seconds": 1429.826
+    }
+  ],
+  "recommendation": {
+    "reader_candidate_integration": "Not justified as the primary full-suite speed fix; real parser pilot showed no benefit despite22\u201327x synthetic event speedup. Candidate remains standalone.",
+    "full_run_budget": "If proceeding unchanged, allow60minutes withprogress checks and gracefulpartialpreservation beforehardcap; review first.",
+    "estimate": "V2 needed15minutes to1440tests. Width10/20,depth100 parse suggests1429\u20131493CPU seconds atwidth10000, before accounting for max_nodes earlytermination and tokenization. Total complete run plausibly35\u201350minutes; nonlinear behavior and otherremainingtests remain uncertain.",
+    "no_behavior_cache": "No persistent member/type/operand cache introduced; every event rereads context and path resolution."
+  },
+  "artifact_sha256": "f4c08588f6dd1cedd37a69192cf53040f9e9455e190bff6cde0ec36fe749cb5e"
+}

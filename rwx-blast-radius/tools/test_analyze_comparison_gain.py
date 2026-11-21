@@ -16,6 +16,7 @@ class GainTests(unittest.TestCase):
     def test_interpreter_versions_must_match_when_declared(self):
         current = list(sys.version_info[:2])
         self.assertEqual(gain.interpreter_issues({'python_version': current}, {'python_version': current}), [])
+        self.assertEqual(gain.interpreter_issues({'python_version': '.'.join(map(str, current))}, {'python_version': current}), [])
         for proofs in ({}, {'python_version': [3, 99]}, {'python_version': '3.13'}, {'python_version': [True, 13]}):
             self.assertTrue(gain.interpreter_issues({}, proofs))
         for mapping in ({'python_version': [3, 99]}, {'capture_report': {'python_version': [3, 99]}}):

@@ -1,0 +1,90 @@
+{
+  "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
+  "holdouts": [
+    {
+      "actual_report": ".work/holdout/class-external-reads/mysql_mapping/pytest.json",
+      "actual_report_sha256": "34b3165883b34540986330b286ecbe9bbdcc48dbfb5ad7ffa85d82128b0c5239",
+      "failed_count": 17,
+      "guard_calls": [
+        {
+          "cpu_seconds": 0.829181,
+          "reasons": [],
+          "valid": true
+        }
+      ],
+      "missed_ids": [],
+      "name": "mysql_mapping",
+      "patch_sha256": "09b6309983edf1169475fa9a43589b9482357ca9a50496155d8f80cb022e95e5",
+      "previous_repaired_selection_exactly_preserved": true,
+      "previous_selected_count": 291,
+      "removed_previous_ids": [],
+      "selected_count": 445,
+      "selected_ids_sha256": "e4c32e8a98f7d059443afa0526505827d862313755b0145de937bcfa6586a1b1"
+    },
+    {
+      "actual_report": ".work/holdout/class-external-reads/registry_alias/pytest.json",
+      "actual_report_sha256": "93d6d52d5ec3cb2f49157f38812a6c4186bc85da5d53be666484e8151123b0e8",
+      "failed_count": 8,
+      "guard_calls": [],
+      "missed_ids": [],
+      "name": "registry_alias",
+      "patch_sha256": "9edb7c7e1ef4d8efd54bab1e35cfb346a193e2dc296d6ab672eeb20552a660a1",
+      "previous_repaired_selection_exactly_preserved": true,
+      "previous_selected_count": 14,
+      "removed_previous_ids": [],
+      "selected_count": 1620,
+      "selected_ids_sha256": "0ea4768d7a1b69045fd178e0a21159022c39a186881ebd014efa72630d30ed69"
+    },
+    {
+      "actual_report": ".work/holdout/tokenizer-derived-state/tokenizer_identifiers/pytest.json",
+      "actual_report_sha256": "6a726353721e3507b789c385b7a78ae6abe01b52819da5920ce9880df23b90a1",
+      "failed_count": 38,
+      "guard_calls": [
+        {
+          "cpu_seconds": 0.854168,
+          "reasons": [],
+          "valid": true
+        }
+      ],
+      "missed_ids": [],
+      "name": "tokenizer_identifiers",
+      "patch_sha256": "93ff44c7007de92f3458f8839f3063abd6ebc1b662bcb2d20f89092886083820",
+      "previous_repaired_selection_exactly_preserved": true,
+      "previous_selected_count": 222,
+      "removed_previous_ids": [],
+      "selected_count": 294,
+      "selected_ids_sha256": "386da5f246ddf18d32aaa793a98e41f831d74ef6c21684cf4be257878b485aed"
+    },
+    {
+      "actual_report": ".work/holdout/function-shared-dispatch/shared_dispatch/pytest.json",
+      "actual_report_sha256": "79282c281f92da13572ca8ea11751a1edab136239f03becd398de93075235e24",
+      "failed_count": 146,
+      "guard_calls": [],
+      "missed_ids": [],
+      "name": "shared_dispatch",
+      "patch_sha256": "5d77c52efb84c6ab95484d4c287d5216542534920f994a8456709d124b0a9743",
+      "previous_selected_count": 1349,
+      "removed_previous_ids": [],
+      "selected_count": 1349,
+      "selected_ids_sha256": "63e7d1a899be06c7312aed20c75e988cba278d6df88c359ddcaa528373e8bc08"
+    }
+  ],
+  "kind": "final_class_binding_holdout_verification",
+  "map_path": ".work/coverage-class-bindings.json.gz",
+  "map_sha256": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
+  "physical_suites_rerun": false,
+  "prior_evidence": {
+    "rwx-blast-radius/validation/class-external-reads-repaired-v3.json": "bfd6b86b759650042c57294685c49536b953bc04b11b0f3b5270a2c492880b90",
+    "rwx-blast-radius/validation/class-external-reads.json": "1147c57ff0107d1c4875d7e1d04044d7a6727d7e4e082d63b516e24d455c1155",
+    "rwx-blast-radius/validation/function-shared-dispatch.json": "5e0457b0ce9f008b1f3e6c06e797f3c7eef56227d27ef51cf51bfbabc18d2e9a"
+  },
+  "prior_selections_preserved": true,
+  "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "runtime_sha256": {
+    "class_selection.py": "78c0876727cd194914daea0194528b6004f59321fcbb9a2e0e50b80b8b5aa417",
+    "factory_selection.py": "436e7370e707eb121f76fd2b589d721d9e82b527d2f7150b2b328730721c7e93",
+    "import_guard.py": "9b4215d056944e927f8ffc70641913ae720926cefe28635583094c3b10741686",
+    "selector.py": "657eb1b3db9c9876ee84c09c259ea9c3c5454675ccb71a47f12c02f064bc4795"
+  },
+  "zero_misses": true
+}

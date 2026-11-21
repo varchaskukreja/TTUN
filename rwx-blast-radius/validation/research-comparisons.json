@@ -4,8 +4,8 @@
   "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
   "production_enabled": false,
   "synthetic_tests": {
-    "passed": 30,
-    "seconds": 0.017,
+    "passed": 31,
+    "seconds": 0.018,
     "command": ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_comparison_types.py"
   },
   "coarse_pilot": {
@@ -86,13 +86,13 @@
   "limitations": [
     "No unconditional skip authorization; certificates are conditional operand algebra observations.",
     "Untracked subprocesses, missing context receipts, unknown/failed/skipped executions preclude global completeness.",
-    "Full trace not run; separate successful spawn helper pilot awaits core integration and raw observation merging.",
+    "Two full trace attempts were intentionally interrupted and remain globally incomplete; process-pool and Python -c subprocess capture is integrated and passed a combined smoke test.",
     "Fixed deterministic warm-suite trajectory induction does not establish cold/reordered or nondeterministic execution equivalence.",
     "Instrumentation changes stack, globals, timing and reference lifetimes; reflection coverage remains empirical."
   ],
   "artifacts": {
-    "rwx-blast-radius/tools/comparison_types.py": "95371b6039ff54feee7321e64c90d8e3aeb6e165e50e8876ab5dd8d2ab9de8c1",
-    "rwx-blast-radius/tools/test_comparison_types.py": "6a0110ec84ccaf4514045ac473803dd29fa832136fcf7bc2c7ab422ef8074b98"
+    "rwx-blast-radius/tools/comparison_types.py": "5db3a8401b0fe45a90568f458a8ebb6bf701410d41d6b362064be77abb3fef98",
+    "rwx-blast-radius/tools/test_comparison_types.py": "0ea451609621b0efedc7829feb832a72d989a09ec9cb50ca039129a47dae6ef0"
   },
   "v2_extensions": {
     "serialization_cache": "bounded4096 cache of JSON strings keyed by fresh primitive operand descriptors; no type/slot/value/result caches",
@@ -103,6 +103,34 @@
       "reason": "untracked plain Python Popen gap and validated recorder performance fix",
       "all_receipt_pids_terminal": true,
       "globally_complete": false
-    }
+    },
+    "frame_observers": "sys._getframe audit records acquired frame code and every accessible f_back ancestor, including f_lasti observers without explicit f_code access; recorder internal frame acquisition muted"
+  },
+  "v2_full_trace": {
+    "globally_complete": false,
+    "narrowing_authorized": false,
+    "intentional_abort": true,
+    "reason": "Approved graceful SIGINT before900second hardtimeout",
+    "elapsed_pytest_seconds": 895.1,
+    "passed": 1440,
+    "subtests_passed": 22577,
+    "outcomes_missing": 180,
+    "protocols_finished": 1441,
+    "protocols_unfinished": 179,
+    "spawn_submissions": 2032,
+    "python_subprocesses": 1,
+    "interrupted_job_receipt_errors": 2,
+    "all_receipt_pids_terminal": true,
+    "parent_map_preserved": true,
+    "full_report_preserved": true,
+    "automatic_retry": false
+  },
+  "v2_smoke": {
+    "passed": 3,
+    "subtests_passed": 28,
+    "seconds": 7.14,
+    "pool_jobs": 28,
+    "python_subprocesses": 1,
+    "receipt_errors": []
   }
 }

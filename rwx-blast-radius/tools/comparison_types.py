@@ -110,6 +110,46 @@ def describe_operand(value):
     return descriptor
 
 
+def describe_operands(left, right):
+    cls = type(left)
+    if type(right) is not cls:
+        return describe_operand(left), describe_operand(right)
+    descriptor = describe_type(cls)
+    descriptor.update(backed_enum_kind='', canonical_member=False, builtin_values_bijective=False)
+    left_desc, right_desc = dict(descriptor), dict(descriptor)
+    if not descriptor['standard_enum_type'] or not descriptor['supported_metaclass']:
+        return left_desc, right_desc
+    mro = TYPE_MRO.__get__(cls, type(cls))
+    builtin = str if any(base is str for base in mro) else int if any(base is int for base in mro) else None
+    if builtin is None or effective_slot(cls, '__eq__') is not builtin.__eq__ or effective_slot(cls, '__ne__') is not builtin.__ne__:
+        return left_desc, right_desc
+    members = namespace(cls).get('_member_map_')
+    if type(members) is not dict:
+        return left_desc, right_desc
+    left_desc['backed_enum_kind'] = right_desc['backed_enum_kind'] = builtin.__name__
+    seen = {}
+    valid = True
+    for member in members.values():
+        if type(member) is not cls:
+            valid = False
+            break
+        if member is left:
+            left_desc['canonical_member'] = True
+        if member is right:
+            right_desc['canonical_member'] = True
+        raw = str.__str__(member) if builtin is str else int.__int__(member)
+        if type(raw) is not builtin:
+            valid = False
+            break
+        previous = seen.get(raw)
+        if previous is not None and previous is not member:
+            valid = False
+            break
+        seen[raw] = member
+    left_desc['builtin_values_bijective'] = right_desc['builtin_values_bijective'] = valid and bool(seen)
+    return left_desc, right_desc
+
+
 def site_key(path, node):
     return f'{path}:{node.lineno}:{node.col_offset}:{node.end_lineno}:{node.end_col_offset}'
 
@@ -246,7 +286,7 @@ class Recorder:
         path = self.sites[site]['path']
         owner = code_key(path, caller)
         self.execution_codes.setdefault(site, {}).setdefault(owner, set()).add(self.context())
-        left_desc, right_desc = describe_operand(left), describe_operand(right)
+        left_desc, right_desc = describe_operands(left, right)
         for descriptor in (left_desc, right_desc):
             if type(descriptor['qualname']) is not str:
                 descriptor['qualname'] = str.__str__(descriptor['qualname'])

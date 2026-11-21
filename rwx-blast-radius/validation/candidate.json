@@ -1,11 +1,11 @@
 {
   "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
-  "map_sha256": "aaf3a027b39c63b28ac4dab939fc761f642c7b9e67460ff8dfa99fe93b6e869a",
+  "map_sha256": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
   "sample": {
     "commits": 30,
-    "simulated_seconds": 254.914,
+    "simulated_seconds": 256.055,
     "missed_commits": 0,
-    "observed_process_cpu_seconds": 11.054837,
+    "observed_process_cpu_seconds": 11.166898,
     "guard_calls": 4,
     "guard_passed": 4
   },
@@ -37,8 +37,13 @@
       "failing_test_occurrences": 63,
       "original_missed_occurrences": 9,
       "repaired_missed_occurrences": 0,
-      "evidence": "class-external-reads-repaired.json",
+      "evidence": "final-class-bindings-holdouts.json",
       "method": "Reuse full-catalog physical mutation failures and verify repaired selection includes every failure; retain every previously selected test."
+    },
+    "shared_dispatch": {
+      "failing_tests": 146,
+      "missed": 0,
+      "evidence": "final-class-bindings-holdouts.json"
     }
   },
   "limitations": [
@@ -55,6 +60,8 @@
     "primary_passed": 121,
     "factory_policy_passed": 22,
     "granularity_counterexample_tests_passed": 16,
-    "class_export_and_propagation_passed": 9
-  }
+    "class_export_and_propagation_passed": 13
+  },
+  "transitive_export_evidence": "transitive-class-exports.json",
+  "class_value_binding_evidence": "research-class-bindings.json"
 }
