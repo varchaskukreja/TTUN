@@ -37,6 +37,8 @@ class Brain {
   laserHold = false
   attackers = new Map<number, number>() // id -> last time they hit us
   hideUntil = 0
+  mechHitT = -99
+  mechHitBearing = 0
   npcMem = new Map<number, { pos: number[]; vel: number[]; t: number; hp: number }>()
 
   constructor(hello: Hello) {
@@ -85,7 +87,13 @@ class Brain {
     }
     for (const [id, tr] of this.tracks) if (t - tr.t > 12) this.tracks.delete(id)
     for (const e of o.events) {
-      if (e.type === "damaged" && e.by != null && e.weapon !== "npc") this.attackers.set(e.by, t)
+      if (e.type === "damaged" && e.by != null && e.weapon !== "npc") {
+        this.attackers.set(e.by, t)
+        if (e.by < 16 && e.bearing != null) {
+          this.mechHitT = t
+          this.mechHitBearing = e.bearing
+        }
+      }
       if (e.type === "damaged" && e.weapon !== "zone" && e.bearing != null) {
         this.lastDamageT = t
         this.lastDamageBearing = e.bearing
@@ -313,7 +321,10 @@ class Brain {
       } else {
         const dirx = (tp[0] - x) / Math.max(d, 1), diry = (tp[1] - y) / Math.max(d, 1)
         let radial = 0
-        if (d > prefer + 15) radial = 1
+        if (d > prefer + 15) {
+          radial = 1
+          if (lightS >= 0 && d < 90 && me.energy > 70) boost = true
+        }
         else if (d < prefer - 15) radial = -0.7
         if (!hasLos && seen === false) radial = 1
         if (t > this.strafeUntil) {
@@ -325,7 +336,7 @@ class Brain {
         if (target.charging) {
           const theirYaw = target.aim[0]
           const toMe = Math.atan2(y - tp[1], x - tp[0])
-          if (Math.abs(wrap(theirYaw - toMe)) < 0.25) boost = me.energy > 10
+          if (Math.abs(wrap(theirYaw - toMe)) < 0.25) boost = me.energy > (lightS >= 0 ? 45 : 10)
         }
         const mx = dirx * radial + -diry * strafe * 0.9
         const my = diry * radial + dirx * strafe * 0.9
@@ -345,7 +356,23 @@ class Brain {
 
     // heal: hold still (silent) out of sight until HP is back
     const healing = !moveGoal && !target && !zoneGoal && (hpFrac < 0.55 || (t < this.hideUntil && hpFrac < 0.9))
-    if (healing) mode = "heal"
+    let slow = false
+    if (healing) {
+      mode = "heal"
+      // creep (silently) into cover from the most recent threat
+      let last: Track | null = null
+      for (const tr of this.tracks.values()) if (!last || tr.t > last.t) last = tr
+      if (last && map) {
+        const exposed = map.los(last.pos[0], last.pos[1], last.pos[2] + 8, x, y, z + 6)
+        if (exposed) {
+          const cov = map.coverFrom(x, y, last.pos[0], last.pos[1], last.pos[2] + 8, 36)
+          if (cov) {
+            moveGoal = cov
+            slow = true
+          }
+        }
+      }
+    }
     if (!moveGoal && !healing) {
       if (zoneGoal) {
         mode = mode === "fight" ? "fight-zone" : "zone"
@@ -403,6 +430,19 @@ class Brain {
             }
           }
         }
+        // crates on the ground: walk into range and break them
+        if (hpFrac > 0.45) {
+          for (const c of o.crates) {
+            if (Math.abs(c.pos[2] - this.mapGround(c.pos[0], c.pos[1])) > 2) continue
+            const d = hyp2(x, y, c.pos[0], c.pos[1])
+            if (d > 150) continue
+            const sc = d + 5
+            if (sc < bs) {
+              bs = sc
+              best = d > 30 ? [c.pos[0], c.pos[1]] : [x, y]
+            }
+          }
+        }
         if (best) {
           mode = "loot"
           moveGoal = best
@@ -415,13 +455,14 @@ class Brain {
         }
         // shoot crates / NPCs when nothing better
         const crate = o.crates
-          .filter((c) => hyp2(x, y, c.pos[0], c.pos[1]) < 90 && map?.los(x, y, muzzleZ, c.pos[0], c.pos[1], c.pos[2] + 1.2) !== false)
+          .filter((c) => hyp2(x, y, c.pos[0], c.pos[1]) < 120 && map?.los(x, y, muzzleZ, c.pos[0], c.pos[1], c.pos[2] + 1.2) !== false)
           .sort((a, b) => hyp2(x, y, a.pos[0], a.pos[1]) - hyp2(x, y, b.pos[0], b.pos[1]))[0]
         const npc = npcs
           .filter((n) => hyp2(x, y, n.pos[0], n.pos[1]) < 110 && map?.los(x, y, muzzleZ, n.pos[0], n.pos[1], n.pos[2] + 1.75) !== false)
           .sort((a, b) => hyp2(x, y, a.pos[0], a.pos[1]) - hyp2(x, y, b.pos[0], b.pos[1]))[0]
         const tgt = npc ? { pos: npc.pos, vel: npc.vel, h: 1.75 } : crate ? { pos: crate.pos, vel: [0, 0, 0], h: 1.2 } : null
-        if (tgt && hpFrac > 0.4) {
+        const unseenAttacker = t - this.mechHitT < 1.5
+        if (tgt && hpFrac > 0.4 && !unseenAttacker) {
           const dd = hyp2(x, y, tgt.pos[0], tgt.pos[1])
           const tt = dd / 252
           const px = tgt.pos[0] + tgt.vel[0] * tt, py = tgt.pos[1] + tgt.vel[1] * tt
@@ -456,6 +497,7 @@ class Brain {
       const gd = hyp2(x, y, moveGoal[0], moveGoal[1])
       if (gd > 2) mv = [(moveGoal[0] - x) / gd, (moveGoal[1] - y) / gd]
     }
+    if (slow) mv = [mv[0] * 0.4, mv[1] * 0.4]
     // dodge incoming bullets and shells
     {
       let dx = 0, dy = 0, urgent = false
@@ -506,7 +548,7 @@ class Brain {
           mv = [mv[0] * 0.3 + (dx / l) * 0.95, mv[1] * 0.3 + (dy / l) * 0.95]
           const ml = Math.hypot(mv[0], mv[1])
           if (ml > 1) mv = [mv[0] / ml, mv[1] / ml]
-          if (me.energy > 25) boost = true
+          if (me.energy > (lightS >= 0 && target ? 55 : 25)) boost = true
           mode += "+dodge"
         }
       }
@@ -530,6 +572,7 @@ class Brain {
     // ---------- aim when idle: look along move or toward threats
     if (!wantAim) {
       if (t < 3) aimYaw = me.aim[0] + 1.6
+      else if (t - this.mechHitT < 2) aimYaw = this.mechHitBearing
       else if (this.threatBearing !== null && t - this.threatT < 3) aimYaw = this.threatBearing
       else if (mv[0] || mv[1]) {
         this.scanPhase += 0.1
