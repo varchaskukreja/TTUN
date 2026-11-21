@@ -647,7 +647,7 @@ class Brain {
       if ((Lw.charge ?? 0) < Lw.stats.charge - 0.05) fire[laserS] = true
     }
     // reload when safe
-    if (gunS >= 0 && mode !== "fight") {
+    if (gunS >= 0 && !mode.startsWith("fight")) {
       const g = me.weapons[gunS]!
       if ((g.ammo ?? 12) < g.stats.mag * 0.5 && (g.reload ?? 0) === 0 && !fire[gunS]) act.reload = true
     }
