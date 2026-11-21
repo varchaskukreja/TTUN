@@ -14,5 +14,6 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 
 FROM debian:bookworm-slim
 COPY --from=build /ss /app/ss
+ENV GLIBC_TUNABLES=glibc.malloc.hugetlb=1
 USER 1000:1000
 CMD ["/app/ss"]
