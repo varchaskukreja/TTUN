@@ -58,6 +58,51 @@ class SelectorTests(unittest.TestCase):
         old = self.add_source("m.py", "def f(x):\n    value = 1\n    return value + x\n", lines={"2": [0], "3": [1]})
         self.assertEqual(self.select("m.py", old, old.replace("value = 1", "value = 2")), {10, 11})
 
+    def test_class_state_writer_retains_cached_consumer_without_writer_coverage(self):
+        old = self.add_source('m.py', 'class Registry:\n    @classmethod\n    def register(owner):\n        owner.cache["key"] = 1\n', lines={'4': [0]})
+        # Tests1–3 can consume cached state without executing register at all.
+        self.assertEqual(self.select('m.py', old, old.replace('= 1', '= 2')), {10, 11, 12, 13})
+
+    def test_new_class_state_write_in_updated_body_selects_all(self):
+        old = self.add_source('m.py', 'class Registry:\n    @classmethod\n    def get(cls):\n        return cls.cache.get("key")\n', lines={'4': [0]})
+        new = old.replace('return cls.cache.get("key")', 'cls.cache.clear()\n        return cls.cache.get("key")')
+        self.assertEqual(self.select('m.py', old, new), {10, 11, 12, 13})
+
+    def test_removed_class_state_write_still_selects_all(self):
+        old = self.add_source('m.py', 'class Registry:\n    @classmethod\n    def update(cls):\n        cls.cache.clear()\n        return 1\n', lines={'4': [0], '5': [0]})
+        self.assertEqual(self.select('m.py', old, old.replace('        cls.cache.clear()\n', '')), {10, 11, 12, 13})
+
+    def test_class_state_mutation_forms_and_aliases(self):
+        operations = [
+            'cls.value = 1', 'cls.cache["key"] = 1', 'cls.value += 1',
+            'del cls.cache["key"]', 'del cls.value', 'cls.cache.update({"key": 1})',
+            'owner = cls\n        owner.cache["key"] = 1',
+            'cache = cls.cache\n        alias = cache\n        alias.clear()',
+            'cache = getattr(cls, "cache")\n        cache.pop("key", None)',
+            'clear = cls.cache.clear\n        operation = clear\n        operation()',
+            'cache, other = cls.cache, {}\n        cache.setdefault("key", 1)',
+            'for cache in cls.caches:\n            cache.clear()',
+            'items = cls.items\n        items += [1]',
+            'dict.update(cls.cache, {"key": 1})',
+            'setattr(cls, "value", 1)', 'delattr(cls, "value")',
+        ]
+        for operation in operations:
+            with self.subTest(operation=operation):
+                old = self.add_source('m.py', 'class Registry:\n    @classmethod\n    def update(cls):\n        '+operation+'\n        return 1\n', lines={'4': [0]})
+                self.assertEqual(self.select('m.py', old, old.replace('return 1', 'return 2')), {10, 11, 12, 13})
+
+    def test_readonly_classmethod_keeps_execution_selection(self):
+        old = self.add_source('m.py', 'class Registry:\n    @classmethod\n    def read(cls):\n        value = cls.cache.get("key", 1)\n        return value\n', lines={'4': [0], '5': [0]})
+        self.assertEqual(self.select('m.py', old, old.replace('"key", 1', '"key", 2')), {10})
+
+    def test_unmodified_writer_does_not_taint_readonly_method_edit(self):
+        old = self.add_source('m.py', 'class Registry:\n    @classmethod\n    def write(cls):\n        cls.cache.clear()\n    @classmethod\n    def read(cls):\n        return 1\n', lines={'4': [1], '7': [0]})
+        self.assertEqual(self.select('m.py', old, old.replace('return 1', 'return 2')), {10})
+
+    def test_local_container_mutation_in_classmethod_remains_local(self):
+        old = self.add_source('m.py', 'class Registry:\n    @classmethod\n    def make(cls):\n        local = {}\n        local["key"] = 1\n        return local\n', lines={'4': [0], '5': [0], '6': [0]})
+        self.assertEqual(self.select('m.py', old, old.replace('= 1', '= 2')), {10})
+
     def test_fixture_consumers_are_selected(self):
         old = self.add_source("fixtures/data.sql", "SELECT 1;\n", tests=[2], read_tests=[2])
         self.assertEqual(self.select("fixtures/data.sql", old, "SELECT 2;\n"), {12})

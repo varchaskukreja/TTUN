@@ -1,0 +1,133 @@
+{
+  "worktree": "/Users/dylanli/Documents/TTUN/.work/definition-candidate",
+  "head_before": "cdc3e36",
+  "changed_files": [
+    "rwx-blast-radius/selector.py",
+    "rwx-blast-radius/test_selector.py"
+  ],
+  "primary_tests": {
+    "passed": 129,
+    "seconds": 4.359
+  },
+  "sample": {
+    "before_simulated_milliseconds": 262603,
+    "after_simulated_milliseconds": 262603,
+    "before_missed_commits": 0,
+    "after_missed_commits": 0,
+    "changed_selection_rows": 0,
+    "before_cpu_seconds": 10.249354,
+    "after_cpu_seconds": 9.921936,
+    "timing_caveat": "Native runs overlapped independent low-cost cold validation; do not infer a performance improvement."
+  },
+  "registry_counterexample": {
+    "before_selected": 833,
+    "after_selected": 1620,
+    "all_catalog_selected": true,
+    "guard_calls": 0,
+    "audited_failure_membership": [
+      {
+        "id": "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles",
+        "number": 17,
+        "selected": true
+      },
+      {
+        "id": "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+        "number": 172,
+        "selected": true
+      }
+    ]
+  },
+  "scope": "Changed explicit classmethods in both old and new AST, rooted persistent writes/deletes/augassigns and recognized mutators; local aliases overapproximated.",
+  "limitations": [
+    "Decorator aliases and dynamically applied classmethod wrappers are unresolved.",
+    "Opaque helper side effects, unrelated global aliases, metaclass property receivers and arbitrary reflection remain outside this check.",
+    "Alias analysis is monotone and can produce conservative false positives; it is not a purity proof."
+  ],
+  "source_only": true,
+  "map_metadata_readme_unchanged": true,
+  "docker_not_run": true,
+  "committed": false,
+  "artifacts": {
+    "change.patch": "7d4cb865782f2fda3437e7ec4b2b0a98661750cea5ba144625b241ebc94b9dde",
+    "output.jsonl": "012d2570bcda7bb814aea5f95acda16f60b78402220d2efa73df8b90080d5c9b",
+    "output-before.jsonl": "012d2570bcda7bb814aea5f95acda16f60b78402220d2efa73df8b90080d5c9b",
+    "evaluation.json": "9a1e279b9795a858e2a0f4b988d11ea749d255bd05d92ecbda75842fd5e74f98",
+    "evaluation-before.json": "9a1e279b9795a858e2a0f4b988d11ea749d255bd05d92ecbda75842fd5e74f98"
+  },
+  "final_selector_sha256": "f05f057434259a1179548244ca7da09bded3450ddc1cbfc3681e229a69881955",
+  "native_profile": {
+    "source_hashes": {
+      "baseline": "a42794b14cde9ad718a29f069d126649fc438d68ba14d23ca529969620f2a132",
+      "hardening_unoptimized": "b6604a4584b4be559d658cdaf90555139afa5b13c5a50729754fb40990d9407f",
+      "hardening_optimized": "f05f057434259a1179548244ca7da09bded3450ddc1cbfc3681e229a69881955"
+    },
+    "all_sample_outputs_identical": true,
+    "primary_tests": {
+      "passed": 129,
+      "seconds": 2.897
+    },
+    "cpu": {
+      "before": [
+        {
+          "cpu_seconds": 8.161517,
+          "guard_calls": 4,
+          "guard_passed": 4
+        },
+        {
+          "label": "before",
+          "self_cpu": 1.0906099999999999,
+          "child_cpu": 7.1403430000000006
+        }
+      ],
+      "after": [
+        {
+          "cpu_seconds": 7.155345,
+          "guard_calls": 4,
+          "guard_passed": 4
+        },
+        {
+          "label": "after",
+          "self_cpu": 1.185263,
+          "child_cpu": 6.024729
+        }
+      ],
+      "optimized": [
+        {
+          "cpu_seconds": 9.07293,
+          "guard_calls": 4,
+          "guard_passed": 4
+        },
+        {
+          "label": "after",
+          "self_cpu": 1.239742,
+          "child_cpu": 7.893956
+        }
+      ]
+    },
+    "interpretation": "Native does not reproduce Docker increase. Child guard CPU varies; no causal claim for Docker. Optimization only removes duplicated ast.walk traversals, retaining exact old/new callable order and comparisons.",
+    "isolated_profile_before_after_optimized": {
+      "before": {
+        "own_cpu_seconds": 2.0391939999999997
+      },
+      "after": {
+        "own_cpu_seconds": 1.8462689999999995
+      },
+      "identical": true
+    }
+  },
+  "container": {
+    "sample_seconds": 262.603,
+    "misses": 0,
+    "guard_passed": 4,
+    "control_cpu_seconds": 23.288363,
+    "optimized_cpu_seconds": 23.85411,
+    "earlier_unoptimized_cpu_seconds": 33.961417,
+    "concurrent_cold_validation": true,
+    "causality": "Adjacent observations; no large native AST regression reproduced, no end-to-end speedup claimed."
+  },
+  "container_log_sha256": {
+    "docker.log": "6922e2fe39a9421c66ea8d8cac711ee8c844f24b9c20fad99ee19ba4eb5f301e",
+    "docker-control.log": "1f0fa8b5f61863c3e825d70d8074cd260d7b800e48dd92c8f3f6fd1840f004e1",
+    "docker-optimized.log": "f804d73543ea21da3097ba41fd0f3727cc05fa9a878e9e1b2d6a4a5a4c96a191"
+  }
+}

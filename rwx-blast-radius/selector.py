@@ -16,6 +16,114 @@ def read_json(path):
     return json.loads(gzip.decompress(path.read_bytes()) if path.suffix == '.gz' else path.read_text())
 
 
+_CLASS_STATE_MUTATORS = frozenset({
+    'clear', 'update', 'setdefault', 'pop', 'popitem', 'append', 'extend',
+    'insert', 'remove', 'discard', 'add', 'difference_update',
+    'intersection_update', 'symmetric_difference_update', 'sort', 'reverse',
+    '__setitem__', '__delitem__', '__setattr__', '__delattr__',
+})
+
+
+def _explicit_classmethod(function):
+    return isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)) and any(
+        (isinstance(decorator, ast.Name) and decorator.id == 'classmethod')
+        or (isinstance(decorator, ast.Attribute) and decorator.attr == 'classmethod')
+        for decorator in function.decorator_list
+    )
+
+
+def persistent_class_state_write(function):
+    """Recognize shared-state writes rooted at an explicit classmethod receiver.
+
+    Local aliases are a monotone overapproximation, including aliases extracted
+    from containers/getattr and bound mutators. This is not a purity proof:
+    decorator aliases, opaque helper side effects, dynamic reflection and state
+    reached through unrelated global aliases are not resolved here.
+    """
+    if not _explicit_classmethod(function):
+        return False
+    arguments = function.args.posonlyargs + function.args.args
+    if not arguments:
+        return True  # Unknown receiver through *args cannot establish read-only use.
+    aliases, mutators = {arguments[0].arg}, set()
+    nodes = list(ast.walk(function))
+
+    def rooted(expression):
+        if isinstance(expression, ast.Name):
+            return expression.id in aliases
+        if isinstance(expression, (ast.Attribute, ast.Subscript)):
+            return rooted(expression.value)
+        if isinstance(expression, ast.Call):
+            name = expression.func.id if isinstance(expression.func, ast.Name) else getattr(expression.func, 'attr', None)
+            return name == 'getattr' and bool(expression.args) and rooted(expression.args[0])
+        return False
+
+    def target_names(target):
+        if isinstance(target, ast.Name):
+            return {target.id}
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return set().union(*(target_names(item) for item in target.elts))
+        return set()
+
+    # Never kill aliases on reassignment: control flow and closures may retain
+    # an earlier shared value. False positives keep the safe full fallback.
+    changed = True
+    while changed:
+        changed = False
+        for node in nodes:
+            if isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
+                value = node.value
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            elif isinstance(node, (ast.For, ast.AsyncFor, ast.comprehension)):
+                value, targets = node.iter, [node.target]
+            else:
+                continue
+            if value is None:
+                continue
+            names = set().union(*(target_names(target) for target in targets))
+            related = any(rooted(item) for item in ast.walk(value))
+            bound_mutator = (isinstance(value, ast.Attribute)
+                             and value.attr in _CLASS_STATE_MUTATORS and rooted(value.value))
+            bound_mutator |= isinstance(value, ast.Name) and value.id in mutators
+            if related and names - aliases:
+                aliases.update(names)
+                changed = True
+            if bound_mutator and names - mutators:
+                mutators.update(names)
+                changed = True
+
+    def write_target(target):
+        if isinstance(target, (ast.Attribute, ast.Subscript)):
+            return rooted(target.value)
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return any(write_target(item) for item in target.elts)
+        return False
+
+    for node in nodes:
+        if isinstance(node, ast.Assign) and any(write_target(target) for target in node.targets):
+            return True
+        if isinstance(node, ast.AnnAssign) and node.value is not None and write_target(node.target):
+            return True
+        if isinstance(node, ast.AugAssign) and (write_target(node.target) or rooted(node.target)):
+            return True
+        if isinstance(node, ast.Delete) and any(write_target(target) for target in node.targets):
+            return True
+        if not isinstance(node, ast.Call):
+            continue
+        if isinstance(node.func, ast.Name) and node.func.id in mutators:
+            return True
+        name = node.func.id if isinstance(node.func, ast.Name) else getattr(node.func, 'attr', None)
+        if name in ('setattr', 'delattr') and node.args and rooted(node.args[0]):
+            return True
+        if name in _CLASS_STATE_MUTATORS:
+            if isinstance(node.func, ast.Attribute) and rooted(node.func.value):
+                return True
+            # Unbound builtin forms such as dict.update(cls.registry, values).
+            if node.args and rooted(node.args[0]):
+                return True
+    return False
+
+
 class Selector:
     def __init__(self, tests, mapping, source, class_guard=None, class_candidate=None):
         self.tests = tests
@@ -80,12 +188,21 @@ class Selector:
                     return self.all
                 lines = info.get('lines', {})
                 functions = [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
-                def callable_kinds(node):
+                new_functions = [n for n in ast.walk(new_tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
+                def callable_kinds(callables):
                     return [(type(n).__name__, getattr(n, 'name', '<lambda>'),
                              any(isinstance(child, (ast.Yield, ast.YieldFrom)) for child in ast.walk(n)))
-                            for n in ast.walk(node) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))]
-                if callable_kinds(tree) != callable_kinds(new_tree):
+                            for n in callables]
+                if callable_kinds(functions) != callable_kinds(new_functions):
                     return self.all
+                for old_function, new_function in zip(functions, new_functions):
+                    if ((_explicit_classmethod(old_function) or _explicit_classmethod(new_function))
+                            and ast.dump(old_function, include_attributes=False) != ast.dump(new_function, include_attributes=False)
+                            and (persistent_class_state_write(old_function)
+                                 or persistent_class_state_write(new_function))):
+                        # Writer-only execution coverage omits later consumers of
+                        # persistent state, including consumers in other tests.
+                        return self.all
                 for line in changed:
                     enclosing = [n for n in functions if n.lineno <= line <= n.end_lineno]
                     if not enclosing:
