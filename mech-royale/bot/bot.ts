@@ -354,7 +354,18 @@ class Brain {
       const finishing = theirFrac < 0.2 && hpFrac > 0.2 && threats <= 2
       const losing = !finishing && ((hpFrac < 0.35 && theirFrac > hpFrac + 0.1) || (threats >= 2 && hpFrac < 0.55) || (threats >= 3 && hpFrac < 0.8))
       if (losing) this.hideUntil = t + 6
-      const prefer = lightS >= 0 ? 28 : laserS >= 0 ? 110 : 70
+      const enemyArc = target.weapons.includes("lightning")
+      const enemyBeam = target.weapons.includes("laser")
+      const enemyMortar = target.weapons.includes("mortar")
+      // Pick a duel range from both loadouts. When the opponent is almost
+      // eliminated, close in time to collect its drops while still firing.
+      let prefer = laserS >= 0 ? 128 : 92
+      if (enemyMortar && laserS < 0) prefer = 28
+      if (enemyBeam && laserS < 0) prefer = 35
+      if (enemyArc && lightS < 0) prefer = Math.max(prefer, 70)
+      if (lightS >= 0) prefer = 27
+      const closingForLoot = threats <= 2 && hpFrac > 0.42 && theirFrac < 0.38
+      if (closingForLoot) prefer = enemyArc && lightS < 0 ? 50 : 14
       if (losing && map) {
         mode = "retreat"
         const cov = map.coverFrom(x, y, tp[0], tp[1], tp[2] + 8, 50)
@@ -366,7 +377,7 @@ class Brain {
         let radial = 0
         if (d > prefer + 15) {
           radial = 1
-          if (lightS >= 0 && d < 90 && me.energy > 70) boost = true
+          if ((lightS >= 0 || closingForLoot) && d < 100 && me.energy > 65) boost = true
         }
         else if (d < prefer - 15) radial = -0.7
         if (!hasLos && seen === false) radial = 1
