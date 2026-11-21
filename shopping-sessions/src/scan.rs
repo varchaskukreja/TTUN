@@ -137,28 +137,21 @@ pub fn scan<'d, const N: usize, F: FnMut(&[&'d [u8]; N])>(data: &'d [u8], mut f:
 
 #[inline(always)]
 fn emit<'d, const N: usize, F: FnMut(&[&'d [u8]; N])>(data: &'d [u8], line_start: usize, ends: &[usize; N], quotes: u32, f: &mut F) {
+    // Branch-free unquoting: quoting is common and random, so branches here mispredict.
     let mut fields: [&'d [u8]; N] = [&[]; N];
     let mut s = line_start;
-    if quotes == 0 {
-        for k in 0..N {
-            fields[k] = unsafe { data.get_unchecked(s..ends[k]) };
-            s = ends[k] + 1;
-        }
-    } else {
-        let mut proper = 0u32;
-        for k in 0..N {
-            let v = unsafe { data.get_unchecked(s..ends[k]) };
-            if v.len() >= 2 && v[0] == b'"' && v[v.len() - 1] == b'"' {
-                proper += 1;
-                fields[k] = &v[1..v.len() - 1];
-            } else {
-                fields[k] = v;
-            }
-            s = ends[k] + 1;
-        }
-        if quotes != 2 * proper {
-            return;
-        }
+    let last = data.len() - 1;
+    let mut proper = 0u32;
+    for k in 0..N {
+        let e = ends[k];
+        let (b0, b1) = unsafe { (*data.get_unchecked(s.min(last)), *data.get_unchecked(e.max(1) - 1)) };
+        let q = ((e - s >= 2) & (b0 == b'"') & (b1 == b'"')) as usize;
+        proper += q as u32;
+        fields[k] = unsafe { data.get_unchecked(s + q..e - q) };
+        s = e + 1;
+    }
+    if quotes != 2 * proper {
+        return;
     }
     f(&fields);
 }
