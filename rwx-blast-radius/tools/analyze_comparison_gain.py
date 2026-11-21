@@ -263,6 +263,8 @@ def main():
         from selector import Selector, read_json as read_production_json
         from factory_selection import FactoryCandidates
         from import_guard import ImportGuard
+        from run_comparison_holdouts import source_identity
+        source_provenance = source_identity(args.source)
         production_map = read_production_json(args.map)
         selector = Selector(tests, production_map, args.source,
                             class_guard=ImportGuard(args.source, tests),
@@ -270,6 +272,12 @@ def main():
         patches = [(path.stem, path.read_text()) for path in sorted((args.data / 'commits').glob('*.patch'))]
         result = analyze(mapping, args.source, tests, patches, production_map, selector,
                          outcomes=outcomes, answers_path=args.answers)
+        result['source_identity'] = source_provenance
+        result['production_map_sha256'] = hashlib.sha256(args.map.read_bytes()).hexdigest()
+        result['factory_proofs_sha256'] = hashlib.sha256(args.factory_proofs.read_bytes()).hexdigest()
+    if args.comparisons.is_file():
+        result['comparison_capture_sha256'] = hashlib.sha256(args.comparisons.read_bytes()).hexdigest()
+    result['catalog_sha256'] = hashlib.sha256((args.data / 'tests.json').read_bytes()).hexdigest()
     encoded = json.dumps(result, indent=2, sort_keys=True) + '\n'
     if args.output:
         args.output.write_text(encoded)

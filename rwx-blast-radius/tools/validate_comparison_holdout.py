@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from analyze_comparison_gain import capture_issues, conditional_selection, interpreter_issues
 from comparison_types import qualify_patch, site_key
-from patches import parse_patch
+from patches import parse_patch, apply_file
 from selector import Selector, read_json
 from factory_selection import FactoryCandidates
 from import_guard import ImportGuard
@@ -95,6 +95,8 @@ def plan_holdouts(mapping, source, tests, production_map, selector, sample_direc
             raise AssertionError('unsafe-pair countercase altered baseline selection')
         row = {'kind': 'eligible' if is_eligible else 'globally_unsafe_pair', 'site': key, 'path': path,
                'patch': patch, 'patch_sha256': hashlib.sha256(patch.encode()).hexdigest(),
+               'source_sha256': hashlib.sha256((source / path).read_bytes()).hexdigest(),
+               'mutated_source_sha256': hashlib.sha256(apply_file((source / path).read_text(), parse_patch(patch)[0])[0].encode()).hexdigest(),
                'production_ids': sorted(by_number[number] for number in original),
                'conditional_ids': sorted(by_number[number] for number in conditional),
                'decision': decision, 'actual_failing_ids': None, 'actual_missing_ids': None,
@@ -135,6 +137,9 @@ def main():
         report = plan_holdouts(mapping, args.source, tests, production_map, selector, args.samples, args.seed)
     report['comparison_capture_sha256'] = hashlib.sha256(args.comparisons.read_bytes()).hexdigest()
     report['catalog_sha256'] = hashlib.sha256(args.catalog.read_bytes()).hexdigest()
+    if report['status'] == 'planned':
+        from run_comparison_holdouts import plan_provenance
+        report['provenance'] = plan_provenance(args.source, args.map, args.factory_proofs, args.samples)
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
 
 

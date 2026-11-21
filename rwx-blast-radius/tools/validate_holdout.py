@@ -30,6 +30,7 @@ _requested = {test['id'] for test in _catalog}
 if os.environ.get('HOLDOUT_SELECT'):
     _requested &= set(json.loads(os.environ['HOLDOUT_SELECT']))
 _outcomes, _details, _collected, _finished = {}, {}, set(), set()
+_phase_audit = {}
 _collection_errors = []
 
 
@@ -51,6 +52,12 @@ def pytest_collectreport(report):
 def pytest_runtest_logreport(report):
     if report.nodeid not in _requested:
         return
+    audit = _phase_audit.setdefault(report.nodeid, {'phases': {}, 'subtests': {}})
+    if type(report).__name__ == 'SubtestReport':
+        outcome = report.outcome
+        audit['subtests'][outcome] = audit['subtests'].get(outcome, 0) + 1
+    else:
+        audit['phases'][report.when] = report.outcome
     if report.failed:
         _outcomes[report.nodeid] = 'failed'
         _details.setdefault(report.nodeid, []).append({'phase': report.when, 'subtest': type(report).__name__ == 'SubtestReport', 'error': str(report.longrepr)[:4000]})
@@ -66,6 +73,7 @@ def pytest_sessionfinish(session, exitstatus):
     if not os.environ.get('HOLDOUT_REPORT'):
         return
     result = {'requested': sorted(_requested), 'outcomes': _outcomes, 'details': _details, 'collected': sorted(_collected),
+              'phase_audit': _phase_audit,
               'finished': sorted(_finished), 'unresolved': sorted(_requested - _finished),
               'collection_errors': _collection_errors, 'pytest_exitcode': int(exitstatus),
               'complete': not (_requested - _finished) and int(exitstatus) in (0, 1, 2),

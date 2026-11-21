@@ -1,0 +1,29 @@
+{
+  "kind": "research_comparison_holdout_runner_validation",
+  "runtime_narrowing_authorized": false,
+  "production_changed": false,
+  "unit_tests": {
+    "runner": 11,
+    "planner": 4,
+    "analysis": 14
+  },
+  "real_pytest_smoke": {
+    "node": "tests/test_helper.py::TestHelper::test_to_int",
+    "passed_tests": 1,
+    "passed_subtests": 10,
+    "phases": [
+      "setup",
+      "call",
+      "teardown"
+    ],
+    "report_sha256": "0a2aebbeda644ce10a037caacc574c32207bf5a1c72c7e196de230dd13cfeca4",
+    "full_catalog_run": false
+  },
+  "checks": [
+    "Exact capture/plan/gain/source/catalog/runtime/map/proof identities before execution.",
+    "Pinned physical source archive and checked patch preimage/postimage.",
+    "All 1620 outcomes and explicit phase/subtest records required for a full run.",
+    "Partial results marked incomplete until all planned mutations finish."
+  ],
+  "real_comparison_mutations_run": false
+}
