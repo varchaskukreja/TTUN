@@ -1,0 +1,190 @@
+{
+  "kind": "scheduling_lower_bound_audit",
+  "input_sha256": "e19e6cb86e7f34bf8703a356bafb3e64b21fe19f00a644a9f2876ef4e411f355",
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "actual_ms": 256055,
+  "lower_bound_ms": 256036,
+  "rows": [
+    {
+      "commit": "2haz",
+      "actual_ms": 25454,
+      "lower_bound_ms": 25454,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "2jrq",
+      "actual_ms": 25454,
+      "lower_bound_ms": 25454,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "2qn5",
+      "actual_ms": 4621,
+      "lower_bound_ms": 4621,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "2vdj",
+      "actual_ms": 2083,
+      "lower_bound_ms": 2083,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "3utz",
+      "actual_ms": 25454,
+      "lower_bound_ms": 25454,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "4d63",
+      "actual_ms": 12686,
+      "lower_bound_ms": 12686,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "535z",
+      "actual_ms": 11238,
+      "lower_bound_ms": 11238,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "5y72",
+      "actual_ms": 25454,
+      "lower_bound_ms": 25454,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "66ks",
+      "actual_ms": 25454,
+      "lower_bound_ms": 25454,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "6vvp",
+      "actual_ms": 2037,
+      "lower_bound_ms": 2037,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "6ze8",
+      "actual_ms": 9165,
+      "lower_bound_ms": 9165,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "8y7j",
+      "actual_ms": 4116,
+      "lower_bound_ms": 4116,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "986c",
+      "actual_ms": 2340,
+      "lower_bound_ms": 2340,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "9u5k",
+      "actual_ms": 0,
+      "lower_bound_ms": 0,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "ary6",
+      "actual_ms": 9265,
+      "lower_bound_ms": 9265,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "bap8",
+      "actual_ms": 0,
+      "lower_bound_ms": 0,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "bj7g",
+      "actual_ms": 4326,
+      "lower_bound_ms": 4326,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "bvw2",
+      "actual_ms": 2061,
+      "lower_bound_ms": 2061,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "egys",
+      "actual_ms": 2596,
+      "lower_bound_ms": 2596,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "f4bn",
+      "actual_ms": 2007,
+      "lower_bound_ms": 2007,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "f4xa",
+      "actual_ms": 0,
+      "lower_bound_ms": 0,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "fryt",
+      "actual_ms": 9165,
+      "lower_bound_ms": 9165,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "gbav",
+      "actual_ms": 3334,
+      "lower_bound_ms": 3334,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "gbhk",
+      "actual_ms": 2061,
+      "lower_bound_ms": 2061,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "j6uz",
+      "actual_ms": 6649,
+      "lower_bound_ms": 6633,
+      "maximum_possible_gain_ms": 16
+    },
+    {
+      "commit": "ktz3",
+      "actual_ms": 25454,
+      "lower_bound_ms": 25454,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "mthh",
+      "actual_ms": 3016,
+      "lower_bound_ms": 3016,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "nwnx",
+      "actual_ms": 2092,
+      "lower_bound_ms": 2092,
+      "maximum_possible_gain_ms": 0
+    },
+    {
+      "commit": "rszg",
+      "actual_ms": 6465,
+      "lower_bound_ms": 6462,
+      "maximum_possible_gain_ms": 3
+    },
+    {
+      "commit": "st8f",
+      "actual_ms": 2008,
+      "lower_bound_ms": 2008,
+      "maximum_possible_gain_ms": 0
+    }
+  ],
+  "note": "Lower bound need not be achievable. No sample answers consulted; selection held fixed."
+}
