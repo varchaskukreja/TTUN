@@ -1,0 +1,52 @@
+{
+  "kind": "research_only_field_effect_certificate",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "edit": {
+    "accepted": true,
+    "class": "TriggerProperties",
+    "field": "arg_types",
+    "ordered_keys": [
+      "table",
+      "timing",
+      "events",
+      "execute",
+      "constraint",
+      "referenced_table",
+      "deferrable",
+      "initially",
+      "referencing",
+      "for_each",
+      "when"
+    ],
+    "effect": "mapping_values_only",
+    "changed_keys": [
+      "table"
+    ]
+  },
+  "local_derivations": [
+    {
+      "path": "sqlglot/expressions/core.py",
+      "line": 110,
+      "source_field": "arg_types",
+      "derived_field": "required_args",
+      "effect": "set_membership",
+      "status": "syntax_only_requires_receiver_and_hook_resolution"
+    }
+  ],
+  "closed_world_complete": false,
+  "narrowing_authorized": false,
+  "files_analyzed": 257,
+  "may_tainted_name_count": 6,
+  "observation_count": 19,
+  "unresolved_count": 61,
+  "cpu_seconds": 3.021172,
+  "tests": "8 passed",
+  "raw_artifact": ".work/field-effect-trigger.json",
+  "minimal_missing_evidence": [
+    "Resolved affected-class identities, all aliases and inherited providers; name-based may-alias propagation is insufficient.",
+    "Proved initializer/decorator/metaclass/MRO and builtin call semantics in pinned runtime dependencies.",
+    "Closed-world reachability proof ruling out unresolved reflection/native consumers or a complete supported model.",
+    "Complete lifecycle and direct-read contexts, including children and cross-test cached state; old class snapshots cannot supply this."
+  ],
+  "decision": "Stop before capture or map removal; every candidate remains explicitly unresolved under current analysis."
+}
