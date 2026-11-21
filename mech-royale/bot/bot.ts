@@ -512,7 +512,9 @@ class Brain {
           .filter((n) => hyp2(x, y, n.pos[0], n.pos[1]) < 110 && map?.los(x, y, muzzleZ, n.pos[0], n.pos[1], n.pos[2] + 1.75) !== false)
           .sort((a, b) => hyp2(x, y, a.pos[0], a.pos[1]) - hyp2(x, y, b.pos[0], b.pos[1]))[0]
         const tgt = npc ? { pos: npc.pos, vel: npc.vel, h: 1.75 } : crate ? { pos: crate.pos, vel: [0, 0, 0], h: 1.2 } : null
-        const unseenAttacker = t - this.mechHitT < 1.5
+        let recentMech = false
+        if (this.ffa) for (const tr of this.tracks.values()) if (t - tr.t < 6 && hyp2(x, y, tr.pos[0], tr.pos[1]) < 200) recentMech = true
+        const unseenAttacker = t - this.mechHitT < 1.5 || recentMech
         if (tgt && hpFrac > 0.4 && !unseenAttacker) {
           const dd = hyp2(x, y, tgt.pos[0], tgt.pos[1])
           const tt = dd / 252
