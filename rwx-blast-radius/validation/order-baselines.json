@@ -1,0 +1,202 @@
+{
+  "all_runs_completed": true,
+  "all_runs_passed": false,
+  "baseline_source": {
+    "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395",
+    "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa"
+  },
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "complete": false,
+  "interpreter_and_distributions_match_after_controls": true,
+  "kind": "unmodified_full_catalog_order_baselines",
+  "mutations_performed": false,
+  "order_receipts_verified": {
+    "reversed_exactly": true,
+    "shuffle_exactly": true
+  },
+  "post_control_environment_fingerprint_matches": false,
+  "post_control_runtime_comparison_note": "Compared from a separate tool invocation. JSON tuple/list representation is normalized in the explicit interpreter/dependencies check. A differing inherited-environment fingerprint prevents automatic baseline reuse; runner files remained unchanged throughout all controls.",
+  "runner_files_unchanged_after_controls": true,
+  "runs": [
+    {
+      "collected_order_sha256": "0ea4768d7a1b69045fd178e0a21159022c39a186881ebd014efa72630d30ed69",
+      "collection_errors": [],
+      "complete_all_passed": true,
+      "failed_ids": [],
+      "finished_count": 1620,
+      "nonpassed_ids": [],
+      "order": "normal",
+      "outcome_count": 1620,
+      "phase_counts": {
+        "call:passed": 1620,
+        "setup:passed": 1620,
+        "teardown:passed": 1620
+      },
+      "process_timeout": false,
+      "receipt": "/Users/dylanli/Documents/TTUN/.work/holdout/order-baselines-v1/normal/receipt.json",
+      "receipt_sha256": "7fba99352786b756bc7d788e96c874ccc7a3801da3c3ae94e1eba225b85c4245",
+      "report": "/Users/dylanli/Documents/TTUN/.work/holdout/order-baselines-v1/normal/pytest.json",
+      "report_sha256": "66167262ac0266d7a4513aaeb0756850ace11d93c48c653aa7c3a7eafa578d41",
+      "runner_complete": true,
+      "seed": 0,
+      "subtest_counts": {
+        "passed": 25440
+      },
+      "unresolved_ids": [],
+      "wall_seconds": 114.132
+    },
+    {
+      "collected_order_sha256": "f26aeb14f339079448cfb0b6c2de342e6f4cb29586949cde9febd3cb3a200962",
+      "collection_errors": [],
+      "complete_all_passed": false,
+      "failed_ids": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ],
+      "finished_count": 1620,
+      "nonpassed_ids": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ],
+      "order": "reversed",
+      "outcome_count": 1620,
+      "phase_counts": {
+        "call:failed": 1,
+        "call:passed": 1619,
+        "setup:passed": 1620,
+        "teardown:passed": 1620
+      },
+      "process_timeout": false,
+      "receipt": "/Users/dylanli/Documents/TTUN/.work/holdout/order-baselines-v1/reversed/receipt.json",
+      "receipt_sha256": "99c75fa001dfbac2f0b13c76f772e8c7621ea470b67338fc8d5a4b83a23b0a4b",
+      "report": "/Users/dylanli/Documents/TTUN/.work/holdout/order-baselines-v1/reversed/pytest.json",
+      "report_sha256": "2f5eb5fdda41c11ca4f4151949863f292f60ac8292536e740ab233f0e79fb00b",
+      "runner_complete": true,
+      "seed": 0,
+      "subtest_counts": {
+        "failed": 3,
+        "passed": 25437
+      },
+      "unresolved_ids": [],
+      "wall_seconds": 110.728
+    },
+    {
+      "collected_order_sha256": "a18f40735b3bd70f1c85a8bb1aeb101fe8ec05d87c74f6e69ef0414cabf34f56",
+      "collection_errors": [],
+      "complete_all_passed": false,
+      "failed_ids": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ],
+      "finished_count": 1620,
+      "nonpassed_ids": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ],
+      "order": "shuffle",
+      "outcome_count": 1620,
+      "phase_counts": {
+        "call:failed": 1,
+        "call:passed": 1619,
+        "setup:passed": 1620,
+        "teardown:passed": 1620
+      },
+      "process_timeout": false,
+      "receipt": "/Users/dylanli/Documents/TTUN/.work/holdout/order-baselines-v1/shuffle/receipt.json",
+      "receipt_sha256": "2ccf7dfe404eb7239c9e3dd63247cc35da11bf59181159f324e1fd7fccd591b0",
+      "report": "/Users/dylanli/Documents/TTUN/.work/holdout/order-baselines-v1/shuffle/pytest.json",
+      "report_sha256": "d74442a3fb97294e3b32e23dc95e1e1c87745300b592bc9b5c20d107aad60ec2",
+      "runner_complete": true,
+      "seed": 20261120,
+      "subtest_counts": {
+        "failed": 3,
+        "passed": 25437
+      },
+      "unresolved_ids": [],
+      "wall_seconds": 152.269
+    }
+  ],
+  "runtime": {
+    "distributions": [
+      [
+        "Pygments",
+        "2.21.0"
+      ],
+      [
+        "coverage",
+        "7.17.4"
+      ],
+      [
+        "duckdb",
+        "2.0.0"
+      ],
+      [
+        "iniconfig",
+        "2.3.1"
+      ],
+      [
+        "numpy",
+        "2.5.5"
+      ],
+      [
+        "packaging",
+        "26.3"
+      ],
+      [
+        "pandas",
+        "3.1.1"
+      ],
+      [
+        "pip",
+        "25.2"
+      ],
+      [
+        "pluggy",
+        "1.7.0"
+      ],
+      [
+        "pytest",
+        "9.2.0"
+      ],
+      [
+        "pytest-cov",
+        "7.1.0"
+      ],
+      [
+        "pytest-timeout",
+        "2.4.0"
+      ],
+      [
+        "python-dateutil",
+        "4.0.0"
+      ],
+      [
+        "pytz",
+        "2026.6"
+      ],
+      [
+        "setuptools",
+        "84.2.1"
+      ],
+      [
+        "typing_extensions",
+        "4.16.0"
+      ],
+      [
+        "tzdata",
+        "2026.6"
+      ]
+    ],
+    "executable": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+    "implementation": "cpython",
+    "inherited_environment_sha256": "aa5c383cedd1c4b08910e472cd41aeba60a4365635cb01416c512332b6627cd3",
+    "physical_runner_sha256": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7",
+    "platform": "macOS-26.1-arm64-arm-64bit-Mach-O",
+    "process_cpu_count": 10,
+    "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "runner_sha256": "e3e52375b8077b51c5838c6912f0554a91ea6768d83cc5d1469074bc53c3956d"
+  },
+  "runtime_unchanged_after_controls": false,
+  "source_clean_after": true,
+  "timeout_per_run_seconds": 180
+}

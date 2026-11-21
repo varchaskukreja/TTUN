@@ -1,0 +1,129 @@
+{
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "controls": [
+    {
+      "completed_requested_scope": true,
+      "failure_details": [],
+      "nodeid": "tests/dialects/test_dialect.py::TestDialect::test_enum",
+      "outcome": "passed",
+      "phase_audit": {
+        "phases": {
+          "call": "passed",
+          "setup": "passed",
+          "teardown": "passed"
+        },
+        "subtests": {}
+      },
+      "report": "/Users/dylanli/Documents/TTUN/.work/holdout/order-targeted-v1/node-0/pytest.json",
+      "report_sha256": "5265b925b508dc76ce55699af3fba79b2f5e54091990e4928a0e17d7c6364e3d",
+      "requested_scope": 1,
+      "wall_seconds": 0.935
+    },
+    {
+      "completed_requested_scope": true,
+      "failure_details": [],
+      "nodeid": "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip",
+      "outcome": "passed",
+      "phase_audit": {
+        "phases": {
+          "call": "passed",
+          "setup": "passed",
+          "teardown": "passed"
+        },
+        "subtests": {
+          "passed": 3
+        }
+      },
+      "report": "/Users/dylanli/Documents/TTUN/.work/holdout/order-targeted-v1/node-1/pytest.json",
+      "report_sha256": "b9c3cd24fa7e00fcc9476767b372f8ed5e21507a9d3ea5c3e7a96a11a14dc797",
+      "requested_scope": 1,
+      "wall_seconds": 1.098
+    }
+  ],
+  "kind": "fresh_process_targeted_order_controls",
+  "runtime": {
+    "distributions": [
+      [
+        "Pygments",
+        "2.21.0"
+      ],
+      [
+        "coverage",
+        "7.17.4"
+      ],
+      [
+        "duckdb",
+        "2.0.0"
+      ],
+      [
+        "iniconfig",
+        "2.3.1"
+      ],
+      [
+        "numpy",
+        "2.5.5"
+      ],
+      [
+        "packaging",
+        "26.3"
+      ],
+      [
+        "pandas",
+        "3.1.1"
+      ],
+      [
+        "pip",
+        "25.2"
+      ],
+      [
+        "pluggy",
+        "1.7.0"
+      ],
+      [
+        "pytest",
+        "9.2.0"
+      ],
+      [
+        "pytest-cov",
+        "7.1.0"
+      ],
+      [
+        "pytest-timeout",
+        "2.4.0"
+      ],
+      [
+        "python-dateutil",
+        "4.0.0"
+      ],
+      [
+        "pytz",
+        "2026.6"
+      ],
+      [
+        "setuptools",
+        "84.2.1"
+      ],
+      [
+        "typing_extensions",
+        "4.16.0"
+      ],
+      [
+        "tzdata",
+        "2026.6"
+      ]
+    ],
+    "executable": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+    "implementation": "cpython",
+    "inherited_environment_sha256": "e55ddef1ae968e28065fa3da1df2df3ca6bcedc1fac8b704e7f75b1cb6b818cb",
+    "physical_runner_sha256": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7",
+    "platform": "macOS-26.1-arm64-arm-64bit-Mach-O",
+    "process_cpu_count": 10,
+    "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "runner_sha256": "e3e52375b8077b51c5838c6912f0554a91ea6768d83cc5d1469074bc53c3956d"
+  },
+  "scope": "two individual one-node controls, not a full catalog or replacement of prior runs",
+  "source": {
+    "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395",
+    "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa"
+  }
+}
