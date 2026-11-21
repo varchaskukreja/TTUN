@@ -82,7 +82,7 @@ fn is_leap(y: i64) -> bool {
 }
 
 #[inline]
-fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
+const fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
     let y = if m <= 2 { y - 1 } else { y };
     let era = y.div_euclid(400);
     let yoe = y - era * 400;
@@ -101,6 +101,29 @@ fn dig(b: u8, bad: &mut u8) -> i64 {
 
 const DIM: [u8; 13] = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
+const YM_Y0: i64 = 1900;
+const YM_YEARS: usize = 256;
+
+/// For year `YM_Y0 + i` and month m (1..=12): `days_from_civil(y, m, 1) << 5 | days_in_month`.
+static YM: [i32; YM_YEARS * 16] = build_ym();
+
+const fn build_ym() -> [i32; YM_YEARS * 16] {
+    let mut t = [0i32; YM_YEARS * 16];
+    let mut i = 0;
+    while i < YM_YEARS {
+        let y = YM_Y0 + i as i64;
+        let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
+        let mut m = 1;
+        while m <= 12 {
+            let dim = DIM[m] as i64 + (m == 2 && leap) as i64;
+            t[i * 16 + m] = ((days_from_civil(y, m as i64, 1) << 5) | dim) as i32;
+            m += 1;
+        }
+        i += 1;
+    }
+    t
+}
+
 /// Same result as `parse_ts_ref`, with the checks folded into flags instead of branches.
 #[inline(always)]
 pub fn parse_ts(b: &[u8]) -> Option<i64> {
@@ -118,11 +141,21 @@ pub fn parse_ts(b: &[u8]) -> Option<i64> {
         if bad != 0 {
             return None;
         }
-        let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
-        let dim = DIM[mo as usize] as i64 + (mo == 2 && leap) as i64;
-        if d < 1 || d > dim {
-            return None;
-        }
+        let yi = (y - YM_Y0) as usize;
+        let month_days = if yi < YM_YEARS {
+            let e = YM[yi * 16 + mo as usize];
+            if d < 1 || d > (e & 31) as i64 {
+                return None;
+            }
+            (e >> 5) as i64
+        } else {
+            let leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
+            let dim = DIM[mo as usize] as i64 + (mo == 2 && leap) as i64;
+            if d < 1 || d > dim {
+                return None;
+            }
+            days_from_civil(y, mo, 1)
+        };
         let off = if n == 20 {
             if b[19] != b'Z' {
                 return None;
@@ -131,7 +164,7 @@ pub fn parse_ts(b: &[u8]) -> Option<i64> {
         } else {
             parse_off(unsafe { &*(b.as_ptr().add(19) as *const [u8; 6]) })?
         };
-        let secs = days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s - off;
+        let secs = (month_days + d - 1) * 86400 + h * 3600 + mi * 60 + s - off;
         return Some(secs * 1000);
     }
     if n != 0 && n <= 18 {
