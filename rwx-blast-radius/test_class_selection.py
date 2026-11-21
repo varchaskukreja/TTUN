@@ -21,6 +21,26 @@ class ClassSelectionTests(unittest.TestCase):
                 old = f'class Example:\n    VALUE = {old_value}\n'
                 self.assertEqual(self.candidates(old, old.replace(old_value, new_value), 2), {1, 3})
 
+    def test_registry_reader_can_change_without_calling_class_methods(self):
+        old = 'class Example:\n    NAMES = ["old"]\n    LOCAL = 1\nregistry = {name: Example for name in Example.NAMES}\n'
+        new = old.replace('"old"', '"new"')
+        before, after = {}, {}
+        exec(old, before)
+        exec(new, after)
+        self.assertIn('old', before['registry'])
+        self.assertNotIn('old', after['registry'])
+        info = {'class_consumers': {'Example': [1]},
+                'class_attribute_global_exports': {'Example': ['NAMES']}}
+        self.assertIsNone(class_candidates(ast.parse(old), ast.parse(new), 2, info))
+        # Attribute-level evidence need not disable unrelated local settings.
+        self.assertEqual(class_candidates(ast.parse(old), ast.parse(old.replace('LOCAL = 1', 'LOCAL = 2')), 3, info), {1})
+
+    def test_unresolved_global_export_rejects_every_attribute(self):
+        old = 'class Example:\n    VALUE = 1\n'
+        info = {'class_consumers': {'Example': [1]},
+                'class_attribute_global_exports': {'Example': ['*']}}
+        self.assertIsNone(class_candidates(ast.parse(old), ast.parse(old.replace('1', '2')), 2, info))
+
     def test_annotated_name_assignment(self):
         old = 'class Example:\n    VALUE: int = 1\n'
         self.assertEqual(self.candidates(old, old.replace('= 1', '= 2'), 2), {1, 3})

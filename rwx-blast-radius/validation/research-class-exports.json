@@ -1,0 +1,66 @@
+{
+  "purpose": "Baseline-only class attribute export/consumer propagation evidence. No patch IDs, expected outcomes, or test-name rules used by tools.",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "command": ".work/venv/bin/python rwx-blast-radius/tools/propagate_class_consumers.py --source .work/sqlglot --coverage rwx-blast-radius/maps/coverage.json.gz --output .work/coverage-class-closure-v2.json.gz --report .work/class-closure-v2-report.json --lexical-outer",
+  "input_map_sha256": "314b0c6d8991d18a090715fccf93a21284513d4b0de7e6478811404200a32b7e",
+  "candidate_sha256": "aaf3a027b39c63b28ac4dab939fc761f642c7b9e67460ff8dfa99fe93b6e869a",
+  "files_sha256": {
+    "tools/class_attribute_exports.py": "427ba08da03584f809aa2f022aaea3bab0581fe5badabaa68b7a75a50e6e5732",
+    "tools/propagate_class_consumers.py": "6de434c43a9aa759a50048d2681ed33b06ae6fe1e32480c5238582e9a047a1db",
+    "tools/test_class_attribute_exports.py": "6da61a9e01915cb23467039ac05767eb790f18c5cccbdeb7977311b484dcd279",
+    "tools/test_propagate_class_consumers.py": "42bb8f6e51635dfd1f9ca7f22b6d07c2e55c99ba0411135a9a4357c5265a5334"
+  },
+  "counts": {
+    "edges": 3107,
+    "added_class_test_links": 22926,
+    "changed_classes": 66,
+    "attribute_export_classes": 111
+  },
+  "confirmed_examples": {
+    "mysql_copy": {
+      "source": "sqlglot.dialects.mysql.MySQL.TIME_MAPPING",
+      "destination": "sqlglot.dialects.presto.Presto.TIME_MAPPING",
+      "evidence": "sqlglot/dialects/presto.py:36",
+      "consumer_change": {
+        "added": 154,
+        "after": 445,
+        "before": 291
+      }
+    },
+    "function_registry": {
+      "source": "sqlglot.expressions.string.MD5Digest._sql_names",
+      "method": "sqlglot.expressions.core.Func.sql_names",
+      "destination": "sqlglot.expressions.FUNCTION_BY_NAME",
+      "evidence": "sqlglot/expressions/__init__.py:50",
+      "attribute_exports": [
+        "_sql_names"
+      ]
+    },
+    "tokenizer_derived": {
+      "identifiers": "Tokenizer.IDENTIFIERS -> _IDENTIFIERS -> Dialect.IDENTIFIER_START/END",
+      "quotes": "Tokenizer.QUOTES -> _QUOTES -> Dialect.QUOTE_START/END",
+      "evidence": [
+        "sqlglot/tokens.py:86",
+        "sqlglot/dialects/dialect.py:357"
+      ],
+      "conservative_propagation": "Nested class receives lexical outer class consumers."
+    }
+  },
+  "schema": "files[path].class_attribute_global_exports[qualname] = sorted attribute names; * means unresolved class-wide external read. Shared selector eligibility should reject narrowing only for affected attributes (or *).",
+  "unit_tests": {
+    "passed": 9,
+    "commands": [
+      ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_class_attribute_exports.py",
+      ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_propagate_class_consumers.py"
+    ]
+  },
+  "limitations": [
+    "Static class copies and known inheritance only; dynamic reference graphs are incomplete.",
+    "Lexical outer expansion is conservative supplemental evidence, not proof of all metaclass flows.",
+    "Module registry exports still require conservative fallback or a complete downstream dependency graph.",
+    "No existing consumer links were removed; no test outcomes or patch identities were used.",
+    "Static dependency graph is not complete for arbitrary Python reflection/imports/metaclasses. Absence of an export does not establish safety.",
+    "Same-receiver derivations can still escape transitively; lexicalouter propagation is conservative supplemental evidence."
+  ],
+  "holdout_reference": "validation/class-external-reads.json contains independent physical-patch validation; outcomes are not inputs to propagation."
+}

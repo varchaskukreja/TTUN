@@ -14,6 +14,19 @@ _LITERAL_NODES = (
 )
 
 
+def assignment_consumers(info, qualified_name, attribute_names):
+    """Reject class data exported into registries or unresolved global state.
+
+    The baseline map supplies attribute-level export evidence and expanded
+    consumers for aliases, inheritance and enclosing classes.
+    """
+    exports = info.get('class_attribute_global_exports', {}).get(qualified_name, [])
+    if '*' in exports or set(attribute_names).intersection(exports):
+        return None
+    consumers = info.get('class_consumers', {}).get(qualified_name)
+    return set(consumers) if consumers else None
+
+
 def _constant_changes(old, new, changed):
     """Check every AST field except Constant.value, preserving exact value types."""
     if type(old) is not type(new):
@@ -69,7 +82,8 @@ def class_candidates(tree, new_tree, line, info):
                         continue
                     if not any(id(child) in changed for child in value_nodes):
                         continue
-                    consumers = info.get('class_consumers', {}).get('.'.join(classes))
+                    consumers = assignment_consumers(info, '.'.join(classes),
+                                                     [target.id for target in targets])
                     if consumers:
                         candidates.append(set(consumers))
                         accepted_constants.update(id(child) for child in value_nodes if isinstance(child, ast.Constant))

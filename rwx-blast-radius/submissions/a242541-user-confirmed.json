@@ -1,0 +1,19 @@
+{
+  "requested_commit": "a24254101891c009271b9cc499b386037eb908e5",
+  "repository": "https://github.com/varchaskukreja/TTUN",
+  "team": "Wolverines",
+  "status": "new_public_team_score_observed_receipt_pending",
+  "user_confirmation": "done",
+  "confirmation_observed_at": "2026-11-21T01:05:21Z",
+  "commit_verified_by_receipt": false,
+  "receipt": null,
+  "next_submission_not_before": "2026-11-21T02:06:00Z",
+  "quota_note": "Conservative one-hour cooldown measured from confirmation, with a buffer; actual submission timestamp not yet supplied.",
+  "local_sample_simulated_seconds": 251.306,
+  "local_sample_missed_commits": 0,
+  "public_result_confirmed": true,
+  "public_score_seconds": 585.6,
+  "public_rank_observed": 45,
+  "public_observed_at": "2026-11-21T01:06:27.641031Z",
+  "score_attribution_note": "User confirmed the requested submission, then team score changed from938.3to585.6; receipt and exact submitted commit still unverified."
+}
