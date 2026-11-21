@@ -70,6 +70,30 @@ impl Input {
         let (fi, s, e) = self.chunks[i];
         &self.maps[fi][s..e]
     }
+
+    /// (file index, offset, len) pieces covering every mapping, for `release`.
+    fn pieces(&self) -> Vec<(usize, usize, usize)> {
+        const PIECE: usize = 64 << 20;
+        let mut v = Vec::new();
+        for (fi, m) in self.maps.iter().enumerate() {
+            let mut o = 0;
+            while o < m.len() {
+                let n = PIECE.min(m.len() - o);
+                v.push((fi, o, n));
+                o += n;
+            }
+        }
+        v
+    }
+
+    /// Drops a piece's page mappings now, in parallel, instead of serially at process exit.
+    /// The bytes must not be read again.
+    fn release(&self, (fi, o, n): (usize, usize, usize)) {
+        #[cfg(unix)]
+        unsafe {
+            let _ = self.maps[fi].unchecked_advise_range(memmap2::UncheckedAdvice::DontNeed, o, n);
+        }
+    }
 }
 
 fn list_csv(dir: &Path) -> Vec<PathBuf> {
@@ -303,9 +327,15 @@ fn main() {
     let rstates: Vec<RState> = (0..nthreads)
         .map(|_| RState { cl: (0..np).map(|_| Vec::new()).collect(), map: KMap64::default(), buf: Vec::new(), tmp: Vec::new(), cnt: vec![0; np + 1] })
         .collect();
-    let routed = run_pool(nc + ngroups, rstates, |st, i| {
+    let no_free = std::env::var_os("SS_NOFREE").is_some();
+    let ev_pieces = if no_free { Vec::new() } else { ei.pieces() };
+    let routed = run_pool(nc + ngroups + ev_pieces.len(), rstates, |st, i| {
         if i < nc {
             parse_clicks(ci.chunk(i), &ctx, &persons, &mut st.cl);
+            return;
+        }
+        if i >= nc + ngroups {
+            ei.release(ev_pieces[i - nc - ngroups]);
             return;
         }
         let g = i - nc;
@@ -390,7 +420,12 @@ fn main() {
     let sstates = (0..nthreads)
         .map(|_| SState { urows: Vec::new(), camp: vec![[0i64; 4]; (ncamp + 1) * ndays], evs: Vec::new(), cls: Vec::new(), gs: GroupScratch::default() })
         .collect();
-    let sres = run_pool(np, sstates, |st, b| {
+    let cl_pieces = if no_free { Vec::new() } else { ci.pieces() };
+    let sres = run_pool(np + cl_pieces.len(), sstates, |st, b| {
+        if b >= np {
+            ci.release(cl_pieces[b - np]);
+            return;
+        }
         let SState { urows, camp, evs, cls, gs } = st;
         evs.clear();
         for d in &douts {

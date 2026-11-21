@@ -97,11 +97,12 @@ struct Col {
 }
 
 fn write_file(path: &Path, cols: Vec<Col>, nrows: usize) {
-    let mut out: Vec<u8> = Vec::with_capacity(cols.iter().map(|c| c.data.len() + 64).sum::<usize>() + 4096);
-    out.extend_from_slice(b"PAR1");
+    let mut f = File::create(path).unwrap();
+    f.write_all(b"PAR1").unwrap();
+    let mut pos = 4i64;
     let mut metas = Vec::new();
     for c in &cols {
-        let offset = out.len() as i64;
+        let offset = pos;
         let mut h = Tc::new();
         h.i32f(1, 0); // DATA_PAGE
         h.i32f(2, c.data.len() as i32);
@@ -113,9 +114,10 @@ fn write_file(path: &Path, cols: Vec<Col>, nrows: usize) {
         h.i32f(4, 3); // RLE
         h.end();
         h.b.push(0);
-        out.extend_from_slice(&h.b);
-        out.extend_from_slice(&c.data);
-        let size = out.len() as i64 - offset;
+        f.write_all(&h.b).unwrap();
+        f.write_all(&c.data).unwrap();
+        pos += (h.b.len() + c.data.len()) as i64;
+        let size = pos - offset;
         metas.push((offset, size));
         let _ = c.nvals;
     }
@@ -183,10 +185,10 @@ fn write_file(path: &Path, cols: Vec<Col>, nrows: usize) {
     m.end();
     m.strf(6, b"shopping-sessions");
     m.b.push(0);
-    out.extend_from_slice(&m.b);
-    out.extend_from_slice(&(m.b.len() as u32).to_le_bytes());
-    out.extend_from_slice(b"PAR1");
-    File::create(path).unwrap().write_all(&out).unwrap();
+    let n = m.b.len() as u32;
+    m.b.extend_from_slice(&n.to_le_bytes());
+    m.b.extend_from_slice(b"PAR1");
+    f.write_all(&m.b).unwrap();
 }
 
 fn put_str(d: &mut Vec<u8>, s: &[u8]) {
