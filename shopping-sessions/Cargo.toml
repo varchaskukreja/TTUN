@@ -12,7 +12,6 @@ path = "src/main.rs"
 memchr = "2"
 memmap2 = "0.9"
 hashbrown = "0.15"
-parquet = { version = "55", default-features = false }
 
 [profile.release]
 opt-level = 3
