@@ -1,0 +1,614 @@
+{
+  "purpose": "Offline performance and isolation experiment only; no production integration or test-selection proof. No sample answers read.",
+  "provenance": {
+    "repository_revision_at_report": "a24254101891c009271b9cc499b386037eb908e5",
+    "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+    "image_id": "sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c",
+    "image_original_tag": "ttun-coverage-tools",
+    "platform": "Linux amd64 Docker emulation on arm64 macOS",
+    "files_sha256": {
+      "tools/experiment_guard_pool.py": "68aea50d53f20ed7fd166fe25e4b1d65c9ca38fe4f11ac5e6d067f5e95ed9e17",
+      "tools/test_experiment_guard_pool.py": "09a8eae47d6aad4fbef4a4db01fe16f50a029390d4515600aa82a78c134cd61d",
+      "runtime_probe.py": "3881170139bb7eca92691e2dc7eb2c74459f6fd486d8ea0839a258f7442b65a7",
+      "import_guard.py": "9b4215d056944e927f8ffc70641913ae720926cefe28635583094c3b10741686",
+      "sample/tests.json": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2"
+    }
+  },
+  "accounting": "Total CPU = parent process_time including startup/preload + RUSAGE_CHILDREN user/system deltas for reaped children. Successful, failed, and timed-out probes are charged. Wall time excludes interpreter startup; parent CPU includes it.",
+  "results": [
+    {
+      "name": "cold-sequential",
+      "command": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/experiment_guard_pool.py --source /opt/sqlglot --catalog /workspace/rwx-blast-radius/sample/tests.json --mode cold",
+      "observed": {
+        "mode": "cold",
+        "preloaded": [],
+        "parent_cpu_seconds": 0.167029625,
+        "preload_cpu_seconds": 0.137601541,
+        "total_cpu_seconds": 9.567853916999999,
+        "wall_seconds": 9.652781628999946,
+        "cases": [
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 2.780163,
+            "wall_seconds": 2.8104408760000297,
+            "case": "baseline-0",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 2.2168040000000007,
+            "wall_seconds": 2.2539522089998627,
+            "case": "baseline-1",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 2.0216609999999995,
+            "wall_seconds": 2.1390459589999864,
+            "case": "baseline-2",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 2.3821949999999994,
+            "wall_seconds": 2.4444817930000227,
+            "case": "baseline-3",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          }
+        ]
+      },
+      "raw_report_sha256": "df084c94b88156c2abfffc47417afeff12182d4d7545dd8215d02297f86780e9"
+    },
+    {
+      "name": "fork-sequential",
+      "command": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/experiment_guard_pool.py --source /opt/sqlglot --catalog /workspace/rwx-blast-radius/sample/tests.json --mode fork",
+      "observed": {
+        "mode": "fork",
+        "preloaded": [
+          "pytest",
+          "numpy",
+          "pandas",
+          "duckdb"
+        ],
+        "parent_cpu_seconds": 0.860522391,
+        "preload_cpu_seconds": 0.820078964,
+        "total_cpu_seconds": 7.181940849,
+        "wall_seconds": 7.013681961999964,
+        "cases": [
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.6368839999999998,
+            "wall_seconds": 1.6568493340000714,
+            "case": "baseline-0",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.448544,
+            "wall_seconds": 1.4535987090000617,
+            "case": "baseline-1",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.5401250000000002,
+            "wall_seconds": 1.5471462919999794,
+            "case": "baseline-2",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.6958640000000007,
+            "wall_seconds": 1.7070900849998907,
+            "case": "baseline-3",
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          }
+        ]
+      },
+      "raw_report_sha256": "770a5a36bb9c4a9973dbcf3f408916aa31b2c3ac25df5ee0716da7247abcb7d7"
+    },
+    {
+      "name": "sample-cold",
+      "command": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/experiment_guard_pool.py --source /opt/sqlglot --catalog /workspace/rwx-blast-radius/sample/tests.json --mode cold --patch /workspace/rwx-blast-radius/sample/commits/4d63.patch --patch /workspace/rwx-blast-radius/sample/commits/535z.patch --patch /workspace/rwx-blast-radius/sample/commits/gbav.patch --patch /workspace/rwx-blast-radius/sample/commits/ktz3.patch",
+      "observed": {
+        "mode": "cold",
+        "preloaded": [],
+        "parent_cpu_seconds": 0.133497214,
+        "preload_cpu_seconds": 0.117296088,
+        "total_cpu_seconds": 7.082020839000001,
+        "wall_seconds": 7.101153793999856,
+        "cases": [
+          {
+            "case": "4d63",
+            "output_bytes": 104872,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.624231,
+            "wall_seconds": 1.6781881260001228,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "535z",
+            "output_bytes": 104862,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.6157109999999997,
+            "wall_seconds": 1.618667792999986,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.tsql"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/tsql.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "gbav",
+            "output_bytes": 104874,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.7392890000000005,
+            "wall_seconds": 1.785941750999882,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.parsers.singlestore"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/parsers/singlestore.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "ktz3",
+            "output_bytes": 104866,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.9692920000000003,
+            "wall_seconds": 2.0148531669999556,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.expressions.ddl"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/expressions/ddl.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          }
+        ]
+      },
+      "raw_report_sha256": "609cc9614875a16fe3fa7d23a2eacf73dde3d6c6928fee6303b8a7777e0979f2"
+    },
+    {
+      "name": "sample-fork",
+      "command": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/experiment_guard_pool.py --source /opt/sqlglot --catalog /workspace/rwx-blast-radius/sample/tests.json --mode fork --patch /workspace/rwx-blast-radius/sample/commits/4d63.patch --patch /workspace/rwx-blast-radius/sample/commits/535z.patch --patch /workspace/rwx-blast-radius/sample/commits/gbav.patch --patch /workspace/rwx-blast-radius/sample/commits/ktz3.patch",
+      "observed": {
+        "mode": "fork",
+        "preloaded": [
+          "pytest",
+          "numpy",
+          "pandas",
+          "duckdb"
+        ],
+        "parent_cpu_seconds": 0.636561418,
+        "preload_cpu_seconds": 0.618089331,
+        "total_cpu_seconds": 5.235390917999999,
+        "wall_seconds": 5.133800960000144,
+        "cases": [
+          {
+            "case": "4d63",
+            "output_bytes": 104842,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.188668,
+            "wall_seconds": 1.1973477920000732,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "535z",
+            "output_bytes": 104832,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.119232,
+            "wall_seconds": 1.1267592090000562,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.tsql"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/tsql.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "gbav",
+            "output_bytes": 104844,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.1799190000000002,
+            "wall_seconds": 1.190745583999842,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.parsers.singlestore"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/parsers/singlestore.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "ktz3",
+            "output_bytes": 104836,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.111008999999999,
+            "wall_seconds": 1.115990249999868,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.expressions.ddl"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/expressions/ddl.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          }
+        ]
+      },
+      "raw_report_sha256": "07ea5cb144d01ee7b66f456d1ab652267d987f07e71b0c28cca1f362ad3a6ee7"
+    },
+    {
+      "name": "adversarial",
+      "command": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/experiment_guard_pool.py --source /opt/sqlglot --catalog /workspace/rwx-blast-radius/sample/tests.json --mode fork --adversarial",
+      "observed": {
+        "mode": "fork",
+        "preloaded": [
+          "pytest",
+          "numpy",
+          "pandas",
+          "duckdb"
+        ],
+        "parent_cpu_seconds": 0.659475007,
+        "preload_cpu_seconds": 0.556859669,
+        "total_cpu_seconds": 6.967110590000001,
+        "wall_seconds": 14.506065756999988,
+        "cases": [
+          {
+            "case": "import_failure",
+            "output_bytes": 727,
+            "valid": false,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 0.265931,
+            "wall_seconds": 0.2682756670001254,
+            "complete": false,
+            "requested": 1620,
+            "collected": 0,
+            "finished": 0,
+            "explicit_imports": [],
+            "python_patches_loaded": [],
+            "python_patches_not_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "reasons": [
+              "patched module import failed: sqlglot.dialects.snowflake: RuntimeError: intentional import failure",
+              "1620 requested tests were not collected",
+              "pytest incomplete session (exit None)",
+              "some patched Python modules were not loaded"
+            ]
+          },
+          {
+            "case": "clean_after_failure",
+            "output_bytes": 104842,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.1089820000000001,
+            "wall_seconds": 1.1177101250000305,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "module_mutation",
+            "output_bytes": 104842,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.143571,
+            "wall_seconds": 1.1498255000001336,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "clean_after_mutation",
+            "output_bytes": 104842,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.116113,
+            "wall_seconds": 1.1244610010000997,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "timeout",
+            "output_bytes": 86,
+            "valid": false,
+            "exitcode": -9,
+            "timeout": true,
+            "cpu_seconds": 0.298444,
+            "wall_seconds": 8.01461879500016
+          },
+          {
+            "case": "clean_after_timeout",
+            "output_bytes": 104842,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.0695499999999998,
+            "wall_seconds": 1.0730867090001084,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          },
+          {
+            "case": "stdout_limit",
+            "output_bytes": 2097781,
+            "valid": false,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 0.24399399999999996,
+            "wall_seconds": 0.25081958400005533
+          },
+          {
+            "case": "clean_after_output",
+            "output_bytes": 104842,
+            "valid": true,
+            "exitcode": 0,
+            "timeout": false,
+            "cpu_seconds": 1.0610500000000007,
+            "wall_seconds": 1.069309125000018,
+            "complete": true,
+            "requested": 1620,
+            "collected": 1620,
+            "finished": 0,
+            "explicit_imports": [
+              "sqlglot.dialects.snowflake"
+            ],
+            "python_patches_loaded": [
+              "sqlglot/dialects/snowflake.py"
+            ],
+            "python_patches_not_loaded": [],
+            "reasons": []
+          }
+        ]
+      },
+      "raw_report_sha256": "c92a78eab82ce3a7c363272620f77d409d60fe3f0f6065a5a16342a886790c3a"
+    }
+  ],
+  "summary": {
+    "baseline_sequential_cpu_reduction_fraction": 0.2493676313097496,
+    "actual_four_patch_cpu_reduction_fraction": 0.260749009778507
+  },
+  "checks": [
+    "All successful guards use unchanged runtime_probe overlay, explicit patched-module imports, full 1620-node pytest collection, zero test execution, and existing ImportGuard report validation.",
+    "Parent checks no sqlglot/tests modules and exactly one Linux native thread before and after each fork.",
+    "Each child is fresh and discarded; parent never executes pytest.main or installs patch overlay.",
+    "Import failure, 8-second deadline, and oversized output rejected; following clean patch passed each time.",
+    "Module mutation then a clean child asserting absence passed.",
+    "Six helper unit tests passed: target module/thread rejection, clean parent, malformed/duplicate/nonstandard JSON rejection, combined size limit, report preservation."
+  ],
+  "unit_test_command": "python3 -m unittest discover -s rwx-blast-radius/tools -p test_experiment_guard_pool.py",
+  "limits": [
+    "Single native thread is necessary but does not prove inherited native locks, atfork callbacks, or dependency initialization fork-safe. Pin and audit dependency whitelist before production.",
+    "Preloading third-party dependencies changes import ordering; only SQLGlot/tests cleanliness and tested outcomes have been established.",
+    "Linux-only prototype relies on /proc/self/task, fork, process groups and rusage. No persistent mutated worker reuse.",
+    "RLIMIT_FSIZE caps each output file at 2MiB; combined stdout/stderr over 2MiB rejects. Prototype is not an adversarial sandbox.",
+    "Guard success proves imports/collection only, not patch harmlessness or completeness of dependency narrowing.",
+    "No automatic replacement/fallback integration, cumulative production budget, or cross-platform support implemented.",
+    "Performance timings vary under emulation and host load; compare sequential pairs, not first overlapping pilot.",
+    "Sequential baseline benchmark preceded file-output cap/parser hardening; actual-patch and adversarial benchmark used output cap. Helper parser hardening subsequently passed six unit tests."
+  ],
+  "final_code_smoke": {
+    "command": "docker run --rm --network none --cpus 2 --memory 4g --pids-limit 256 --read-only --tmpfs /tmp:size=64m,mode=1777 --user nobody -v \"$PWD:/workspace:ro\" --entrypoint python ttun-coverage-tools@sha256:2fd19a259347e03ba6bd7be3b522beac6bfb85fe7a07ad41d3d615b2d8f3bc6c /workspace/rwx-blast-radius/tools/experiment_guard_pool.py --source /opt/sqlglot --catalog /workspace/rwx-blast-radius/sample/tests.json --mode fork --repeat 1",
+    "valid": true,
+    "collected": 1620,
+    "total_cpu_seconds": 1.650196366
+  }
+}
