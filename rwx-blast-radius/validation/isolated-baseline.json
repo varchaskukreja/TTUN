@@ -1,0 +1,1422 @@
+{
+  "attempt_differences": {
+    "tests/test_executor.py::TestExecutor::test_integer_division_truncates_towards_zero": [
+      {
+        "errors": [
+          "OSError: [Errno 28] No space left on device"
+        ],
+        "outcome": "failed",
+        "successful": false,
+        "work": ".work/coverage-isolated-full"
+      },
+      {
+        "errors": [],
+        "outcome": "passed",
+        "successful": true,
+        "work": ".work/coverage-isolated-remainder"
+      }
+    ],
+    "tests/test_optimizer.py::TestOptimizer::test_optimize": [
+      {
+        "errors": [],
+        "outcome": "failed",
+        "successful": false,
+        "work": ".work/coverage-isolated-remainder"
+      },
+      {
+        "errors": [],
+        "outcome": "passed",
+        "successful": true,
+        "work": ".work/coverage-isolated-native-repair"
+      }
+    ],
+    "tests/test_optimizer.py::TestOptimizer::test_qualify_columns": [
+      {
+        "errors": [],
+        "outcome": "failed",
+        "successful": false,
+        "work": ".work/coverage-isolated-remainder"
+      },
+      {
+        "errors": [],
+        "outcome": "passed",
+        "successful": true,
+        "work": ".work/coverage-isolated-native-repair"
+      }
+    ],
+    "tests/test_optimizer.py::TestOptimizer::test_qualify_struct_star_source_types": [
+      {
+        "errors": [],
+        "outcome": "failed",
+        "successful": false,
+        "work": ".work/coverage-isolated-remainder"
+      },
+      {
+        "errors": [],
+        "outcome": "passed",
+        "successful": true,
+        "work": ".work/coverage-isolated-native-repair"
+      }
+    ]
+  },
+  "audits": [
+    {
+      "databases": 1141,
+      "saved_results": 1120,
+      "single_test_shards": 1140,
+      "work": ".work/coverage-isolated-full"
+    },
+    {
+      "databases": 878,
+      "saved_results": 501,
+      "single_test_shards": 877,
+      "work": ".work/coverage-isolated-remainder"
+    },
+    {
+      "databases": 27,
+      "saved_results": 3,
+      "single_test_shards": 26,
+      "work": ".work/coverage-isolated-native-repair"
+    }
+  ],
+  "candidate_bytes": 1173743,
+  "candidate_sha256": "795c6099ac8738a6898e1d19ba7fb523e41e20c0a2eff9780da9825f3fd0355d",
+  "catalog_tests": 1620,
+  "final_saved_results": 1620,
+  "incomplete_tests": [],
+  "mode": "isolated-baseline-union",
+  "new_line_test_links": 1116468,
+  "new_source_line_test_links": 1101509,
+  "observed_test_contexts": 1620,
+  "primary_outcomes_preserved": true,
+  "primary_sha256": "5c422aa2acb7a155ac23514f2af06db8217176a46809d8f5ef556b6724cdfbd1",
+  "provenance": {
+    "by_file": {
+      "sqlglot/__init__.py": {
+        "both": 0,
+        "direct_only": 1243,
+        "new_links": 1243,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/_typing.py": {
+        "both": 0,
+        "direct_only": 960,
+        "new_links": 960,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/__init__.py": {
+        "both": 0,
+        "direct_only": 288,
+        "new_links": 288,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/athena.py": {
+        "both": 0,
+        "direct_only": 4797,
+        "new_links": 4797,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/bigquery.py": {
+        "both": 0,
+        "direct_only": 548,
+        "new_links": 548,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/databricks.py": {
+        "both": 0,
+        "direct_only": 5577,
+        "new_links": 5577,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/dax.py": {
+        "both": 0,
+        "direct_only": 112,
+        "new_links": 112,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/dialect.py": {
+        "both": 0,
+        "direct_only": 101360,
+        "new_links": 101360,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/doris.py": {
+        "both": 0,
+        "direct_only": 798,
+        "new_links": 798,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/dremio.py": {
+        "both": 0,
+        "direct_only": 2065,
+        "new_links": 2065,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/drill.py": {
+        "both": 0,
+        "direct_only": 1802,
+        "new_links": 1802,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/druid.py": {
+        "both": 0,
+        "direct_only": 30,
+        "new_links": 30,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/duckdb.py": {
+        "both": 0,
+        "direct_only": 333,
+        "new_links": 333,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/dune.py": {
+        "both": 0,
+        "direct_only": 54,
+        "new_links": 54,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/exasol.py": {
+        "both": 0,
+        "direct_only": 2288,
+        "new_links": 2288,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/fabric.py": {
+        "both": 0,
+        "direct_only": 273,
+        "new_links": 273,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/hive.py": {
+        "both": 0,
+        "direct_only": 660,
+        "new_links": 660,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/materialize.py": {
+        "both": 0,
+        "direct_only": 154,
+        "new_links": 154,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/mysql.py": {
+        "both": 0,
+        "direct_only": 864,
+        "new_links": 864,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/oracle.py": {
+        "both": 0,
+        "direct_only": 11390,
+        "new_links": 11390,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/postgres.py": {
+        "both": 0,
+        "direct_only": 45385,
+        "new_links": 45385,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/presto.py": {
+        "both": 0,
+        "direct_only": 25680,
+        "new_links": 25680,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/prql.py": {
+        "both": 0,
+        "direct_only": 88,
+        "new_links": 88,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/redshift.py": {
+        "both": 0,
+        "direct_only": 4998,
+        "new_links": 4998,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/risingwave.py": {
+        "both": 0,
+        "direct_only": 238,
+        "new_links": 238,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/singlestore.py": {
+        "both": 0,
+        "direct_only": 1960,
+        "new_links": 1960,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/snowflake.py": {
+        "both": 0,
+        "direct_only": 690,
+        "new_links": 690,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/solr.py": {
+        "both": 0,
+        "direct_only": 60,
+        "new_links": 60,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/spark.py": {
+        "both": 0,
+        "direct_only": 11700,
+        "new_links": 11700,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/spark2.py": {
+        "both": 0,
+        "direct_only": 96,
+        "new_links": 96,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/sqlite.py": {
+        "both": 0,
+        "direct_only": 4816,
+        "new_links": 4816,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/starrocks.py": {
+        "both": 0,
+        "direct_only": 3588,
+        "new_links": 3588,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/tableau.py": {
+        "both": 0,
+        "direct_only": 180,
+        "new_links": 180,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/teradata.py": {
+        "both": 0,
+        "direct_only": 5110,
+        "new_links": 5110,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/trino.py": {
+        "both": 0,
+        "direct_only": 3927,
+        "new_links": 3927,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/dialects/tsql.py": {
+        "both": 0,
+        "direct_only": 29400,
+        "new_links": 29400,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/diff.py": {
+        "both": 0,
+        "direct_only": 1520,
+        "new_links": 1520,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/errors.py": {
+        "both": 0,
+        "direct_only": 1164,
+        "new_links": 1164,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/__init__.py": {
+        "both": 0,
+        "direct_only": 500,
+        "new_links": 500,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/aggregate.py": {
+        "both": 0,
+        "direct_only": 3540,
+        "new_links": 3540,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/array.py": {
+        "both": 0,
+        "direct_only": 3960,
+        "new_links": 3960,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/builders.py": {
+        "both": 0,
+        "direct_only": 3643,
+        "new_links": 3643,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/constraints.py": {
+        "both": 0,
+        "direct_only": 2840,
+        "new_links": 2840,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/core.py": {
+        "both": 0,
+        "direct_only": 19766,
+        "new_links": 19766,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/datatypes.py": {
+        "both": 0,
+        "direct_only": 6229,
+        "new_links": 6229,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/ddl.py": {
+        "both": 0,
+        "direct_only": 5860,
+        "new_links": 5860,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/dml.py": {
+        "both": 0,
+        "direct_only": 3600,
+        "new_links": 3600,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/functions.py": {
+        "both": 0,
+        "direct_only": 5500,
+        "new_links": 5500,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/json.py": {
+        "both": 0,
+        "direct_only": 3200,
+        "new_links": 3200,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/math.py": {
+        "both": 0,
+        "direct_only": 2820,
+        "new_links": 2820,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/properties.py": {
+        "both": 0,
+        "direct_only": 7500,
+        "new_links": 7500,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/query.py": {
+        "both": 0,
+        "direct_only": 16960,
+        "new_links": 16960,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/string.py": {
+        "both": 0,
+        "direct_only": 7000,
+        "new_links": 7000,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/expressions/temporal.py": {
+        "both": 0,
+        "direct_only": 6180,
+        "new_links": 6180,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generator.py": {
+        "both": 0,
+        "direct_only": 42702,
+        "new_links": 42702,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/__init__.py": {
+        "both": 0,
+        "direct_only": 10,
+        "new_links": 10,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/athena.py": {
+        "both": 0,
+        "direct_only": 6642,
+        "new_links": 6642,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/bigquery.py": {
+        "both": 0,
+        "direct_only": 1132,
+        "new_links": 1132,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/databricks.py": {
+        "both": 0,
+        "direct_only": 11821,
+        "new_links": 11821,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/dax.py": {
+        "both": 0,
+        "direct_only": 32,
+        "new_links": 32,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/doris.py": {
+        "both": 0,
+        "direct_only": 2885,
+        "new_links": 2885,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/dremio.py": {
+        "both": 0,
+        "direct_only": 1712,
+        "new_links": 1712,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/drill.py": {
+        "both": 0,
+        "direct_only": 2478,
+        "new_links": 2478,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/druid.py": {
+        "both": 0,
+        "direct_only": 98,
+        "new_links": 98,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/duckdb.py": {
+        "both": 0,
+        "direct_only": 1805,
+        "new_links": 1805,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/dune.py": {
+        "both": 0,
+        "direct_only": 54,
+        "new_links": 54,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/exasol.py": {
+        "both": 0,
+        "direct_only": 4907,
+        "new_links": 4907,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/fabric.py": {
+        "both": 0,
+        "direct_only": 442,
+        "new_links": 442,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/hive.py": {
+        "both": 0,
+        "direct_only": 1391,
+        "new_links": 1391,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/materialize.py": {
+        "both": 0,
+        "direct_only": 389,
+        "new_links": 389,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/mysql.py": {
+        "both": 0,
+        "direct_only": 1638,
+        "new_links": 1638,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/oracle.py": {
+        "both": 0,
+        "direct_only": 13844,
+        "new_links": 13844,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/postgres.py": {
+        "both": 0,
+        "direct_only": 64094,
+        "new_links": 64094,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/presto.py": {
+        "both": 0,
+        "direct_only": 65721,
+        "new_links": 65721,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/prql.py": {
+        "both": 0,
+        "direct_only": 16,
+        "new_links": 16,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/redshift.py": {
+        "both": 0,
+        "direct_only": 11193,
+        "new_links": 11193,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/risingwave.py": {
+        "both": 0,
+        "direct_only": 237,
+        "new_links": 237,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/singlestore.py": {
+        "both": 0,
+        "direct_only": 8492,
+        "new_links": 8492,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/snowflake.py": {
+        "both": 0,
+        "direct_only": 1424,
+        "new_links": 1424,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/solr.py": {
+        "both": 0,
+        "direct_only": 20,
+        "new_links": 20,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/spark.py": {
+        "both": 0,
+        "direct_only": 24876,
+        "new_links": 24876,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/spark2.py": {
+        "both": 0,
+        "direct_only": 294,
+        "new_links": 294,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/sqlite.py": {
+        "both": 0,
+        "direct_only": 14653,
+        "new_links": 14653,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/starrocks.py": {
+        "both": 0,
+        "direct_only": 5920,
+        "new_links": 5920,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/tableau.py": {
+        "both": 0,
+        "direct_only": 330,
+        "new_links": 330,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/teradata.py": {
+        "both": 0,
+        "direct_only": 6048,
+        "new_links": 6048,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/trino.py": {
+        "both": 0,
+        "direct_only": 10390,
+        "new_links": 10390,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/generators/tsql.py": {
+        "both": 0,
+        "direct_only": 32573,
+        "new_links": 32573,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/helper.py": {
+        "both": 0,
+        "direct_only": 2638,
+        "new_links": 2638,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/jsonpath.py": {
+        "both": 0,
+        "direct_only": 960,
+        "new_links": 960,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/__init__.py": {
+        "both": 0,
+        "direct_only": 328,
+        "new_links": 328,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/annotate_types.py": {
+        "both": 0,
+        "direct_only": 2876,
+        "new_links": 2876,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/canonicalize.py": {
+        "both": 0,
+        "direct_only": 162,
+        "new_links": 162,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/canonicalize_internal_names.py": {
+        "both": 0,
+        "direct_only": 140,
+        "new_links": 140,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/eliminate_ctes.py": {
+        "both": 0,
+        "direct_only": 24,
+        "new_links": 24,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/eliminate_joins.py": {
+        "both": 0,
+        "direct_only": 56,
+        "new_links": 56,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/eliminate_subqueries.py": {
+        "both": 0,
+        "direct_only": 84,
+        "new_links": 84,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/helpers.py": {
+        "both": 0,
+        "direct_only": 54,
+        "new_links": 54,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/isolate_table_selects.py": {
+        "both": 0,
+        "direct_only": 240,
+        "new_links": 240,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/journal.py": {
+        "both": 0,
+        "direct_only": 140,
+        "new_links": 140,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/merge_subqueries.py": {
+        "both": 0,
+        "direct_only": 246,
+        "new_links": 246,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/normalize.py": {
+        "both": 0,
+        "direct_only": 460,
+        "new_links": 460,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/normalize_identifiers.py": {
+        "both": 0,
+        "direct_only": 280,
+        "new_links": 280,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/optimize_joins.py": {
+        "both": 0,
+        "direct_only": 44,
+        "new_links": 44,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/optimizer.py": {
+        "both": 0,
+        "direct_only": 150,
+        "new_links": 150,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/pushdown_predicates.py": {
+        "both": 0,
+        "direct_only": 152,
+        "new_links": 152,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/pushdown_projections.py": {
+        "both": 0,
+        "direct_only": 168,
+        "new_links": 168,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/qualify.py": {
+        "both": 0,
+        "direct_only": 560,
+        "new_links": 560,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/qualify_columns.py": {
+        "both": 0,
+        "direct_only": 1660,
+        "new_links": 1660,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/qualify_tables.py": {
+        "both": 0,
+        "direct_only": 340,
+        "new_links": 340,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/resolver.py": {
+        "both": 0,
+        "direct_only": 840,
+        "new_links": 840,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/scope.py": {
+        "both": 0,
+        "direct_only": 3360,
+        "new_links": 3360,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/simplify.py": {
+        "both": 0,
+        "direct_only": 5117,
+        "new_links": 5117,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/optimizer/unnest_subqueries.py": {
+        "both": 0,
+        "direct_only": 68,
+        "new_links": 68,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parser.py": {
+        "both": 0,
+        "direct_only": 36219,
+        "new_links": 36219,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/__init__.py": {
+        "both": 0,
+        "direct_only": 20,
+        "new_links": 20,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/athena.py": {
+        "both": 0,
+        "direct_only": 3567,
+        "new_links": 3567,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/base.py": {
+        "both": 0,
+        "direct_only": 260,
+        "new_links": 260,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/bigquery.py": {
+        "both": 0,
+        "direct_only": 853,
+        "new_links": 853,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/databricks.py": {
+        "both": 0,
+        "direct_only": 7758,
+        "new_links": 7758,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/dax.py": {
+        "both": 0,
+        "direct_only": 104,
+        "new_links": 104,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/doris.py": {
+        "both": 0,
+        "direct_only": 1673,
+        "new_links": 1673,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/dremio.py": {
+        "both": 0,
+        "direct_only": 1643,
+        "new_links": 1643,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/drill.py": {
+        "both": 0,
+        "direct_only": 714,
+        "new_links": 714,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/druid.py": {
+        "both": 0,
+        "direct_only": 30,
+        "new_links": 30,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/duckdb.py": {
+        "both": 0,
+        "direct_only": 606,
+        "new_links": 606,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/dune.py": {
+        "both": 0,
+        "direct_only": 24,
+        "new_links": 24,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/exasol.py": {
+        "both": 0,
+        "direct_only": 3286,
+        "new_links": 3286,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/fabric.py": {
+        "both": 0,
+        "direct_only": 65,
+        "new_links": 65,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/hive.py": {
+        "both": 0,
+        "direct_only": 1149,
+        "new_links": 1149,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/materialize.py": {
+        "both": 0,
+        "direct_only": 208,
+        "new_links": 208,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/mysql.py": {
+        "both": 0,
+        "direct_only": 1587,
+        "new_links": 1587,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/oracle.py": {
+        "both": 0,
+        "direct_only": 13084,
+        "new_links": 13084,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/postgres.py": {
+        "both": 0,
+        "direct_only": 42529,
+        "new_links": 42529,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/presto.py": {
+        "both": 0,
+        "direct_only": 24044,
+        "new_links": 24044,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/prql.py": {
+        "both": 0,
+        "direct_only": 224,
+        "new_links": 224,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/redshift.py": {
+        "both": 0,
+        "direct_only": 5603,
+        "new_links": 5603,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/risingwave.py": {
+        "both": 0,
+        "direct_only": 276,
+        "new_links": 276,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/singlestore.py": {
+        "both": 0,
+        "direct_only": 4306,
+        "new_links": 4306,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/snowflake.py": {
+        "both": 0,
+        "direct_only": 2228,
+        "new_links": 2228,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/solr.py": {
+        "both": 0,
+        "direct_only": 50,
+        "new_links": 50,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/spark.py": {
+        "both": 0,
+        "direct_only": 18887,
+        "new_links": 18887,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/spark2.py": {
+        "both": 0,
+        "direct_only": 499,
+        "new_links": 499,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/sqlite.py": {
+        "both": 0,
+        "direct_only": 10273,
+        "new_links": 10273,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/starrocks.py": {
+        "both": 0,
+        "direct_only": 3507,
+        "new_links": 3507,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/tableau.py": {
+        "both": 0,
+        "direct_only": 150,
+        "new_links": 150,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/teradata.py": {
+        "both": 0,
+        "direct_only": 5976,
+        "new_links": 5976,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/trino.py": {
+        "both": 0,
+        "direct_only": 11078,
+        "new_links": 11078,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/parsers/tsql.py": {
+        "both": 0,
+        "direct_only": 36932,
+        "new_links": 36932,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/schema.py": {
+        "both": 0,
+        "direct_only": 3340,
+        "new_links": 3340,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/serde.py": {
+        "both": 0,
+        "direct_only": 590,
+        "new_links": 590,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/time.py": {
+        "both": 0,
+        "direct_only": 220,
+        "new_links": 220,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/tokenizer_core.py": {
+        "both": 0,
+        "direct_only": 10990,
+        "new_links": 10990,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/tokens.py": {
+        "both": 0,
+        "direct_only": 40514,
+        "new_links": 40514,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/transforms.py": {
+        "both": 0,
+        "direct_only": 2712,
+        "new_links": 2712,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/trie.py": {
+        "both": 0,
+        "direct_only": 5029,
+        "new_links": 5029,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/__init__.py": {
+        "both": 0,
+        "direct_only": 6522,
+        "new_links": 6522,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/bigquery.py": {
+        "both": 0,
+        "direct_only": 771,
+        "new_links": 771,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/databricks.py": {
+        "both": 0,
+        "direct_only": 5439,
+        "new_links": 5439,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/duckdb.py": {
+        "both": 0,
+        "direct_only": 252,
+        "new_links": 252,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/hive.py": {
+        "both": 0,
+        "direct_only": 420,
+        "new_links": 420,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/mysql.py": {
+        "both": 0,
+        "direct_only": 708,
+        "new_links": 708,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/postgres.py": {
+        "both": 0,
+        "direct_only": 18211,
+        "new_links": 18211,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/presto.py": {
+        "both": 0,
+        "direct_only": 8049,
+        "new_links": 8049,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/redshift.py": {
+        "both": 0,
+        "direct_only": 1648,
+        "new_links": 1648,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/snowflake.py": {
+        "both": 0,
+        "direct_only": 1500,
+        "new_links": 1500,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/spark.py": {
+        "both": 0,
+        "direct_only": 11437,
+        "new_links": 11437,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/spark2.py": {
+        "both": 0,
+        "direct_only": 111,
+        "new_links": 111,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/sqlite.py": {
+        "both": 0,
+        "direct_only": 678,
+        "new_links": 678,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "sqlglot/typing/tsql.py": {
+        "both": 0,
+        "direct_only": 6252,
+        "new_links": 6252,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "tests/__init__.py": {
+        "both": 0,
+        "direct_only": 20,
+        "new_links": 20,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "tests/helpers.py": {
+        "both": 0,
+        "direct_only": 10583,
+        "new_links": 10583,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "tests/test_executor.py": {
+        "both": 0,
+        "direct_only": 116,
+        "new_links": 116,
+        "scope_only": 0,
+        "unexplained": 0
+      },
+      "tests/test_optimizer.py": {
+        "both": 0,
+        "direct_only": 4240,
+        "new_links": 4240,
+        "scope_only": 0,
+        "unexplained": 0
+      }
+    },
+    "collection_context_expands_to_tests": false,
+    "counts": {
+      "both": 0,
+      "direct_only": 1116468,
+      "scope_only": 0,
+      "unexplained": 0
+    },
+    "examples": [
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 10,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 11,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 115,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 116,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 117,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 119,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 120,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 121,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 122,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 123,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 126,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      },
+      {
+        "direct": true,
+        "fixture_scope": false,
+        "line": 127,
+        "path": "sqlglot/__init__.py",
+        "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
+      }
+    ]
+  },
+  "supplements": [
+    {
+      "path": ".work/coverage-isolated-salvage-map/coverage.json.gz",
+      "sha256": "7556bed5bfd96d8694de65218e22d23a3c23d49717b9337646d7726695b19da1"
+    },
+    {
+      "path": ".work/coverage-isolated-remainder-map/coverage.json.gz",
+      "sha256": "d3447072378ddf80e3064a5fa4253513939d39d9b18b56b14ebe61e7212861a4"
+    },
+    {
+      "path": ".work/coverage-isolated-native-repair-map/coverage.json.gz",
+      "sha256": "8a27a596aff7ed4b1431976ea96f4e4ff69d09fb0f75f08116ba3ad2ed092668"
+    }
+  ]
+}
