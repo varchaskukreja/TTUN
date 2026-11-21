@@ -4,5 +4,11 @@
 !rwx-blast-radius/selector.py
 !rwx-blast-radius/scheduler.py
 !rwx-blast-radius/patches.py
+!rwx-blast-radius/class_selection.py
+!rwx-blast-radius/runtime_probe.py
+!rwx-blast-radius/import_guard.py
+!rwx-blast-radius/requirements-runtime.txt
+!rwx-blast-radius/tools/
+!rwx-blast-radius/tools/experiment_classes.py
 !rwx-blast-radius/maps/
 !rwx-blast-radius/maps/coverage.json.gz

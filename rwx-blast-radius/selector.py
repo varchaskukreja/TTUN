@@ -3,6 +3,7 @@ import argparse
 import ast
 import gzip
 import json
+import resource
 import sys
 from pathlib import Path
 from patches import parse_patch, apply_file
@@ -126,10 +127,16 @@ def main():
     parser.add_argument('--data', type=Path, default=Path('/data'))
     parser.add_argument('--map', type=Path, default=ROOT / 'maps/coverage.json.gz')
     parser.add_argument('--source', type=Path, default=Path('/opt/sqlglot'))
+    parser.add_argument('--class-guard', action='store_true', help='enable class-literal selection after successful cold import and collection checks')
+    parser.add_argument('--metrics', action='store_true', help='write local CPU and guard counts to stderr')
     args = parser.parse_args()
     tests = read_json(args.data / 'tests.json')['tests']
     mapping = read_json(args.map) if args.map.exists() else {}
-    selector = Selector(tests, mapping, args.source)
+    guard = None
+    if args.class_guard:
+        from import_guard import ImportGuard
+        guard = ImportGuard(args.source.resolve(), tests)
+    selector = Selector(tests, mapping, args.source, class_guard=guard)
     cache = {}
     for patch in sorted((args.data / 'commits').glob('*.patch')):
         try:
@@ -141,6 +148,12 @@ def main():
         if key not in cache:
             cache[key] = split([test for test in tests if test['number'] in selected])
         print(json.dumps({'commit': patch.stem, 'workers': cache[key]}, separators=(',', ':')))
+    if args.metrics:
+        own = resource.getrusage(resource.RUSAGE_SELF)
+        children = resource.getrusage(resource.RUSAGE_CHILDREN)
+        print(json.dumps({'cpu_seconds': own.ru_utime + own.ru_stime + children.ru_utime + children.ru_stime,
+                          'guard_calls': len(guard.calls) if guard else 0,
+                          'guard_passed': sum(call['valid'] for call in guard.calls) if guard else 0}), file=sys.stderr)
 
 
 if __name__ == '__main__':
