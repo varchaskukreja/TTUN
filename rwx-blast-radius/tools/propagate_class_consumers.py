@@ -77,6 +77,43 @@ def propagate(mapping, exports, lexical_outer=False):
             if symbol in definitions:
                 known = definitions[symbol].get('attributes', {})
                 global_exports.setdefault(symbol, set()).add(attribute if attribute in known else '*')
+    # Follow exported values back to the attributes used to construct them.
+    # Consumer closure alone cannot cover free-function/global registry reads.
+    attribute_edges = set()
+    for flow in exports['direct_class_flows'] + exports['same_receiver_derivations']:
+        source, target = flow['source'], flow['target']
+        if (source.rsplit('.', 1)[0] in definitions
+                and target.rsplit('.', 1)[0] in definitions
+                and flow.get('function') is None):
+            attribute_edges.add((source, target))
+    # A read through a subclass can refer to a value defined on an ancestor.
+    # Include every possible ancestor provider conservatively; do not guess MRO.
+    for symbol, definition in definitions.items():
+        pending = list(definition['bases'])
+        seen = set()
+        while pending:
+            base = pending.pop()
+            if base in seen or base not in definitions:
+                continue
+            seen.add(base)
+            pending.extend(definitions[base]['bases'])
+            for attribute in definitions[base].get('attributes', {}):
+                attribute_edges.add((base + '.' + attribute, symbol + '.' + attribute))
+    propagated_exports = set()
+    changed = True
+    while changed:
+        changed = False
+        for source, target in sorted(attribute_edges):
+            target_class, target_attribute = target.rsplit('.', 1)
+            escaped = global_exports.get(target_class, set())
+            if '*' not in escaped and target_attribute not in escaped:
+                continue
+            source_class, source_attribute = source.rsplit('.', 1)
+            values = global_exports.setdefault(source_class, set())
+            if source_attribute not in values:
+                values.add(source_attribute)
+                propagated_exports.add(source)
+                changed = True
     for symbol, attributes in global_exports.items():
         definition = definitions[symbol]
         field = result['files'].setdefault(definition['path'], {}).setdefault('class_attribute_global_exports', {})
@@ -85,6 +122,7 @@ def propagate(mapping, exports, lexical_outer=False):
               'edges': reasons, 'closure_rounds': rounds, 'changed_classes': differences,
               'added_class_test_links': sum(v['added'] for v in differences.values()),
               'unresolved_registry_escapes': unresolved,
+              'propagated_global_exports': sorted(propagated_exports),
               'class_attribute_global_exports': {symbol: sorted(values) for symbol, values in global_exports.items()}, 'analysis_complete': False,
               'limitations': ['Static class copies and known inheritance only; dynamic reference graphs are incomplete.',
                   'Lexical outer expansion is conservative supplemental evidence, not proof of all metaclass flows.',
