@@ -169,10 +169,10 @@ def run_suite(tree, catalog, directory, timeout, nodes=None):
     return report
 
 
-def selections(source, tests, mapping, patch, mode):
+def selections(source, tests, mapping, patch, mode, proofs=None):
     from selector import Selector
     result = {}
-    if mode in ('production', 'both'):
+    if mode in ('production', 'both', 'factory_both'):
         chosen = Selector(tests, mapping, source).select(patch)
         result['production'] = {'selected_numbers': sorted(chosen)}
     if mode in ('class_guard', 'both'):
@@ -180,6 +180,14 @@ def selections(source, tests, mapping, patch, mode):
         guard = ImportGuard(source, tests, budget=60)
         chosen = Selector(tests, mapping, source, class_guard=guard).select(patch)
         result['class_guard'] = {'selected_numbers': sorted(chosen), 'guard_calls': guard.calls}
+    if mode in ('factory', 'factory_both'):
+        if proofs is None:
+            raise ValueError('Factory experiment requires --proofs')
+        from experiment_factory_classes import FactorySelector
+        from import_guard import ImportGuard as FactoryGuard
+        guard = FactoryGuard(source, tests, budget=60)
+        chosen = FactorySelector(tests, mapping, source, proofs, guard).select(patch)
+        result['factory'] = {'selected_numbers': sorted(chosen), 'guard_calls': guard.calls}
     return result
 
 
@@ -243,11 +251,12 @@ def main():
     parser.add_argument('--source', required=True, type=Path)
     parser.add_argument('--catalog', required=True, type=Path)
     parser.add_argument('--map', required=True, type=Path)
+    parser.add_argument('--proofs', type=Path)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--patch', action='append', default=[], type=Path)
     parser.add_argument('--sample-patches', type=Path, default=ROOT / 'sample/commits')
     parser.add_argument('--seed', type=int, default=2026)
-    parser.add_argument('--selection', choices=['production', 'class_guard', 'both'], default='both')
+    parser.add_argument('--selection', choices=['production', 'class_guard', 'both', 'factory', 'factory_both'], default='both')
     parser.add_argument('--plan-only', action='store_true')
     parser.add_argument('--timeout', type=int, default=600)
     parser.add_argument('--reference-report', type=Path, help='Reuse an explicit complete full-catalog baseline report; no tests are inferred from mutation labels')
@@ -271,7 +280,7 @@ def main():
     else:
         plan = generate(source, args.sample_patches, output, args.seed)
     for item in plan:
-        item['selections'] = selections(source, tests, mapping, Path(item['patch']).read_text(), args.selection)
+        item['selections'] = selections(source, tests, mapping, Path(item['patch']).read_text(), args.selection, read_json(args.proofs) if args.proofs else None)
     plan_path.write_text(json.dumps({'revision': REVISION, 'seed': args.seed, 'mutations': plan}, indent=2, sort_keys=True))
     print(json.dumps([dict({key: value for key, value in item.items() if key != 'selections'}, selections={kind: {'count': len(selection['selected_numbers']), 'guard_calls': selection.get('guard_calls')} for kind, selection in item['selections'].items()}) for item in plan], indent=2), flush=True)
     if args.plan_only:

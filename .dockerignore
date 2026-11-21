@@ -12,3 +12,6 @@
 !rwx-blast-radius/tools/experiment_classes.py
 !rwx-blast-radius/maps/
 !rwx-blast-radius/maps/coverage.json.gz
+!rwx-blast-radius/factory_selection.py
+!rwx-blast-radius/factory_proof_format.py
+!rwx-blast-radius/maps/factory_proofs.json

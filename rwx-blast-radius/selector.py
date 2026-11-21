@@ -17,13 +17,14 @@ def read_json(path):
 
 
 class Selector:
-    def __init__(self, tests, mapping, source, class_guard=None):
+    def __init__(self, tests, mapping, source, class_guard=None, class_candidate=None):
         self.tests = tests
         self.mapping = mapping
         self.source = source
         self.source_cache = {}
         self.ast_cache = {}
         self.class_guard = class_guard
+        self.class_candidate = class_candidate
         self.all = {t['number'] for t in tests}
         by_id = {t['id']: t['number'] for t in tests}
         self.translate = {i: by_id[name] for i, name in enumerate(mapping.get('test_ids', [])) if name in by_id}
@@ -37,7 +38,9 @@ class Selector:
     def select(self, patch):
         selected = set()
         narrowed_class = False
-        for change in parse_patch(patch):
+        changes = parse_patch(patch)
+        changed_paths = {change['path'] for change in changes}
+        for change in changes:
             path = change['path']
             baseline = self.source / path
             if not baseline.is_file():
@@ -87,7 +90,9 @@ class Selector:
                         if self.class_guard is None:
                             return self.all
                         from class_selection import class_candidates
-                        consumers = class_candidates(tree, new_tree, line, info)
+                        consumers = (self.class_candidate(tree, new_tree, line, info, path, changed_paths)
+                                     if self.class_candidate is not None else
+                                     class_candidates(tree, new_tree, line, info))
                         if consumers is None:
                             return self.all
                         selected.update(self.numbers(consumers))
@@ -128,15 +133,27 @@ def main():
     parser.add_argument('--map', type=Path, default=ROOT / 'maps/coverage.json.gz')
     parser.add_argument('--source', type=Path, default=Path('/opt/sqlglot'))
     parser.add_argument('--class-guard', action='store_true', help='enable class-literal selection after successful cold import and collection checks')
+    parser.add_argument('--factory-proofs', type=Path, help='opt-in baseline factory proofs; requires --class-guard')
     parser.add_argument('--metrics', action='store_true', help='write local CPU and guard counts to stderr')
     args = parser.parse_args()
+    if args.factory_proofs is not None and not args.class_guard:
+        parser.error('--factory-proofs requires --class-guard')
     tests = read_json(args.data / 'tests.json')['tests']
     mapping = read_json(args.map) if args.map.exists() else {}
     guard = None
     if args.class_guard:
         from import_guard import ImportGuard
         guard = ImportGuard(args.source.resolve(), tests)
-    selector = Selector(tests, mapping, args.source, class_guard=guard)
+    candidate = None
+    if args.factory_proofs is not None:
+        from factory_selection import FactoryCandidates
+        try:
+            proof_data = read_json(args.factory_proofs)
+        except (OSError, ValueError) as exc:
+            print(f'factory proofs unavailable; strict class fallback: {exc}', file=sys.stderr)
+            proof_data = {}
+        candidate = FactoryCandidates(args.source, proof_data)
+    selector = Selector(tests, mapping, args.source, class_guard=guard, class_candidate=candidate)
     cache = {}
     for patch in sorted((args.data / 'commits').glob('*.patch')):
         try:
