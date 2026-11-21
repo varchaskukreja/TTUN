@@ -1,0 +1,271 @@
+{
+  "reference_complete": true,
+  "baseline_failures": [],
+  "mutations": [
+    {
+      "name": "captured_copy_budget_defaults",
+      "complete": true,
+      "wall_seconds": 84.966,
+      "selected_count": 96,
+      "all_failures": [
+        "tests/test_optimizer.py::TestOptimizer::test_merge_subqueries",
+        "tests/test_optimizer.py::TestOptimizer::test_optimize",
+        "tests/test_optimizer.py::TestOptimizer::test_pushdown_projections_prunes_non_self_referencing_ctes",
+        "tests/test_optimizer.py::TestOptimizer::test_tpcds",
+        "tests/test_optimizer.py::TestOptimizer::test_tpch"
+      ],
+      "new_failures": [
+        "tests/test_optimizer.py::TestOptimizer::test_merge_subqueries",
+        "tests/test_optimizer.py::TestOptimizer::test_optimize",
+        "tests/test_optimizer.py::TestOptimizer::test_pushdown_projections_prunes_non_self_referencing_ctes",
+        "tests/test_optimizer.py::TestOptimizer::test_tpcds",
+        "tests/test_optimizer.py::TestOptimizer::test_tpch"
+      ],
+      "misses": [],
+      "outcomes": {
+        "passed": 1615,
+        "failed": 5
+      },
+      "process": {
+        "groups": [
+          18884
+        ],
+        "observed_pids": [
+          18884,
+          18889,
+          18936,
+          18937,
+          18939,
+          18964,
+          18966,
+          18985,
+          18986
+        ],
+        "remaining_group_pids": []
+      },
+      "subtests": {
+        "passed": 25240,
+        "failed": 153
+      }
+    },
+    {
+      "name": "lazy_registry_value",
+      "complete": false,
+      "wall_seconds": 180.041,
+      "selected_count": 833,
+      "process_timeout": true,
+      "process_exitcode": -15,
+      "audited_failure_ids": null,
+      "audited_missed_ids": null,
+      "miss_count": null,
+      "unknown_catalog_outcomes": 1620,
+      "raw_report_contains_node_outcomes": false,
+      "per_node_phase_journal_available": false,
+      "progress_log_not_used_to_infer_misses": true,
+      "process": {
+        "groups": [
+          19037
+        ],
+        "observed_pids": [
+          19037,
+          19051,
+          19052,
+          19054,
+          19127,
+          19128,
+          19280,
+          19281
+        ],
+        "remaining_group_pids": []
+      },
+      "postprocessing_error": "Frozen driver assumed phase_audit exists in timeout fallback report and raised KeyError. This separate summary preserves the timeout as incomplete.",
+      "retry_attempted": false
+    }
+  ],
+  "runtime_narrowing_authorized": false,
+  "helper_hashes_unchanged": true,
+  "source_unchanged": true,
+  "all_process_groups_empty": true,
+  "frozen_selection_provenance": {
+    "production_map_sha256": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
+    "proposal_sha256": "4404639dd19ccff230ebee86593b8687567994933975be3e68d4c8a5a99a2190",
+    "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
+    "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+    "source": {
+      "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+      "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395"
+    },
+    "runtime": {
+      "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+      "implementation": "cpython",
+      "executable": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+      "platform": "macOS-26.1-arm64-arm-64bit-Mach-O",
+      "inherited_environment_sha256": "2a29e8f3f20d39d319c812bc6846b6746e3f135351b44e1da59699ae657aa8d0",
+      "process_cpu_count": 2,
+      "distributions": [
+        [
+          "Pygments",
+          "2.21.0"
+        ],
+        [
+          "coverage",
+          "7.17.4"
+        ],
+        [
+          "duckdb",
+          "2.0.0"
+        ],
+        [
+          "iniconfig",
+          "2.3.1"
+        ],
+        [
+          "numpy",
+          "2.5.5"
+        ],
+        [
+          "packaging",
+          "26.3"
+        ],
+        [
+          "pandas",
+          "3.1.1"
+        ],
+        [
+          "pip",
+          "25.2"
+        ],
+        [
+          "pluggy",
+          "1.7.0"
+        ],
+        [
+          "pytest",
+          "9.2.0"
+        ],
+        [
+          "pytest-cov",
+          "7.1.0"
+        ],
+        [
+          "pytest-timeout",
+          "2.4.0"
+        ],
+        [
+          "python-dateutil",
+          "4.0.0"
+        ],
+        [
+          "pytz",
+          "2026.6"
+        ],
+        [
+          "setuptools",
+          "84.2.1"
+        ],
+        [
+          "typing_extensions",
+          "4.16.0"
+        ],
+        [
+          "tzdata",
+          "2026.6"
+        ]
+      ],
+      "runner_sha256": "5f6651f7a2f941d28b7501495c3a65f5ff94ac35bffc3c425a1f048aa2a5c242",
+      "physical_runner_sha256": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7"
+    }
+  },
+  "exact_proposals": [
+    {
+      "name": "captured_copy_budget_defaults",
+      "patch": "diff --git a/sqlglot/optimizer/merge_subqueries.py b/sqlglot/optimizer/merge_subqueries.py\n--- a/sqlglot/optimizer/merge_subqueries.py\n+++ b/sqlglot/optimizer/merge_subqueries.py\n@@ -23,10 +23,10 @@\n     is capped per statement, relative to its size, and merges that would exceed the cap are skipped.\n     \"\"\"\n \n-    MAX_COPY_FACTOR = 8\n+    MAX_COPY_FACTOR = 0\n     \"\"\"Smallest factor that changed no ordinary query among 1,121 real-world queries\"\"\"\n \n-    MIN_COPY_BUDGET = 1000\n+    MIN_COPY_BUDGET = 0\n     \"\"\"Spares small statements\"\"\"\n \n     def __init__(\n",
+      "patch_sha256": "4010eebaee4e59491f8868f9702098b71d4decb3da161fc470d9230900990363",
+      "selected_count": 96
+    },
+    {
+      "name": "lazy_registry_value",
+      "patch": "diff --git a/sqlglot/dialects/dialect.py b/sqlglot/dialects/dialect.py\n--- a/sqlglot/dialects/dialect.py\n+++ b/sqlglot/dialects/dialect.py\n@@ -253,7 +253,7 @@\n                         and issubclass(attr, Dialect)\n                         and attr.__name__.lower() == key\n                     ):\n-                        cls._classes[key] = attr\n+                        cls._classes[key] = Dialect\n                         break\n             return\n \n",
+      "patch_sha256": "158f3455c0b8b9ac23df6d36a95afbc89cc0086b6f9e864527b6db74ed933b98",
+      "selected_count": 833
+    }
+  ],
+  "conclusion": "CopyBudget default-capture probe produced five fully audited failures, all selected. Registry shared-state probe is inconclusive after timeout; there is no audited missed-node evidence and no zero-miss claim.",
+  "terminal_artifacts": [
+    {
+      "path": ".work/dependency-audit-proposals/run_physical.py",
+      "sha256": "abe42387363ab08771edfb794557c9cd02852f7642bc2bb978fb15438338f3ba",
+      "bytes": 5033
+    },
+    {
+      "path": ".work/dependency-audit-proposals/physical-run.log",
+      "sha256": "ce9b21c7865b3d43cbbdaf0088e1b950930c74b9d282b1e4a6a1b398b8900d50",
+      "bytes": 2418
+    },
+    {
+      "path": ".work/dependency-audit-proposals/proposals.json",
+      "sha256": "4404639dd19ccff230ebee86593b8687567994933975be3e68d4c8a5a99a2190",
+      "bytes": 279024
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/freeze.json",
+      "sha256": "8ab2cd4360f43dd6bd3030612fc4477dabd497dd7cbef9f1b93382da886597d8",
+      "bytes": 73626
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/summary.json",
+      "sha256": "2b8887a6ce1a2905fd4b68597662736a6437c175364e33eca0305e00c1a56db9",
+      "bytes": 1537
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/final-summary.json",
+      "sha256": "12a93f5f27aee6dd1a79d4a2ade9a22c49f5de86d53c7d43cbf13c72a293d703",
+      "bytes": 6616
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/reference/pytest.json",
+      "sha256": "34580d2a162e5dda59add4a88aa570018434c6507785b4a82577d97d7692bfcc",
+      "bytes": 960386
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/reference/pytest.log",
+      "sha256": "753069268c68be7713f24aafcd671e1d42b6752864f157df5dc1377f6fc13eda",
+      "bytes": 1855
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/reference/process-audit.json",
+      "sha256": "4b9352d4d075fb8c57ed5ce5186f05b1c22f33f420ab73696e0a43d662477c1e",
+      "bytes": 163
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/captured_copy_budget_defaults/pytest.json",
+      "sha256": "88d19314213838f6d62f4128d77146f210c2176676db81377d67b584163a9c4a",
+      "bytes": 1339241
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/captured_copy_budget_defaults/pytest.log",
+      "sha256": "8b79d8046b50367c075531e1ed977be44799ebc6a1ef9dd06f0ba04aac8b09ab",
+      "bytes": 817806
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/captured_copy_budget_defaults/process-audit.json",
+      "sha256": "072150e9c302f6231df390a07a6758a66d60f548e9b3b329bd2b24471ec2f1d0",
+      "bytes": 185
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/lazy_registry_value/pytest.json",
+      "sha256": "417cb19afb05340f57f300125116942a48934412281c800ffd4473319838a567",
+      "bytes": 142
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/lazy_registry_value/pytest.log",
+      "sha256": "7b3c4d20d7380dffadb79b65a8374151006836103137c4efba424c8c0fa6b5b0",
+      "bytes": 1642
+    },
+    {
+      "path": ".work/dependency-audit-physical-v1/lazy_registry_value/process-audit.json",
+      "sha256": "30dbeb5c55b97ee0ad60a3f723dd821f13e9e3c99c3b54d737f37f82b9c6070f",
+      "bytes": 174
+    }
+  ]
+}
