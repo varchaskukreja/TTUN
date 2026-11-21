@@ -1,0 +1,74 @@
+{
+  "baseline_failed": [],
+  "mutations": [
+    {
+      "all_failures": [
+        "tests/dialects/test_dialect.py::TestDialect::test_array"
+      ],
+      "complete": true,
+      "name": "duckdb_array_prepend",
+      "new_failures": [
+        "tests/dialects/test_dialect.py::TestDialect::test_array"
+      ],
+      "selections": {
+        "factory": {
+          "guard_calls": [
+            {
+              "cpu_seconds": 0.764258,
+              "reasons": [],
+              "valid": true
+            }
+          ],
+          "missed_all": [],
+          "missed_new": [],
+          "selected_count": 377
+        },
+        "production": {
+          "guard_calls": null,
+          "missed_all": [],
+          "missed_new": [],
+          "selected_count": 1620
+        }
+      },
+      "wall_seconds": 60.307
+    },
+    {
+      "all_failures": [
+        "tests/dialects/test_dialect.py::TestDialect::test_time",
+        "tests/dialects/test_postgres.py::TestPostgres::test_postgres",
+        "tests/test_optimizer.py::TestOptimizer::test_simplify"
+      ],
+      "complete": true,
+      "name": "postgres_timestamp_trunc",
+      "new_failures": [
+        "tests/dialects/test_dialect.py::TestDialect::test_time",
+        "tests/dialects/test_postgres.py::TestPostgres::test_postgres",
+        "tests/test_optimizer.py::TestOptimizer::test_simplify"
+      ],
+      "selections": {
+        "factory": {
+          "guard_calls": [
+            {
+              "cpu_seconds": 0.737462,
+              "reasons": [],
+              "valid": true
+            }
+          ],
+          "missed_all": [],
+          "missed_new": [],
+          "selected_count": 261
+        },
+        "production": {
+          "guard_calls": null,
+          "missed_all": [],
+          "missed_new": [],
+          "selected_count": 1620
+        }
+      },
+      "wall_seconds": 64.764
+    }
+  ],
+  "reference_complete": true,
+  "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "note": "Full-catalog native runs against pinned baseline; runtime classifier selections separately verified under the pinned interpreter. Experimental production label denotes conservative all-tests comparator."
+}

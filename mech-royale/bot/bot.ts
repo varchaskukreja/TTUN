@@ -41,6 +41,9 @@ class Brain {
   targetId = -1
   targetT = -99
   mechHitBearing = 0
+  ffa = false
+  myKills = 0
+  beamClues = 0
   npcMem = new Map<number, { pos: number[]; vel: number[]; t: number; hp: number }>()
 
   constructor(hello: Hello) {
@@ -102,7 +105,29 @@ class Brain {
         this.threatBearing = e.bearing
         this.threatT = t
       }
-      if (e.type === "kill") this.tracks.delete(e.target)
+      if (e.type === "kill") {
+        this.tracks.delete(e.target)
+        this.myKills++
+      }
+    }
+    // free-for-all detection: practice house bots never fight each other
+    if (!this.ffa) {
+      if (16 - o.alive - this.myKills >= 3) {
+        this.ffa = true
+        log(`ffa by alive t=${t} alive=${o.alive} kills=${this.myKills}`)
+      }
+      for (const b of o.beams ?? []) {
+        if (b.by == null || b.by >= 16 || !b.path?.length) continue
+        const end = b.path[b.path.length - 1]
+        if (b.path.some((p: number[]) => hyp2(x, y, p[0], p[1]) < 20)) continue
+        for (const m of o.mechs) {
+          if (m.kind !== "mech" || m.id === b.by) continue
+          if (Math.hypot(m.pos[0] - end[0], m.pos[1] - end[1], m.pos[2] + 4 - end[2]) < 7 && ++this.beamClues >= 2) {
+            this.ffa = true
+            log(`ffa by beam t=${t} by=${b.by} on=${m.id}`)
+          }
+        }
+      }
     }
     for (const s of o.sounds) {
       if (["gun", "laser", "laser_charge", "lightning", "mortar", "boost", "step", "jet"].includes(s.kind) && s.dist !== "far") {
@@ -163,12 +188,17 @@ class Brain {
     // ---------- choose target
     const visible = o.mechs.filter((m) => m.kind === "mech")
     let target: Track | null = null
+    let avoid: Track | null = null
     let tScore = 1e9
     for (const tr of this.tracks.values()) {
       const d = hyp2(x, y, tr.pos[0], tr.pos[1])
       const age = t - tr.t
       if (age > 4) continue
       const hitUs = t - (this.attackers.get(tr.id) ?? -99) < 3 ? 50 : 0
+      if (this.ffa && !this.engageable(tr, d, t, o.alive, me.hp / me.max_hp, me.cubes)) {
+        if (age < 1.5 && (!avoid || d < hyp2(x, y, avoid.pos[0], avoid.pos[1]))) avoid = tr
+        continue
+      }
       const stick = tr.id === this.targetId && t - this.targetT < 2 ? 40 : 0
       const s = d + (tr.hp / 1400) * 90 + age * 30 - hitUs - stick
       if (s < tScore) {
@@ -362,6 +392,19 @@ class Brain {
       void myDps
     }
 
+    // free-for-all: stay hidden from mechs we choose not to fight
+    if (!target && avoid && map && !zoneGoal) {
+      const ap = avoid.pos
+      mode = "avoid"
+      if (map.los(ap[0], ap[1], ap[2] + 8, x, y, z + 6)) {
+        const cov = map.coverFrom(x, y, ap[0], ap[1], ap[2] + 8, 40)
+        moveGoal = cov ?? [x - (ap[0] - x), y - (ap[1] - y)]
+      } else moveGoal = [x, y]
+      aimYaw = Math.atan2(ap[1] - y, ap[0] - x)
+      aimPitch = 0
+      wantAim = true
+    }
+
     // heal: hold still (silent) out of sight until HP is back
     const healing = !moveGoal && !target && !zoneGoal && (hpFrac < 0.55 || (t < this.hideUntil && hpFrac < 0.9))
     let slow = false
@@ -469,7 +512,9 @@ class Brain {
           .filter((n) => hyp2(x, y, n.pos[0], n.pos[1]) < 110 && map?.los(x, y, muzzleZ, n.pos[0], n.pos[1], n.pos[2] + 1.75) !== false)
           .sort((a, b) => hyp2(x, y, a.pos[0], a.pos[1]) - hyp2(x, y, b.pos[0], b.pos[1]))[0]
         const tgt = npc ? { pos: npc.pos, vel: npc.vel, h: 1.75 } : crate ? { pos: crate.pos, vel: [0, 0, 0], h: 1.2 } : null
-        const unseenAttacker = t - this.mechHitT < 1.5
+        let recentMech = false
+        if (this.ffa) for (const tr of this.tracks.values()) if (t - tr.t < 6 && hyp2(x, y, tr.pos[0], tr.pos[1]) < 200) recentMech = true
+        const unseenAttacker = t - this.mechHitT < 1.5 || recentMech
         if (tgt && hpFrac > 0.4 && !unseenAttacker) {
           const dd = hyp2(x, y, tgt.pos[0], tgt.pos[1])
           const tt = dd / 252
@@ -613,6 +658,16 @@ class Brain {
     this.lastHp = me.hp
     if (map) map.pump(Math.max(0, 8 - (performance.now() - t0)))
     return act
+  }
+
+  engageable(tr: Track, d: number, t: number, alive: number, myFrac: number, myCubes: number) {
+    if (t - (this.attackers.get(tr.id) ?? -99) < 4) return true
+    if (tr.id === this.targetId && t - this.targetT < 1) return true
+    if (d < 35 || alive <= 4) return true
+    const frac = tr.hp / tr.maxHp
+    if (frac < 0.45 && d < 120 && myFrac > 0.4) return true
+    if (myFrac > 0.75 && myCubes >= tr.cubes + 3 && d < 70) return true
+    return false
   }
 
   mapGround(x: number, y: number) {

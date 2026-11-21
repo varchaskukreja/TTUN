@@ -1,0 +1,14 @@
+# Exact versions used by the validated cold-import/collection guard.
+duckdb==2.0.0
+iniconfig==2.3.1
+numpy==2.5.5
+packaging==26.3
+pandas==3.1.1
+pluggy==1.7.0
+Pygments==2.21.0
+pytest==9.2.0
+python-dateutil==4.0.0
+pytz==2026.6
+setuptools==84.2.1
+typing_extensions==4.16.0
+tzdata==2026.6

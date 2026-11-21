@@ -4,47 +4,13 @@ import argparse
 import json
 from pathlib import Path
 import resource
-import subprocess
 import sys
-import tempfile
-import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from selector import Selector, read_json
 from scheduler import split
-
-
-class ImportGuard:
-    def __init__(self, source, tests, budget=120):
-        self.source = source
-        self.nodes = json.dumps([test['id'] for test in tests])
-        self.deadline = time.monotonic() + budget
-        self.calls = []
-
-    def __call__(self, patch):
-        remaining = self.deadline - time.monotonic()
-        if remaining < 1:
-            return False
-        with tempfile.TemporaryDirectory(prefix='blast-import-') as directory:
-            path = Path(directory) / 'change.patch'
-            path.write_text(patch)
-            try:
-                process = subprocess.run([
-                    sys.executable, str(ROOT / 'runtime_probe.py'), '--source', str(self.source),
-                    '--patch', str(path), '--nodes', '-', '--collect-only', '--import-patches',
-                ], input=self.nodes, text=True, capture_output=True, timeout=min(8, remaining))
-                report = json.loads(process.stdout)
-                valid = (process.returncode == 0 and report.get('complete') is True
-                         and report.get('finished') == 0
-                         and report.get('collected') == len(json.loads(self.nodes))
-                         and not report.get('python_patches_not_loaded', ['unknown']))
-                self.calls.append({'valid': valid, 'cpu_seconds': report.get('cpu_seconds'),
-                                   'reasons': report.get('reasons', [])})
-                return valid
-            except (subprocess.TimeoutExpired, ValueError, OSError) as exc:
-                self.calls.append({'valid': False, 'reason': type(exc).__name__})
-                return False
+from import_guard import ImportGuard
 
 
 def main():

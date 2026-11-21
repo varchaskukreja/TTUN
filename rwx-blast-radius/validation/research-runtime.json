@@ -1,0 +1,298 @@
+{
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "decision": "Do not remove selected tests based on runtime PASS. Preserve published selector; timings and phase reporter remain research-only. No full metadata tracing implemented.",
+  "findings": [
+    "Current runtime_probe complete/failing/finished fields alone cannot distinguish PASS from skipped execution. Child-local experimental phase reporting closes only this reporting ambiguity.",
+    "Executor test explicitly requests get_context(\"spawn\"); changing it to fork would alter test semantics. Existing overlay correctly returns incomplete for child process creation.",
+    "Ordinary executor baseline costs 80.049303 CPU seconds at host affinity10 and 44.493635 CPU seconds at explicit affinity2, both exceeding observed 13.423-18.258 second marginal CI savings per selected commit.",
+    "Generator memory test has potential arithmetic benefit (1.615606499 cold CPU vs 3.343-6.686 marginal CI seconds), but isolated PASS is not sufficient correctness evidence.",
+    "Parser max_nodes costs 21.873645907 cold CPU and is absent from the captured 30 sample selections.",
+    "A cold passing test can fail after an earlier test or shared fixture changes state. Passing isolated and full-suite executions are different claims.",
+    "Overlay read_text observes patched bytes but Path.stat sees original baseline file size. A metadata assertion can pass in the overlay and fail on a physically patched filesystem."
+  ],
+  "marginal_cost_analysis": {
+    "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+    "method": "Recompute best 1..8-worker schedule before and after removing each candidate; no removal actually performed.",
+    "selection_output_local_path": ".work/factory-runtime-sample.jsonl",
+    "selection_output_sha256": "c825c5e92a69980190adb4644220080828701da2530c89873780125dd8e5eafb",
+    "tests": [
+      {
+        "maximum_marginal_savings_seconds": null,
+        "minimum_marginal_savings_seconds": null,
+        "selected_commit_count": 0,
+        "test_id": "tests/test_parser.py::TestParser::test_max_nodes",
+        "total_possible_simulated_savings_seconds": 0
+      },
+      {
+        "maximum_marginal_savings_seconds": 18.258,
+        "minimum_marginal_savings_seconds": 13.423,
+        "selected_commit_count": 6,
+        "test_id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+        "total_possible_simulated_savings_seconds": 96.434
+      },
+      {
+        "maximum_marginal_savings_seconds": 6.686,
+        "minimum_marginal_savings_seconds": 3.343,
+        "selected_commit_count": 3,
+        "test_id": "tests/test_generator.py::TestGenerator::test_generator_memory",
+        "total_possible_simulated_savings_seconds": 16.715
+      }
+    ]
+  },
+  "measurements": [
+    {
+      "catalog_seconds": 28.817,
+      "child_cpu_seconds": null,
+      "complete": true,
+      "cpu_seconds": 21.873645907,
+      "environment": {
+        "affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "cpu_count": 10,
+        "note": "separately observed for same Docker quota configuration; older worker did not embed it",
+        "process_cpu_count": 10
+      },
+      "explicit_cold_pass": true,
+      "mode": "in_memory_overlay_noop_patch",
+      "own_cpu_seconds": null,
+      "pytest_exitcode": 0,
+      "raw_local_path": ".work/refinement-timings.json",
+      "raw_sha256": "159c2571c6784a5b6eb5788f005e2af165f2bbfb11fed9c4ad4c31e91915dd83",
+      "reasons": [],
+      "test_id": "tests/test_parser.py::TestParser::test_max_nodes",
+      "wall_seconds": 21.925219
+    },
+    {
+      "catalog_seconds": 21.454,
+      "child_cpu_seconds": null,
+      "complete": false,
+      "cpu_seconds": 3.053688655,
+      "environment": {
+        "affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "cpu_count": 10,
+        "note": "separately observed for same Docker quota configuration; older worker did not embed it",
+        "process_cpu_count": 10
+      },
+      "explicit_cold_pass": false,
+      "mode": "in_memory_overlay_noop_patch",
+      "own_cpu_seconds": null,
+      "pytest_exitcode": 1,
+      "raw_local_path": ".work/refinement-timings.json",
+      "raw_sha256": "159c2571c6784a5b6eb5788f005e2af165f2bbfb11fed9c4ad4c31e91915dd83",
+      "reasons": [
+        "child process creation cannot inherit the in-memory overlay"
+      ],
+      "test_id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+      "wall_seconds": 2.770028
+    },
+    {
+      "catalog_seconds": 6.686,
+      "child_cpu_seconds": null,
+      "complete": true,
+      "cpu_seconds": 1.615606499,
+      "environment": {
+        "affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "cpu_count": 10,
+        "note": "separately observed for same Docker quota configuration; older worker did not embed it",
+        "process_cpu_count": 10
+      },
+      "explicit_cold_pass": true,
+      "mode": "in_memory_overlay_noop_patch",
+      "own_cpu_seconds": null,
+      "pytest_exitcode": 0,
+      "raw_local_path": ".work/refinement-timings.json",
+      "raw_sha256": "159c2571c6784a5b6eb5788f005e2af165f2bbfb11fed9c4ad4c31e91915dd83",
+      "reasons": [],
+      "test_id": "tests/test_generator.py::TestGenerator::test_generator_memory",
+      "wall_seconds": 1.663765
+    },
+    {
+      "catalog_seconds": 21.454,
+      "child_cpu_seconds": 53.824246,
+      "complete": true,
+      "cpu_seconds": 80.04930300000001,
+      "environment": {
+        "affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "cpu_count": 10,
+        "note": "separately observed for same Docker quota configuration; older worker did not embed it",
+        "process_cpu_count": 10
+      },
+      "explicit_cold_pass": true,
+      "mode": "plain_baseline_pytest",
+      "own_cpu_seconds": 26.225057,
+      "pytest_exitcode": 0,
+      "raw_local_path": ".work/refinement-plain-executor.json",
+      "raw_sha256": "28db674fcbf2701c36d3ce22be95855473c94a4c831c659a329e5aef4e9e74d3",
+      "reasons": [],
+      "test_id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+      "wall_seconds": 54.547373
+    },
+    {
+      "catalog_seconds": 21.454,
+      "child_cpu_seconds": 20.649846,
+      "complete": true,
+      "cpu_seconds": 44.493635,
+      "environment": {
+        "affinity": [
+          0,
+          1
+        ],
+        "cpu_count": 10,
+        "process_cpu_count": 2
+      },
+      "explicit_cold_pass": true,
+      "mode": "plain_baseline_pytest",
+      "own_cpu_seconds": 23.843789,
+      "pytest_exitcode": 0,
+      "raw_local_path": ".work/refinement-plain-executor-affinity2.json",
+      "raw_sha256": "82a5ae387abbe55b9ede6cff5333dc0ba5abd3f05626565ff1b8b3501cbf18f7",
+      "reasons": [],
+      "test_id": "tests/test_executor.py::TestExecutor::test_execute_tpcds",
+      "wall_seconds": 26.620627
+    }
+  ],
+  "methodology": {
+    "baseline_patch": "Exact-text replacement of first sqlglot/__init__.py line; overlay source bytes remain unchanged.",
+    "container": {
+      "cpu_quota": 2,
+      "host_architecture": "arm64 (verified with uname -m)",
+      "image_digest_at_each_measurement": "not captured",
+      "image_tag": "ttun-blast-candidate",
+      "memory_mb": 4096,
+      "network": "none",
+      "no_new_privileges": true,
+      "pids_limit": 256,
+      "platform": "linux/amd64",
+      "python": "3.13.18",
+      "read_only": true,
+      "timing_caveat": "Local amd64 emulation and concurrent workloads differ from the scoring host; these are measured observations, not promised server timings.",
+      "tmpfs_mb": 64,
+      "uid": 65534
+    },
+    "cpu": "Initial overlay measurements use process_time; subprocess creation is prohibited there. Plain pytest measurements sum RUSAGE_SELF and RUSAGE_CHILDREN after worker pools join.",
+    "explicit_pass": "All requested nodes collected and finished; setup/call/teardown report passed, including all subtests; no skips, xfail, failures, errors, incomplete overlay or unloaded patched Python modules.",
+    "limits": {
+      "capture_limit_bytes": 2097152,
+      "overlay_per_probe_timeout_seconds": 35,
+      "overlay_top3_total_wall_budget_seconds": 90,
+      "plain_executor_attempt_budget_seconds": 80,
+      "plain_executor_timeout_seconds": 70
+    },
+    "plain_baseline": "Normal pytest execution with real spawn ProcessPool support, no patch overlay. Same source and catalog node.",
+    "selection": "Top three tests sorted by supplied catalog duration, minimum 5 seconds; no patch IDs or answer labels used."
+  },
+  "pinned_source_audit": {
+    "bytecode_reflection": [
+      {
+        "attributes": [
+          "co_code",
+          "co_names",
+          "co_varnames",
+          "co_consts"
+        ],
+        "current_map_evidence": {
+          "missing": [],
+          "modules_with_recorded_source_read_dependency": 14,
+          "test_index": 1619,
+          "typing_python_modules_excluding_init": 14
+        },
+        "file": "tests/test_typing.py",
+        "lines": [
+          13,
+          16,
+          18,
+          19,
+          20,
+          21,
+          60
+        ],
+        "observation": "Also explicitly reads each typing-module source before comparing annotator code objects.",
+        "test": "TestTyping.test_no_redundant_expression_metadata"
+      }
+    ],
+    "filesystem_metadata": [
+      {
+        "file": "tests/test_sqlglotc.py",
+        "lines": [
+          77,
+          83
+        ],
+        "observation": "Path.stat().st_mtime_ns reads generated expected extension files in temporary build directories, not an obvious pinned production-source stat reader.",
+        "test": "TestSQLGlotC.test_build_removes_obsolete_extensions"
+      }
+    ],
+    "import_loader_distinction": {
+      "environment": "pinned Linux Python3.13 image",
+      "implication": "A future explicit stat-dependency collector can start at os.stat/Path.stat without automatically wrapping this particular low-level loader path. Other loader/collection calls still require separate evidence; do not blanket-exclude them.",
+      "observation": "importlib._bootstrap_external._os is posix. With only os.stat wrapped, _path_stat emitted zero wrapper calls while explicit Path.stat emitted one."
+    },
+    "non_executable_match": {
+      "file": "sqlglot/parser.py",
+      "line": 7691,
+      "observation": "Comment discussing missing __code__ on compiled functions."
+    },
+    "scope": "Read-only rg search over pinned tests/ and sqlglot/ Python sources for stat metadata and bytecode/source introspection; limited textual audit, not proof of absence."
+  },
+  "production_changes": false,
+  "remaining_soundness_gaps": [
+    "Shared-state test ordering, session/class fixtures, caches, registration side effects, and collection scope can differ between one-node probing and the official full suite.",
+    "Virtual patch metadata (stat size, modification times, related filesystem operations) is not fully virtualized.",
+    "Native-extension filesystem accesses are not universally guaranteed to emit Python open audit events; absence of an unsupported report is not a full native I/O proof.",
+    "The probe collects specified nodes rather than reproducing every full-suite import and fixture interaction."
+  ],
+  "research_files": {
+    "tools/experiment_refinement.py": "0585395d0167d54c8d5ee2a764bdd63194a1720cef3f8d8269202bb3e93064ee",
+    "tools/test_refinement.py": "32db4ff564cb7740eac3d8b09d2ba5ff9ba3b6f71c7040648d730d76076eb7d5"
+  },
+  "research_status": "rejected_for_runtime_test_removal",
+  "schema": 1,
+  "tests": {
+    "count": 7,
+    "file": "tools/test_refinement.py",
+    "result": "7 passed on host Python and pinned Linux/amd64 Python3.13"
+  },
+  "tests_removed": 0
+}

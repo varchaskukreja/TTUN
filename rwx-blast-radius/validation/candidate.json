@@ -1,0 +1,51 @@
+{
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "map_sha256": "314b0c6d8991d18a090715fccf93a21284513d4b0de7e6478811404200a32b7e",
+  "sample": {
+    "commits": 30,
+    "simulated_seconds": 251.306,
+    "missed_commits": 0,
+    "observed_process_cpu_seconds": 11.299505,
+    "guard_calls": 4,
+    "guard_passed": 4
+  },
+  "runtime": "Fresh root Dockerfile build; Linux/amd64, 2 CPU, 4GB RAM, nobody, read-only filesystem, 64MB tmpfs, no network, 256 PIDs",
+  "holdouts": {
+    "clickhouse_literal": {
+      "failing_tests": 2,
+      "missed": 0
+    },
+    "duckdb_literal": {
+      "failing_tests": 5,
+      "missed": 0
+    },
+    "tpch_fixture": {
+      "failing_tests": 3,
+      "original_map_missed": 2,
+      "repaired_map_missed": 0
+    },
+    "duckdb_factory_argument": {
+      "failing_tests": 1,
+      "missed": 0
+    },
+    "postgres_factory_argument": {
+      "failing_tests": 3,
+      "missed": 0
+    }
+  },
+  "limitations": [
+    "Local sample score excludes official container CPU accounting.",
+    "Hidden leaderboard results for this candidate are not yet available.",
+    "Coverage dependencies are observed baseline behavior, not a proof of all possible runtime effects."
+  ],
+  "production_exclusions": [
+    "statement-level narrowing",
+    "comparison type experiment"
+  ],
+  "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
+  "tests": {
+    "primary_passed": 119,
+    "factory_policy_passed": 21,
+    "granularity_counterexample_tests_passed": 16
+  }
+}

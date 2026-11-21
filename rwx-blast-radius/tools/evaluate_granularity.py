@@ -8,6 +8,8 @@ WARNING: Even --guarded is not sound for cross-test mutable caches or lazy
 globals. Symbol/layout guards do not propagate writes to later state readers.
 Executable counterexamples are retained in test_granularity.py. This tool is
 exploratory only; a zero-miss sample result does not justify production use.
+Isolated per-test baseline traces fix the demonstrated sequential-cache misses,
+but do not track unexecuted function-code metadata inspected by other tests.
 """
 from __future__ import annotations
 

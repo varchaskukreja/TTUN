@@ -25,7 +25,7 @@ const WEEK_MS: i64 = 604_800_000;
 const LATE_MS: i64 = 86_400_000;
 
 const CHUNK: usize = 2 << 20;
-const DEDUP_BITS: u32 = 12;
+const DEDUP_BITS: u32 = 10;
 const PERSON_BITS: u32 = 10;
 const NO_TS: u32 = u32::MAX;
 
