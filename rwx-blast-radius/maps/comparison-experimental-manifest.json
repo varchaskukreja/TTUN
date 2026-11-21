@@ -14,7 +14,7 @@
     "comparison_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
     "patches.py": "4d5e4e7878ee6797211c9fce46bec04ffba0563ab02f371054914883b93f7d20",
     "comparison_selection.py": "35778041c56cb504069ea168411389f89242e1f4952a003ab61b9595c77b6af8",
-    "selector.py": "88ff7219abc5f1573103a2cc53efc99772093e01b48eda28e4eea8d54f5dc6c3"
+    "selector.py": "1483e09b7c253f762fa8e3d5e759cbb62c4d5664f37512a05198ee98f7f4bcb6"
   },
   "origin": "baseline comparison full-v3; semantic completeness not authorized"
 }

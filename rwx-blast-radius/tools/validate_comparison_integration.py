@@ -43,7 +43,7 @@ def main():
         # Complete dependency selection may legitimately include every test.
         # An identical test set from fallback must never be narrowed.
         with patch('comparison_selection.qualify',return_value=certificate):
-            for reason in ('unknown','invalid_syntax','global_effect_without_guard','class_import_guard_failed'):
+            for reason in ('unknown','invalid_syntax','global_effect_without_guard','class_import_guard_failed','persistent_class_state'):
                 retained=runtime.propose('normalized',all_tests,{'complete':False,'reason':reason})
                 if retained!=all_tests:raise ValueError('fallback narrowed: '+key)
         rows.append({'site':key,'legacy_decision':detail['decision'],'selection_digest':hashlib.sha256(json.dumps(sorted(candidate)).encode()).hexdigest()})
@@ -53,7 +53,7 @@ def main():
         for name in (origin,target):
             tree=ast.parse((ROOT/name).read_text());defs.append({n.name:ast.dump(n,include_attributes=False) for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names})
         if defs[0]!=defs[1]:raise ValueError('extracted function differs')
-    report={'kind':'isolated_opt_in_comparison_integration_validation','production_authorized':False,'sites':len(rows),'equivalent_modulo_required_unstable_retention':True,'unstable_retention_differences':deltas,'fallback_policy_checks':4*len(rows),'proof_and_capture_functions_ast_identical':True,'decisions':rows,'answers_read':False,'artifact_sha256':hashlib.sha256((ROOT/'maps/comparison-experimental.json.gz').read_bytes()).hexdigest()}
+    report={'kind':'isolated_opt_in_comparison_integration_validation','production_authorized':False,'sites':len(rows),'equivalent_modulo_required_unstable_retention':True,'unstable_retention_differences':deltas,'fallback_policy_checks':5*len(rows),'proof_and_capture_functions_ast_identical':True,'decisions':rows,'answers_read':False,'artifact_sha256':hashlib.sha256((ROOT/'maps/comparison-experimental.json.gz').read_bytes()).hexdigest()}
     Path(a.output).write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:v for k,v in report.items() if k not in ('decisions','unstable_retention_differences')}));print('unstable-delta sites',len(deltas))
 
 if __name__=='__main__':main()

@@ -1,0 +1,487 @@
+{
+  "kind": "bounded_shared_registry_sequence_diagnostic",
+  "fullsuite_timeout_remains_incomplete": true,
+  "fullsuite_retry": false,
+  "production_changed": false,
+  "narrowing_authorized": false,
+  "freeze": {
+    "source": {
+      "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+      "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395"
+    },
+    "runtime": {
+      "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+      "implementation": "cpython",
+      "executable": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+      "platform": "macOS-26.1-arm64-arm-64bit-Mach-O",
+      "inherited_environment_sha256": "e70c262584c6571ac1b473914fc6028f43d7d2b27a3ac3afdf51392a2ed08f8d",
+      "process_cpu_count": 2,
+      "distributions": [
+        [
+          "Pygments",
+          "2.21.0"
+        ],
+        [
+          "coverage",
+          "7.17.4"
+        ],
+        [
+          "duckdb",
+          "2.0.0"
+        ],
+        [
+          "iniconfig",
+          "2.3.1"
+        ],
+        [
+          "numpy",
+          "2.5.5"
+        ],
+        [
+          "packaging",
+          "26.3"
+        ],
+        [
+          "pandas",
+          "3.1.1"
+        ],
+        [
+          "pip",
+          "25.2"
+        ],
+        [
+          "pluggy",
+          "1.7.0"
+        ],
+        [
+          "pytest",
+          "9.2.0"
+        ],
+        [
+          "pytest-cov",
+          "7.1.0"
+        ],
+        [
+          "pytest-timeout",
+          "2.4.0"
+        ],
+        [
+          "python-dateutil",
+          "4.0.0"
+        ],
+        [
+          "pytz",
+          "2026.6"
+        ],
+        [
+          "setuptools",
+          "84.2.1"
+        ],
+        [
+          "typing_extensions",
+          "4.16.0"
+        ],
+        [
+          "tzdata",
+          "2026.6"
+        ]
+      ],
+      "runner_sha256": "5f6651f7a2f941d28b7501495c3a65f5ff94ac35bffc3c425a1f048aa2a5c242",
+      "physical_runner_sha256": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7"
+    },
+    "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+    "patch": "diff --git a/sqlglot/dialects/dialect.py b/sqlglot/dialects/dialect.py\n--- a/sqlglot/dialects/dialect.py\n+++ b/sqlglot/dialects/dialect.py\n@@ -253,7 +253,7 @@\n                         and issubclass(attr, Dialect)\n                         and attr.__name__.lower() == key\n                     ):\n-                        cls._classes[key] = attr\n+                        cls._classes[key] = Dialect\n                         break\n             return\n \n",
+    "patch_sha256": "158f3455c0b8b9ac23df6d36a95afbc89cc0086b6f9e864527b6db74ed933b98",
+    "ordered_nodes": [
+      "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found",
+      "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+      "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+    ],
+    "frozen_node_selection": {
+      "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found": true,
+      "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects": false,
+      "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles": false
+    },
+    "selected_count": 833,
+    "helper_sha256": {
+      ".work/dependency-audit-proposals/run_targeted.py": "a6525ce4b4459b06cf15c38bf56b6bcc50efe4379a06ff24b2000c12aa1e7349",
+      "rwx-blast-radius/tools/registry_sequence_journal.py": "cf3ae2c63db4c4f7f09674c7b446de1a0ad07e84b65411e2e534c5c4dce1604d",
+      "rwx-blast-radius/tools/validate_holdout.py": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7",
+      "rwx-blast-radius/tools/run_comparison_holdouts.py": "5f6651f7a2f941d28b7501495c3a65f5ff94ac35bffc3c425a1f048aa2a5c242",
+      "rwx-blast-radius/patches.py": "4d5e4e7878ee6797211c9fce46bec04ffba0563ab02f371054914883b93f7d20"
+    },
+    "timeout_seconds": 30,
+    "retry": false,
+    "concurrency": "Parent explicitly authorized one extra short-scope primary process while evaluate cold baseline remains max2; no executor workload selected."
+  },
+  "results": {
+    "scopes": [
+      {
+        "scope": "sequence_baseline",
+        "nodes": [
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found",
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "complete": true,
+        "wall_seconds": 4.082,
+        "process_timeout": false,
+        "process_exitcode": 0,
+        "collected_order": [
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found",
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_complete_nodes": [
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found",
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_failures": [],
+        "audited_misses": [],
+        "phase_audits": {
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found": {
+            "phases": {
+              "setup": "passed",
+              "call": "passed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": []
+          },
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects": {
+            "phases": {
+              "setup": "passed",
+              "call": "passed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": []
+          },
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles": {
+            "phases": {
+              "setup": "passed",
+              "call": "passed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": []
+          }
+        },
+        "process": {
+          "groups": [
+            20290
+          ],
+          "observed_pids": [
+            20290
+          ],
+          "remaining_group_pids": []
+        }
+      },
+      {
+        "scope": "sequence_mutant",
+        "nodes": [
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found",
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "complete": true,
+        "wall_seconds": 1.675,
+        "process_timeout": false,
+        "process_exitcode": 1,
+        "collected_order": [
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found",
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_complete_nodes": [
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found",
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_failures": [
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_misses": [
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "phase_audits": {
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found": {
+            "phases": {
+              "setup": "passed",
+              "call": "passed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": []
+          },
+          "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects": {
+            "phases": {
+              "setup": "passed",
+              "call": "failed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": [
+              {
+                "error": "tests/dialects/test_dialect.py:310: in test_compare_dialects\n    self.assertEqual(snowflake_class, snowflake_object)\nE   AssertionError: <class 'sqlglot.dialects.dialect.Dialect'> != <sqlglot.dialects.snowflake.Snowflake object at 0x107bbbb60>",
+                "nodeid": "tests/dialects/test_dialect.py::TestDialect::test_compare_dialects",
+                "outcome": "failed",
+                "subtest": false,
+                "when": "call"
+              }
+            ]
+          },
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles": {
+            "phases": {
+              "setup": "passed",
+              "call": "failed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": [
+              {
+                "error": "tests/dialects/test_bigquery.py:4462: in test_approx_quantiles\n    self.validate_identity(\"APPROX_QUANTILES((SELECT 1 AS val), CAST(2.1 AS INT64))\")\ntests/dialects/test_dialect.py:64: in validate_identity\n    self.assertEqual(\nE   AssertionError: 'APPROX_QUANTILES((SELECT 1 AS val), CAST(2.1 AS INT64))' != 'APPROX_QUANTILES((SELECT 1 AS val), CAST(2.1 AS BIGINT))'\nE   - APPROX_QUANTILES((SELECT 1 AS val), CAST(2.1 AS INT64))\nE   ?                                                    --\nE   + APPROX_QUANTILES((SELECT 1 AS val), CAST(2.1 AS BIGINT))\nE   ?                                                 +++",
+                "nodeid": "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles",
+                "outcome": "failed",
+                "subtest": false,
+                "when": "call"
+              }
+            ]
+          }
+        },
+        "process": {
+          "groups": [
+            20357
+          ],
+          "observed_pids": [
+            20357
+          ],
+          "remaining_group_pids": []
+        }
+      },
+      {
+        "scope": "consumer_alone_baseline",
+        "nodes": [
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "complete": true,
+        "wall_seconds": 1.189,
+        "process_timeout": false,
+        "process_exitcode": 0,
+        "collected_order": [
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_complete_nodes": [
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_failures": [],
+        "audited_misses": [],
+        "phase_audits": {
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles": {
+            "phases": {
+              "setup": "passed",
+              "call": "passed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": []
+          }
+        },
+        "process": {
+          "groups": [
+            20373
+          ],
+          "observed_pids": [
+            20373
+          ],
+          "remaining_group_pids": []
+        }
+      },
+      {
+        "scope": "consumer_alone_mutant",
+        "nodes": [
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "complete": true,
+        "wall_seconds": 1.632,
+        "process_timeout": false,
+        "process_exitcode": 0,
+        "collected_order": [
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_complete_nodes": [
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles"
+        ],
+        "audited_failures": [],
+        "audited_misses": [],
+        "phase_audits": {
+          "tests/dialects/test_bigquery.py::TestBigQuery::test_approx_quantiles": {
+            "phases": {
+              "setup": "passed",
+              "call": "passed",
+              "teardown": "passed"
+            },
+            "subtests": {},
+            "failures": []
+          }
+        },
+        "process": {
+          "groups": [
+            20390
+          ],
+          "observed_pids": [
+            20390
+          ],
+          "remaining_group_pids": []
+        }
+      }
+    ],
+    "runtime_narrowing_authorized": false,
+    "does_not_replace_incomplete_fullsuite": true,
+    "helper_hashes_unchanged": true,
+    "source_unchanged": true
+  },
+  "independent_pid_cleanup": {
+    "observed_pids": [
+      20290,
+      20357,
+      20373,
+      20390
+    ],
+    "still_live": []
+  },
+  "conclusion": "Under this exact matched three-node order, the mutation causes two fully audited failures omitted by the frozen833-test selection. The downstream consumer passes alone in both controls, supporting a shared-state/order propagation mechanism. This does not establish the competition oracle order or quantify fullsuite misses.",
+  "causal_source": [
+    {
+      "path": "tests/test_dialect_entry_points.py",
+      "lines": [
+        14,
+        17
+      ],
+      "effect": "setup and teardown clear shared Dialect._classes registry"
+    },
+    {
+      "path": "tests/dialects/test_dialect.py",
+      "lines": [
+        301,
+        305
+      ],
+      "effect": "explicit BigQuery/Snowflake registry lookups restore imported dialects; mutant writes baseDialect instead"
+    },
+    {
+      "path": "tests/dialects/test_bigquery.py",
+      "line": 4462,
+      "effect": "later cached BigQuery lookup generates BIGINT instead of required INT64"
+    }
+  ],
+  "terminal_artifacts": [
+    {
+      "path": ".work/registry-sequence-v1/summary.json",
+      "sha256": "9470defc6f7c0d58e2a860ffd651d3ad01d71355eb8d927ef718f2f85a66515e",
+      "bytes": 8247
+    },
+    {
+      "path": ".work/registry-sequence-v1/freeze.json",
+      "sha256": "dce47cd711dfcb0bd417c3a8be49dde10b5ef19c80519d83677924d0cdcb68fe",
+      "bytes": 3809
+    },
+    {
+      "path": ".work/dependency-audit-proposals/run_targeted.py",
+      "sha256": "a6525ce4b4459b06cf15c38bf56b6bcc50efe4379a06ff24b2000c12aa1e7349",
+      "bytes": 5486
+    },
+    {
+      "path": ".work/dependency-audit-proposals/targeted-run.log",
+      "sha256": "ebf3c68439254d008f502a8b98e4ce5a4ed90ef855efda5c06d4035ac9d8027f",
+      "bytes": 3411
+    },
+    {
+      "path": ".work/dependency-audit-proposals/proposals.json",
+      "sha256": "4404639dd19ccff230ebee86593b8687567994933975be3e68d4c8a5a99a2190",
+      "bytes": 279024
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_baseline/pytest.json",
+      "sha256": "bd8693477323a7e59fae3ce3ddb005ff071c08d9f99dd4b5dbc62513694937cd",
+      "bytes": 2495
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_baseline/pytest.log",
+      "sha256": "c86be72f5425a08615a5c93e0519844785dedf70a50a2250c44e5b639613c3cc",
+      "bytes": 98
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_baseline/phases.jsonl",
+      "sha256": "605716b57015556834b4ddd16e0c26e720a20ec2ceaa1af86cc8b2614068a09d",
+      "bytes": 1326
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_baseline/summary.json",
+      "sha256": "f46f063418c79e90b5a3c1eec52ca129214b216a5bf51cc00ad67f5e54d85432",
+      "bytes": 1899
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_mutant/pytest.json",
+      "sha256": "c540e55a2391cc9c25241c1c1e355ca345db486f1627cda04df7551e263dcb17",
+      "bytes": 3703
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_mutant/pytest.log",
+      "sha256": "975e78c255899261b935f9ea89a0a836b0d62f79db0115e8d83c6f66f9ea8266",
+      "bytes": 1443
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_mutant/phases.jsonl",
+      "sha256": "bce09c6e3e6379a238f83efc52b6ffa125aa4cb25b91c764c366c1fe0a8a9a84",
+      "bytes": 2216
+    },
+    {
+      "path": ".work/registry-sequence-v1/sequence_mutant/summary.json",
+      "sha256": "ed0dacafe933e3de3a92211d24d69de93e9bd5a542a96f061c52a8a83465956a",
+      "bytes": 3515
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_baseline/pytest.json",
+      "sha256": "c7f221b325150c104d919921a7891464adc7e2f2b84de224361a4f64b8c4e93e",
+      "bytes": 1147
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_baseline/pytest.log",
+      "sha256": "f110ea65f6d33cdc6322b155f056abd01a7abd63e18b0f61e05569402024ad9d",
+      "bytes": 98
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_baseline/phases.jsonl",
+      "sha256": "7cb1d2f5bea25afe4dceaa868fb275695b5243461545f56d2c9cef6c0536b4f2",
+      "bytes": 419
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_baseline/summary.json",
+      "sha256": "a6200d58f12714e963813961767ccdd600600aa32ed9869a2dbccf0538c3b04c",
+      "bytes": 883
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_mutant/pytest.json",
+      "sha256": "76b66a03e983b04cfeb2c0ec1c33070cd5b937e2e1890604d802822fd37f4b7f",
+      "bytes": 1147
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_mutant/pytest.log",
+      "sha256": "320418a142dbb681dcc95cf0e2eab02616c1e2706712b2586cfb6de4b81dfb5b",
+      "bytes": 98
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_mutant/phases.jsonl",
+      "sha256": "7cb1d2f5bea25afe4dceaa868fb275695b5243461545f56d2c9cef6c0536b4f2",
+      "bytes": 419
+    },
+    {
+      "path": ".work/registry-sequence-v1/consumer_alone_mutant/summary.json",
+      "sha256": "1de2de0233876aa6d2434b5461fd3896263773f911df5fcf22d93048a990a9db",
+      "bytes": 881
+    }
+  ]
+}

@@ -104,4 +104,16 @@ class ComparisonSelectionTests(unittest.TestCase):
         self.assertIn('invalid block type',result.issue)
         self.assertEqual(result.propose(self.patch,{1,2},OK),{1,2,4})
 
+    def test_persistent_class_state_fallback_never_narrowed(self):
+        before='class C:\n    @classmethod\n    def f(cls, x):\n        cls.cache = x is None\n        return cls.cache\n'
+        after=before.replace(' is ',' == ')
+        (self.root/'module.py').write_text(before)
+        text='diff --git a/module.py b/module.py\n'+''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='a/module.py',tofile='b/module.py'))
+        selector=Selector(self.tests,self.production,self.root)
+        original=selector.select(text)
+        self.assertEqual(original,{1,2,3,4})
+        self.assertEqual(selector.last_selection_status,{'complete':False,'reason':'persistent_class_state'})
+        with patch('comparison_selection.qualify',side_effect=AssertionError('must not qualify fallback')):
+            self.assertEqual(self.candidate().propose(text,original,selector.last_selection_status),original)
+
 if __name__=='__main__':unittest.main()
