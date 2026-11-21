@@ -38,9 +38,12 @@ class Brain {
   attackers = new Map<number, number>() // id -> last time they hit us
   hideUntil = 0
   mechHitT = -99
-  targetId = -1
-  targetT = -99
   mechHitBearing = 0
+  coverThreatId = -1
+  coverUntil = -1
+  coverAtMe: [number, number] = [0, 0]
+  coverAtThreat: [number, number] = [0, 0]
+  coverGoal: [number, number] | null = null
   npcMem = new Map<number, { pos: number[]; vel: number[]; t: number; hp: number }>()
   cubeMem = new Map<number, { pos: number[]; t: number }>()
   pickMem = new Map<number, { pos: number[]; kind: string; t: number }>()
@@ -179,26 +182,7 @@ class Brain {
       break
     }
 
-    // ---------- choose target
-    const visible = o.mechs.filter((m) => m.kind === "mech")
-    let target: Track | null = null
-    let tScore = 1e9
-    for (const tr of this.tracks.values()) {
-      const d = hyp2(x, y, tr.pos[0], tr.pos[1])
-      const age = t - tr.t
-      if (age > 4) continue
-      const hitUs = t - (this.attackers.get(tr.id) ?? -99) < 3 ? 50 : 0
-      const stick = tr.id === this.targetId && t - this.targetT < 2 ? 40 : 0
-      const s = d + (tr.hp / 1400) * 90 + age * 30 - hitUs - stick
-      if (s < tScore) {
-        tScore = s
-        target = tr
-      }
-    }
-    if (target) {
-      this.targetId = target.id
-      this.targetT = t
-    }
+    const target: Track | null = null
     const npcs = o.mechs.filter((m) => m.kind === "npc")
     for (const n of npcs) this.npcMem.set(n.id, { pos: n.pos, vel: n.vel, t, hp: n.hp ?? 350 })
     for (const e of o.events) if (e.type === "hit" && e.target >= 100 && e.target < 1000) {
@@ -222,9 +206,6 @@ class Brain {
         nearCube = c.pos
       }
     }
-    let threats = 0
-    for (const tr of this.tracks.values()) if (t - tr.t < 3 && hyp2(x, y, tr.pos[0], tr.pos[1]) < 160) threats++
-
     // ---------- zone goal
     const zn = o.zone
     const curR = zn.radius
@@ -252,157 +233,7 @@ class Brain {
     let boost = false
     let jump = false
     let strafe = 0
-    let laserCharging = laserS >= 0 && (me.weapons[laserS]?.charge ?? 0) > 0
-
-    if (target) {
-      const tp = target.pos
-      const d = hyp2(x, y, tp[0], tp[1])
-      const tScale = 1 + 0.05 * target.cubes
-      const tcz = tp[2] + 4.5 * tScale
-      const seen = t - target.t < 0.11
-      const hasLos = map ? map.los(x, y, muzzleZ, tp[0], tp[1], tcz) : true
-      mode = "fight"
-
-      // aim solution
-      const aimFor = (spd: number): [number, number] => {
-        let px = tp[0], py = tp[1], pz = tcz
-        const age = t - target!.t
-        px += target!.vel[0] * age
-        py += target!.vel[1] * age
-        for (let it = 0; it < 3; it++) {
-          const dd = Math.hypot(px - x, py - y, pz - muzzleZ)
-          const tt = dd / spd
-          px = tp[0] + target!.vel[0] * (tt + age)
-          py = tp[1] + target!.vel[1] * (tt + age)
-          pz = tcz + (target!.vel[2] ?? 0) * Math.min(tt, 0.3)
-        }
-        return [Math.atan2(py - y, px - x), Math.atan2(pz - muzzleZ, Math.hypot(px - x, py - y))]
-      }
-      const instant = (): [number, number] => [Math.atan2(tp[1] - y, tp[0] - x), Math.atan2(tcz - muzzleZ, d)]
-
-      // pick weapon emphasis
-      let a: [number, number]
-      const gunSpeed = gunS >= 0 ? me.weapons[gunS]!.stats.speed : 252
-      if (lightS >= 0 && d < (me.weapons[lightS]!.stats.range ?? 45) * 1.1) a = instant()
-      else if (laserS >= 0 && (laserCharging || (me.weapons[laserS]!.cooldown ?? 0) < 0.2)) a = instant()
-      else a = aimFor(gunSpeed)
-      aimYaw = a[0]
-      aimPitch = a[1]
-      wantAim = true
-      const yawErr = Math.abs(wrap(me.aim[0] - aimYaw))
-      const pitchErr = Math.abs(me.aim[1] - aimPitch)
-      const tol = Math.atan2(2.2 * tScale, Math.max(d, 1))
-
-      if (seen && hasLos) {
-        // gun
-        if (gunS >= 0) {
-          const g = me.weapons[gunS]!
-          const ga = aimFor(g.stats.speed)
-          const gErr = Math.abs(wrap(me.aim[0] - ga[0]))
-          if (d < g.stats.range && gErr < tol * 1.2 && pitchErr < tol * 2 + 0.03 && (g.reload ?? 0) === 0) fire[gunS] = true
-        }
-        // lightning
-        if (lightS >= 0) {
-          const L = me.weapons[lightS]!
-          if (d < L.stats.range - 1 && yawErr < ((L.stats.cone_deg * Math.PI) / 180) * 0.45 && me.energy > L.stats.energy + 2) fire[lightS] = true
-        }
-      }
-      // laser: charge while target is around, release when full and aligned
-      if (laserS >= 0) {
-        const Lw = me.weapons[laserS]!
-        const full = Lw.stats.charge
-        const ch = Lw.charge ?? 0
-        if (ch > 0) {
-          const ready = ch >= full - 0.05
-          const aligned = seen && hasLos && yawErr < tol * 0.9 && pitchErr < tol * 1.5 + 0.02
-          if (ready && aligned) fire[laserS] = false
-          else fire[laserS] = true
-        } else if (Lw.cooldown <= 0.05 && seen && d < Lw.stats.range && (hasLos || d < 60)) {
-          fire[laserS] = true
-        }
-      }
-      // mortar
-      if (mortarS >= 0) {
-        const M = me.weapons[mortarS]!
-        if (M.cooldown <= 0 && d > 18 && d < 220) {
-          const v = M.stats.speed, g = M.stats.gravity
-          const h = tp[2] - (z + 9.5 * scale)
-          let tof = d / (v * 0.7)
-          let px = tp[0] + target.vel[0] * tof, py = tp[1] + target.vel[1] * tof
-          const dd = Math.hypot(px - x, py - y)
-          const disc = v ** 4 - g * (g * dd * dd + 2 * h * v * v)
-          if (disc > 0) {
-            const low = Math.atan((v * v - Math.sqrt(disc)) / (g * dd))
-            const high = Math.atan((v * v + Math.sqrt(disc)) / (g * dd))
-            const myMortarYaw = Math.atan2(py - y, px - x)
-            let pitch = hasLos ? low : high
-            if (pitch > (me.stats.max_pitch ?? 1.3)) pitch = low
-            // only use mortar when not using other weapons' aim this tick, or if it's the best
-            if (!fire[0] && !fire[1] && !(laserS >= 0 && laserCharging)) {
-              aimYaw = myMortarYaw
-              aimPitch = pitch
-              if (Math.abs(wrap(me.aim[0] - myMortarYaw)) < 0.03 && Math.abs(me.aim[1] - pitch) < 0.03) fire[mortarS] = true
-            }
-          }
-        }
-      }
-
-      // movement in fight
-      const myDps = (gunS >= 0 ? 150 : 0) + (lightS >= 0 && d < 45 ? 200 : 0) + (laserS >= 0 ? 120 : 0)
-      const theirHp = target.hp
-      const theirFrac = theirHp / target.maxHp
-      const finishing = theirFrac < 0.2 && hpFrac > 0.2 && threats <= 2
-      const losing = !finishing && ((hpFrac < 0.35 && theirFrac > hpFrac + 0.1) || (threats >= 2 && hpFrac < 0.55) || (threats >= 3 && hpFrac < 0.8))
-      if (losing) this.hideUntil = t + 6
-      const prefer = lightS >= 0 ? 28 : laserS >= 0 ? 110 : 70
-      if (losing && map) {
-        mode = "retreat"
-        const cov = map.coverFrom(x, y, tp[0], tp[1], tp[2] + 8, 50)
-        if (cov) moveGoal = cov
-        else moveGoal = [x - (tp[0] - x), y - (tp[1] - y)]
-        boost = me.energy > 15
-      } else {
-        const dirx = (tp[0] - x) / Math.max(d, 1), diry = (tp[1] - y) / Math.max(d, 1)
-        let radial = 0
-        if (d > prefer + 15) {
-          radial = 1
-          if (lightS >= 0 && d < 90 && me.energy > 70) boost = true
-        }
-        else if (d < prefer - 15) radial = -0.7
-        if (!hasLos && seen === false) radial = 1
-        if (t > this.strafeUntil) {
-          this.strafeDir = this.rng() < 0.5 ? -1 : 1
-          this.strafeUntil = t + 0.35 + this.rng() * 0.7
-        }
-        strafe = this.strafeDir
-        // dodge incoming laser: hard strafe
-        if (target.charging) {
-          const theirYaw = target.aim[0]
-          const toMe = Math.atan2(y - tp[1], x - tp[0])
-          if (Math.abs(wrap(theirYaw - toMe)) < 0.25) boost = me.energy > (lightS >= 0 ? 45 : 10)
-        }
-        const mx = dirx * radial + -diry * strafe * 0.9
-        const my = diry * radial + dirx * strafe * 0.9
-        if (map && radial > 0 && !hasLos) {
-          map.field(tp[0], tp[1])
-          const st = map.fieldFor(tp[0], tp[1], 30) ? map.steer(x, y) : null
-          if (st) moveGoal = [x + st[0] * 10 + -diry * strafe * 3, y + st[1] * 10 + dirx * strafe * 3]
-          else moveGoal = [x + mx * 10, y + my * 10]
-        } else moveGoal = [x + mx * 10, y + my * 10]
-      }
-      if (nearCube && nearCubeD < (losing ? 12 : hpFrac > 0.5 ? 70 : 40)) {
-        moveGoal = [nearCube[0], nearCube[1]]
-        mode += "+cube"
-      } else if (nearPick && !losing && nearPickD < (onlyGun ? 60 : 35)) {
-        moveGoal = [nearPick[0], nearPick[1]]
-        mode += "+weapon"
-      }
-      if (zoneGoal && (!me.in_zone || shrinking)) {
-        // zone overrides when outside
-        if (!me.in_zone) moveGoal = null
-      }
-      void myDps
-    }
+    const laserCharging = laserS >= 0 && (me.weapons[laserS]?.charge ?? 0) > 0
 
     // heal: hold still (silent) out of sight until HP is back
     const healing = !moveGoal && !target && !zoneGoal && nearCubeD > 40 && (hpFrac < 0.55 || (t < this.hideUntil && hpFrac < 0.9))
@@ -421,23 +252,6 @@ class Brain {
             slow = true
           }
         }
-      }
-    }
-    // weak and near a drone: get out of its aggro range so it can't finish us
-    if (!target && hpFrac < 0.5 && (healing || !zoneGoal)) {
-      let nn: { pos: number[] } | null = null, nd = 1e9
-      for (const nm of this.npcMem.values()) {
-        const d = hyp2(x, y, nm.pos[0], nm.pos[1])
-        if (t - nm.t < 10 && d < nd) {
-          nd = d
-          nn = nm
-        }
-      }
-      if (nn && nd < 58) {
-        const k = 75 / Math.max(nd, 1)
-        moveGoal = [nn.pos[0] + (x - nn.pos[0]) * k, nn.pos[1] + (y - nn.pos[1]) * k]
-        slow = false
-        mode = "npc-flee"
       }
     }
     if (!moveGoal && !healing) {
@@ -537,6 +351,56 @@ class Brain {
           mode += "+shoot"
         }
       }
+    }
+
+    // Avoid nearby mechs from the opening tick. Prefer nearby cover, while
+    // allowing the zone route to win whenever leaving it would be dangerous.
+    let nearestThreat: Track | null = null, nearestThreatD = 1e9
+    for (const tr of this.tracks.values()) {
+      const age = t - tr.t
+      if (age > 1.5) continue
+      const d = hyp2(x, y, tr.pos[0], tr.pos[1])
+      if (d < 150 && d < nearestThreatD) {
+        nearestThreat = tr
+        nearestThreatD = d
+      }
+    }
+    if (nearestThreat) {
+      const tr = nearestThreat
+      const cacheValid = this.coverThreatId === tr.id && t < this.coverUntil &&
+        hyp2(x, y, this.coverAtMe[0], this.coverAtMe[1]) < 8 &&
+        hyp2(tr.pos[0], tr.pos[1], this.coverAtThreat[0], this.coverAtThreat[1]) < 8 &&
+        (!this.coverGoal || hyp2(x, y, this.coverGoal[0], this.coverGoal[1]) > 8)
+      if (!cacheValid) {
+        this.coverThreatId = tr.id
+        this.coverUntil = t + 0.6
+        this.coverAtMe = [x, y]
+        this.coverAtThreat = [tr.pos[0], tr.pos[1]]
+        this.coverGoal = map?.coverFrom(x, y, tr.pos[0], tr.pos[1], tr.pos[2] + 8, 60) ?? null
+      }
+      const safeCover = this.coverGoal
+      const coverOK = safeCover && hyp2(safeCover[0], safeCover[1], zn.next_center[0], zn.next_center[1]) < zn.next_radius * 0.9
+      if (coverOK && (me.in_zone || !zoneGoal || hyp2(x, y, zn.center[0], zn.center[1]) < curR * 0.75)) {
+        moveGoal = safeCover
+        mode = "evade-cover"
+        boost = nearestThreatD < 55 && me.energy > 20
+      } else if (me.in_zone && !zoneGoal) {
+        const awayX = x - tr.pos[0], awayY = y - tr.pos[1]
+        const awayD = Math.hypot(awayX, awayY) || 1
+        moveGoal = [x + awayX / awayD * 55, y + awayY / awayD * 55]
+        mode = "evade"
+        boost = nearestThreatD < 65 && me.energy > 20
+      } else if (!moveGoal && zoneGoal) {
+        moveGoal = zoneGoal
+        mode = "zone-evade"
+        boost = !me.in_zone && me.energy > 20
+      }
+    }
+    if (zoneGoal && (!me.in_zone || (shrinking && needNext))) {
+      moveGoal = zoneGoal
+      mode = "zone-evade"
+      slow = false
+      boost = !me.in_zone && me.energy > 20
     }
 
     // ---------- movement execution
@@ -660,7 +524,6 @@ class Brain {
     act.boost = boost
     act.jump = jump
     draw.label(`${mode} hp${me.hp | 0} ${target ? "T" + target.id : ""}`)
-    void visible
     this.lastHp = me.hp
     if (map) map.pump(Math.max(0, 20 - (performance.now() - t0)), 70000)
     return act
