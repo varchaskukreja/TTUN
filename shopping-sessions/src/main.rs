@@ -384,10 +384,14 @@ fn main() {
         camp: Vec<[i64; 4]>,
         evs: Vec<Ev>,
         cls: Vec<Click>,
+        gs: GroupScratch,
     }
-    let sstates = (0..nthreads).map(|_| SState { urows: Vec::new(), camp: vec![[0i64; 4]; (ncamp + 1) * ndays], evs: Vec::new(), cls: Vec::new() }).collect();
+    let sort_mode = std::env::var_os("SS_SORT").is_some();
+    let sstates = (0..nthreads)
+        .map(|_| SState { urows: Vec::new(), camp: vec![[0i64; 4]; (ncamp + 1) * ndays], evs: Vec::new(), cls: Vec::new(), gs: GroupScratch::default() })
+        .collect();
     let sres = run_pool(np, sstates, |st, b| {
-        let SState { urows, camp, evs, cls } = st;
+        let SState { urows, camp, evs, cls, gs } = st;
         evs.clear();
         for d in &douts {
             evs.extend_from_slice(&d.ev[d.off[b] as usize..d.off[b + 1] as usize]);
@@ -395,6 +399,17 @@ fn main() {
         cls.clear();
         for r in &routed {
             cls.extend_from_slice(&r.cl[b]);
+        }
+        if !sort_mode {
+            group_by_person(evs, cls, gs);
+            let mut sc = Scratch::new(ncat);
+            let pctx = PCtx { ws, cl_off, day0, ndays, ncamp };
+            for i in 0..gs.persons.len() {
+                let (e0, e1) = (gs.eoff[i] as usize, gs.eoff[i + 1] as usize);
+                let (c0, c1) = (gs.coff[i] as usize, gs.coff[i + 1] as usize);
+                process_person(gs.persons[i], &evs[e0..e1], &cls[c0..c1], &pctx, &mut sc, urows, camp);
+            }
+            return;
         }
         evs.sort_unstable_by_key(|e| ((e.who as u128) << 32) | e.ts as u128);
         cls.sort_unstable_by(|a, b| { a.who }.cmp(&{ b.who }).then({ a.ts }.cmp(&{ b.ts })).then_with(|| cmp64(a.click, b.click)));
@@ -489,6 +504,100 @@ struct Sess {
     day_end: u32,
     revenue: i64,
     purchase: bool,
+}
+
+#[derive(Default)]
+struct GroupScratch {
+    idx: KMap64<u32>,
+    persons: Vec<u64>,
+    eoff: Vec<u32>,
+    coff: Vec<u32>,
+    pos: Vec<u32>,
+    pe: Vec<u32>,
+    tmp_e: Vec<Ev>,
+    tmp_c: Vec<Click>,
+}
+
+/// Groups `evs` by person (first-seen order) with each person's events sorted by ts, and
+/// `cls` the same way sorted by (ts, click_id); clicks of persons without events are dropped.
+/// Person i owns evs[eoff[i]..eoff[i+1]] and cls[coff[i]..coff[i+1]].
+fn group_by_person(evs: &mut Vec<Ev>, cls: &mut Vec<Click>, g: &mut GroupScratch) {
+    g.idx.clear();
+    g.persons.clear();
+    g.eoff.clear();
+    g.pe.clear();
+    g.eoff.push(0);
+    for e in evs.iter() {
+        let n = g.persons.len() as u32;
+        let i = *g.idx.entry(e.who).or_insert(n);
+        if i == n {
+            g.persons.push(e.who);
+            g.eoff.push(0);
+        }
+        g.eoff[i as usize + 1] += 1;
+        g.pe.push(i);
+    }
+    let np = g.persons.len();
+    for i in 0..np {
+        g.eoff[i + 1] += g.eoff[i];
+    }
+    g.pos.clear();
+    g.pos.extend_from_slice(&g.eoff[..np]);
+    g.tmp_e.clear();
+    g.tmp_e.reserve(evs.len());
+    unsafe {
+        let p = g.tmp_e.as_mut_ptr();
+        for (e, &i) in evs.iter().zip(g.pe.iter()) {
+            let q = g.pos.get_unchecked_mut(i as usize);
+            p.add(*q as usize).write(*e);
+            *q += 1;
+        }
+        g.tmp_e.set_len(evs.len());
+    }
+    std::mem::swap(evs, &mut g.tmp_e);
+    for i in 0..np {
+        let s = &mut evs[g.eoff[i] as usize..g.eoff[i + 1] as usize];
+        if s.len() > 1 {
+            s.sort_unstable_by_key(|e| e.ts);
+        }
+    }
+
+    g.coff.clear();
+    g.coff.resize(np + 1, 0);
+    g.pe.clear();
+    for c in cls.iter() {
+        let i = g.idx.get(&{ c.who }).copied().unwrap_or(u32::MAX);
+        if i != u32::MAX {
+            g.coff[i as usize + 1] += 1;
+        }
+        g.pe.push(i);
+    }
+    for i in 0..np {
+        g.coff[i + 1] += g.coff[i];
+    }
+    let m = g.coff[np] as usize;
+    g.pos.clear();
+    g.pos.extend_from_slice(&g.coff[..np]);
+    g.tmp_c.clear();
+    g.tmp_c.reserve(m);
+    unsafe {
+        let p = g.tmp_c.as_mut_ptr();
+        for (c, &i) in cls.iter().zip(g.pe.iter()) {
+            if i != u32::MAX {
+                let q = g.pos.get_unchecked_mut(i as usize);
+                p.add(*q as usize).write(*c);
+                *q += 1;
+            }
+        }
+        g.tmp_c.set_len(m);
+    }
+    std::mem::swap(cls, &mut g.tmp_c);
+    for i in 0..np {
+        let s = &mut cls[g.coff[i] as usize..g.coff[i + 1] as usize];
+        if s.len() > 1 {
+            s.sort_unstable_by(|a, b| { a.ts }.cmp(&{ b.ts }).then_with(|| cmp64(a.click, b.click)));
+        }
+    }
 }
 
 fn flush_row(sc: &mut Scratch, p: u64, day: i64, s: u32, e: u32, r: i64, urows: &mut Vec<URow>) {
