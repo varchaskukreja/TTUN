@@ -1,0 +1,683 @@
+{
+  "format": 1,
+  "kind": "fresh_inline_ast_copy_feasibility",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "source_sha256": {
+    "sqlglot/expressions/core.py": "9dd10dc5c3015536c94fb99634cd412a66c103273cdd31bbc1a2482ccbf83604",
+    "sqlglot/expressions/builders.py": "74d4e12f420a4e105933a0bcb87626b7d4fb9c68d2a3b2164a6bfefc0eb6a1e0"
+  },
+  "probes": [
+    {
+      "probe": "exact_builtin_primitive_structural_control",
+      "results": {
+        "false": {
+          "sql": "fresh_copy_probe AS a",
+          "dump": [
+            {
+              "c": "sqlglot.expressions.query.Table"
+            },
+            {
+              "i": 0,
+              "k": "this",
+              "c": "sqlglot.expressions.core.Identifier"
+            },
+            {
+              "i": 1,
+              "k": "this",
+              "v": "fresh_copy_probe"
+            },
+            {
+              "i": 1,
+              "k": "quoted",
+              "v": false
+            },
+            {
+              "i": 0,
+              "k": "alias",
+              "c": "sqlglot.expressions.core.Identifier"
+            },
+            {
+              "i": 4,
+              "k": "this",
+              "v": "a"
+            },
+            {
+              "i": 4,
+              "k": "quoted",
+              "v": false
+            }
+          ],
+          "root_parent_none": true,
+          "child_parent_is_root": true,
+          "arg_keys": [
+            "this",
+            "db",
+            "catalog",
+            "alias"
+          ]
+        },
+        "true": {
+          "sql": "fresh_copy_probe AS a",
+          "dump": [
+            {
+              "c": "sqlglot.expressions.query.Table"
+            },
+            {
+              "i": 0,
+              "k": "this",
+              "c": "sqlglot.expressions.core.Identifier"
+            },
+            {
+              "i": 1,
+              "k": "this",
+              "v": "fresh_copy_probe"
+            },
+            {
+              "i": 1,
+              "k": "quoted",
+              "v": false
+            },
+            {
+              "i": 0,
+              "k": "alias",
+              "c": "sqlglot.expressions.core.Identifier"
+            },
+            {
+              "i": 4,
+              "k": "this",
+              "v": "a"
+            },
+            {
+              "i": 4,
+              "k": "quoted",
+              "v": false
+            }
+          ],
+          "root_parent_none": true,
+          "child_parent_is_root": true,
+          "arg_keys": [
+            "this",
+            "db",
+            "catalog",
+            "alias"
+          ]
+        }
+      },
+      "observably_different": false
+    },
+    {
+      "probe": "fresh_root_with_external_identifier_metadata",
+      "results": {
+        "false": {
+          "sql": "fresh_copy_probe AS a",
+          "deepcopy_calls_before_sql": 1,
+          "generation": 1
+        },
+        "true": {
+          "sql": "fresh_copy_probe AS a",
+          "deepcopy_calls_before_sql": 2,
+          "generation": 2
+        }
+      },
+      "observably_different": true
+    },
+    {
+      "probe": "fresh_owned_graph_with_internal_sharing",
+      "results": {
+        "false": {
+          "sql": "(1, 1) AS a",
+          "same_child_identity": true,
+          "child_indices": [
+            1,
+            1
+          ]
+        },
+        "true": {
+          "sql": "(1, 1) AS a",
+          "same_child_identity": false,
+          "child_indices": [
+            0,
+            1
+          ]
+        }
+      },
+      "observably_different": true
+    },
+    {
+      "probe": "rebound_constructor_side_effect_and_escape",
+      "results": {
+        "false": {
+          "constructor_calls": 1,
+          "first_constructed_is_result": true
+        },
+        "true": {
+          "constructor_calls": 2,
+          "first_constructed_is_result": false
+        }
+      },
+      "observably_different": true
+    },
+    {
+      "probe": "unchanged_builtin_constructor_profile_escape",
+      "results": {
+        "false": {
+          "sql": "fresh_copy_probe AS a",
+          "escaped_tables": 1,
+          "first_constructed_is_result": true
+        },
+        "true": {
+          "sql": "fresh_copy_probe AS a",
+          "escaped_tables": 2,
+          "first_constructed_is_result": false
+        }
+      },
+      "observably_different": true
+    },
+    {
+      "probe": "changed_copy_method_binding",
+      "results": {
+        "false": {
+          "sql": "fresh_copy_probe AS a",
+          "copy_hook_calls_before_sql": 0
+        },
+        "true": {
+          "sql": "fresh_copy_probe AS a",
+          "copy_hook_calls_before_sql": 1
+        }
+      },
+      "observably_different": true
+    },
+    {
+      "probe": "copy_dispatch_registry_changed_without_method_rebinding",
+      "results": {
+        "false": {
+          "dispatch_calls": 0,
+          "result_type": "Table"
+        },
+        "true": {
+          "dispatch_calls": 1,
+          "result_type": "Table"
+        }
+      },
+      "observably_different": true
+    },
+    {
+      "probe": "fresh_root_extra_instance_state_not_copied",
+      "results": {
+        "false": {
+          "sql": "fresh_copy_probe AS a",
+          "has_extra_state": true
+        },
+        "true": {
+          "sql": "fresh_copy_probe AS a",
+          "has_extra_state": false
+        }
+      },
+      "observably_different": true
+    },
+    {
+      "probe": "extra_builtin_cyclic_allocation_visible_to_gc",
+      "results": {
+        "false": {
+          "sql": "fresh_copy_gc_probe AS a",
+          "gc_visible_tables": 1
+        },
+        "true": {
+          "sql": "fresh_copy_gc_probe AS a",
+          "gc_visible_tables": 2
+        }
+      },
+      "observably_different": true
+    }
+  ],
+  "all_assertions_passed": true,
+  "syntactic_inline_copy_sites": [
+    {
+      "path": "sqlglot/dialects/dialect.py",
+      "line": 2839,
+      "outer": "exp.paren",
+      "inner": "exp.Sub"
+    },
+    {
+      "path": "sqlglot/generator.py",
+      "line": 5415,
+      "outer": "exp.Case().when",
+      "inner": "expression.this.is_(exp.null()).not_"
+    },
+    {
+      "path": "sqlglot/generator.py",
+      "line": 6650,
+      "outer": "exp.or_",
+      "inner": "decode_expr.eq"
+    },
+    {
+      "path": "sqlglot/generator.py",
+      "line": 6652,
+      "outer": "exp.and_",
+      "inner": "decode_expr.is_"
+    },
+    {
+      "path": "sqlglot/generators/duckdb.py",
+      "line": 610,
+      "outer": "exp.and_",
+      "inner": "exp.NEQ"
+    },
+    {
+      "path": "sqlglot/generators/duckdb.py",
+      "line": 625,
+      "outer": "exp.or_",
+      "inner": "exp.paren"
+    },
+    {
+      "path": "sqlglot/generators/duckdb.py",
+      "line": 2748,
+      "outer": "exp.case().when",
+      "inner": "exp.or_"
+    },
+    {
+      "path": "sqlglot/generators/postgres.py",
+      "line": 691,
+      "outer": "exp.Case().when",
+      "inner": "exp.Is"
+    },
+    {
+      "path": "sqlglot/generators/singlestore.py",
+      "line": 1428,
+      "outer": "exp.paren",
+      "inner": "expression.this.rlike"
+    },
+    {
+      "path": "sqlglot/generators/snowflake.py",
+      "line": 1025,
+      "outer": "expression.limit",
+      "inner": "exp.Null"
+    },
+    {
+      "path": "sqlglot/generators/spark2.py",
+      "line": 116,
+      "outer": "exp.select('*').from_",
+      "inner": "expression.this.copy"
+    },
+    {
+      "path": "sqlglot/generators/sqlite.py",
+      "line": 220,
+      "outer": "exp.select('*').from_",
+      "inner": "query.subquery"
+    },
+    {
+      "path": "sqlglot/generators/starrocks.py",
+      "line": 36,
+      "outer": "exp.and_",
+      "inner": "exp.GTE"
+    },
+    {
+      "path": "sqlglot/generators/tsql.py",
+      "line": 319,
+      "outer": "exp.select('*').from_",
+      "inner": "expression.subquery"
+    },
+    {
+      "path": "sqlglot/generators/tsql.py",
+      "line": 383,
+      "outer": "expression.order_by",
+      "inner": "exp.select(exp.null()).subquery"
+    },
+    {
+      "path": "sqlglot/optimizer/eliminate_subqueries.py",
+      "line": 176,
+      "outer": "exp.alias_",
+      "inner": "exp.table_"
+    },
+    {
+      "path": "sqlglot/optimizer/isolate_table_selects.py",
+      "line": 42,
+      "outer": "exp.select('*').from_",
+      "inner": "alias"
+    },
+    {
+      "path": "sqlglot/optimizer/normalize.py",
+      "line": 224,
+      "outer": "to_func",
+      "inner": "simplifier.uniq_sort"
+    },
+    {
+      "path": "sqlglot/optimizer/normalize.py",
+      "line": 208,
+      "outer": "to_func",
+      "inner": "simplifier.uniq_sort"
+    },
+    {
+      "path": "sqlglot/optimizer/qualify_columns.py",
+      "line": 1144,
+      "outer": "alias",
+      "inner": "exp.Dot"
+    },
+    {
+      "path": "sqlglot/optimizer/qualify_columns.py",
+      "line": 1357,
+      "outer": "alias",
+      "inner": "exp.func"
+    },
+    {
+      "path": "sqlglot/optimizer/qualify_columns.py",
+      "line": 1336,
+      "outer": "alias",
+      "inner": "exp.column"
+    },
+    {
+      "path": "sqlglot/optimizer/qualify_tables.py",
+      "line": 277,
+      "outer": "exp.select('*').from_",
+      "inner": "source.copy"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 1443,
+      "outer": "exp.paren",
+      "inner": "exp.or_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 837,
+      "outer": "exp.and_",
+      "inner": "exp.GTE"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 1444,
+      "outer": "exp.or_",
+      "inner": "exp.and_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 880,
+      "outer": "exp.paren",
+      "inner": "self.COMPLEMENT_COMPARISONS[this.__class__]"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 1445,
+      "outer": "exp.and_",
+      "inner": "this.is_(exp.null()).not_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 1450,
+      "outer": "exp.and_",
+      "inner": "this.is_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 846,
+      "outer": "exp.and_",
+      "inner": "exp.GTE"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 870,
+      "outer": "exp.and_",
+      "inner": "exp.null"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 887,
+      "outer": "exp.paren",
+      "inner": "exp.or_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 896,
+      "outer": "exp.paren",
+      "inner": "exp.and_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 888,
+      "outer": "exp.or_",
+      "inner": "exp.not_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 897,
+      "outer": "exp.and_",
+      "inner": "exp.not_"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 906,
+      "outer": "exp.and_",
+      "inner": "exp.null"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 973,
+      "outer": "expression.and_",
+      "inner": "exp.true"
+    },
+    {
+      "path": "sqlglot/optimizer/simplify.py",
+      "line": 1113,
+      "outer": "unique_operand.and_",
+      "inner": "exp.true"
+    },
+    {
+      "path": "sqlglot/optimizer/unnest_subqueries.py",
+      "line": 547,
+      "outer": "parent_select.join",
+      "inner": "select.group_by"
+    },
+    {
+      "path": "sqlglot/optimizer/unnest_subqueries.py",
+      "line": 429,
+      "outer": "select.select",
+      "inner": "exp.alias_"
+    },
+    {
+      "path": "sqlglot/optimizer/unnest_subqueries.py",
+      "line": 467,
+      "outer": "select.select",
+      "inner": "exp.alias_"
+    },
+    {
+      "path": "sqlglot/optimizer/unnest_subqueries.py",
+      "line": 206,
+      "outer": "exp.select(exp.alias_(exp.column(value.alias, '_q'), value.alias)).from_(select.subquery('_q', copy=False), copy=False).group_by",
+      "inner": "exp.column"
+    },
+    {
+      "path": "sqlglot/optimizer/unnest_subqueries.py",
+      "line": 448,
+      "outer": "select.select",
+      "inner": "exp.alias_"
+    },
+    {
+      "path": "sqlglot/optimizer/unnest_subqueries.py",
+      "line": 543,
+      "outer": "exp.and_",
+      "inner": "parent_predicate.copy"
+    },
+    {
+      "path": "sqlglot/optimizer/unnest_subqueries.py",
+      "line": 206,
+      "outer": "exp.select(exp.alias_(exp.column(value.alias, '_q'), value.alias)).from_",
+      "inner": "select.subquery"
+    },
+    {
+      "path": "sqlglot/parser.py",
+      "line": 1332,
+      "outer": "query.order_by",
+      "inner": "self._parse_order"
+    },
+    {
+      "path": "sqlglot/parser.py",
+      "line": 1339,
+      "outer": "query.where",
+      "inner": "self._parse_where"
+    },
+    {
+      "path": "sqlglot/parser.py",
+      "line": 10753,
+      "outer": "query.offset",
+      "inner": "exp.Literal.number"
+    },
+    {
+      "path": "sqlglot/parser.py",
+      "line": 10883,
+      "outer": "exp.select('*').from_",
+      "inner": "query.subquery"
+    },
+    {
+      "path": "sqlglot/parser.py",
+      "line": 7066,
+      "outer": "exp.cast",
+      "inner": "cls"
+    },
+    {
+      "path": "sqlglot/parsers/dax.py",
+      "line": 26,
+      "outer": "query.order_by",
+      "inner": "self.expression"
+    },
+    {
+      "path": "sqlglot/parsers/prql.py",
+      "line": 136,
+      "outer": "query.order_by",
+      "inner": "self.expression"
+    },
+    {
+      "path": "sqlglot/parsers/prql.py",
+      "line": 37,
+      "outer": "query.union",
+      "inner": "_select_all"
+    },
+    {
+      "path": "sqlglot/parsers/prql.py",
+      "line": 40,
+      "outer": "query.except_",
+      "inner": "_select_all"
+    },
+    {
+      "path": "sqlglot/parsers/prql.py",
+      "line": 43,
+      "outer": "query.intersect",
+      "inner": "_select_all"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 172,
+      "outer": "expression.select",
+      "inner": "exp.alias_"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 193,
+      "outer": "exp.select(*new_selects, copy=False).from_(expression.subquery('_t', copy=False), copy=False).where",
+      "inner": "exp.column(row_number_window_alias).eq"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 193,
+      "outer": "exp.select(*new_selects, copy=False).from_",
+      "inner": "expression.subquery"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 255,
+      "outer": "expression.select",
+      "inner": "exp.alias_"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 270,
+      "outer": "outer_selects.from_",
+      "inner": "expression.subquery"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 268,
+      "outer": "expression.select",
+      "inner": "select_candidate.copy"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 569,
+      "outer": "expression.join",
+      "inner": "exp.alias_"
+    },
+    {
+      "path": "sqlglot/transforms.py",
+      "line": 585,
+      "outer": "expression.where",
+      "inner": "exp.column(series_alias, table=series_table_alias).eq(exp.column(pos_alias, table=unnest_source_alias)).or_"
+    }
+  ],
+  "syntactic_sites_are_not_proofs": true,
+  "source_files_modified": false,
+  "runtime_narrowing_authorized": false,
+  "conclusion": "Fresh outer construction alone does not imply copy equivalence; even exact builtin primitive construction is observable through profiling or GC.",
+  "implementation_path": [
+    {
+      "path": "sqlglot/expressions/core.py",
+      "line": 3058,
+      "meaning": "alias_ calls maybe_parse(copy=flag), constructs alias Identifier, and mutates/returns expression or wraps it."
+    },
+    {
+      "path": "sqlglot/expressions/core.py",
+      "line": 2585,
+      "meaning": "maybe_parse Expr branch calls instance.copy only when copy is truthy."
+    },
+    {
+      "path": "sqlglot/expressions/core.py",
+      "line": 1006,
+      "meaning": "Expression.__deepcopy__ constructs each node class anew; copies known fields and metadata; creates separate nodes for shared Expr children, ignoring their original alias relation."
+    },
+    {
+      "path": "sqlglot/expressions/core.py",
+      "line": 1044,
+      "meaning": "copy delegates to imported copy.deepcopy; method identity alone does not fix deepcopy dispatch registry behavior."
+    },
+    {
+      "path": "sqlglot/expressions/builders.py",
+      "line": 530,
+      "meaning": "table_ returns a new Table but accepts Identifier inputs whose copying can execute user metadata hooks."
+    },
+    {
+      "path": "sqlglot/expressions/core.py",
+      "line": 2882,
+      "meaning": "to_identifier exact-string path allocates Identifier; Identifier path calls maybe_copy and can propagate custom state/hooks."
+    },
+    {
+      "path": "sqlglot/expressions/core.py",
+      "line": 116,
+      "meaning": "Expr constructor initializes fields and _set_parent links child nodes back to the root, making even simple tables cyclic."
+    }
+  ],
+  "feasibility": {
+    "unconditional_equivalence": false,
+    "conditional_structural_subset_plausible": true,
+    "no_integration_recommended_yet": true,
+    "source_only_proof_insufficient": "Even unchanged builtin helpers with exact primitive inputs create different allocations visible through profiling, GC inspection, GC callbacks, and source/code metadata readers. Pure-looking constructor source does not prove absence of these observers.",
+    "necessary_source_constraints": [
+      "Whole patch changes exactly one copy boolean at a supported call; all other source/AST and transitive helper definitions unchanged.",
+      "Factory graph proven fresh and uniquely owned internally, not merely a fresh root; reject DAG/sharedchildren, externalExpr inputs, arbitrarymetadata, extra instanceattributes, unknown constructors and postconstructor mutations.",
+      "Exact known primitive leaves and exact builtin SQLGlot classes; no str subclasses, user Expr subclasses, custom metaclasses, custom attribute access, dynamic dispatch or iterator/callback arguments.",
+      "Other argument evaluation between construction and alias helper entry must be proven nonescaping and must not mutate classes/copy dispatch; Python argument evaluation order matters.",
+      "Known helper path produces graphs isomorphic including args order, None entries, parent/arg_key/index, comments, type, meta, hash and supported instancefields. EqualSQL or Expression.__eq__ alone is inadequate."
+    ],
+    "necessary_binding_observations": [
+      "Resolve factory/alias helper names to pinned functions at the relevant call, accounting for import rebinding and attribute shadowing.",
+      "Observe exact constructor classes and transitive special/mutation methods fresh at each relevant context; include __new__, __init__, __getattribute__, __setattr__, _set_parent, copy, __deepcopy__, classflags and arg_types.",
+      "Check imported deepcopy binding AND relevant copy dispatch/reducer registries, not merely function bytecode hashes.",
+      "All source/code/profile/trace/GC/allocation observers and constructor escapes must be covered, including collection and worker processes. One unsafe context can affect later tests, so retaining only that observer test is insufficient."
+    ],
+    "observation_limits": [
+      "Baseline binding/type observations cannot prove future or reordered binding stability. Current baseline controls already demonstrate order-sensitive state.",
+      "Construction identity cannot be tracked transparently with ordinary strong references: the tracing itself changes lifetime/GC visibility. Refcount heuristics do not prove unique ownership.",
+      "copy=False/True changes literal width and co_consts/positions; reuse of narrow comparison code-reader guards is insufficient without a broader affected-code proof."
+    ],
+    "proposed_next_step_only": "If prioritised, build a standalone static fresh-tree recognizer over pinned helper source with exact primitive leaves and no externalExpr input, then baseline-only per-call binding/observer receipts. First validate recognizer rejection cases and structural graph invariants; no full capture, mutants, selector changes or performance claims until reviewed.",
+    "expected_usefulness": "There are63 syntactic inline-call sites with literalcopy flags, but many involve external expressions or mutation methods. Only a small subset plausibly satisfies the primitive fresh-tree contract; no CI savings estimate made."
+  },
+  "probe_sha256": "5e14c84cccd052a50efc06bc674e5b57e3f2f0ec180dd8e5c70dfa52181d9ea8"
+}
