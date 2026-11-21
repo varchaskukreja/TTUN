@@ -9,12 +9,16 @@ from evaluate_granularity import StatementSelector, symbol_signature
 
 
 class GranularityTests(unittest.TestCase):
-    def trace_calls(self, source, call):
-        """Measure sequential test coverage with retained module/cache state."""
+    def trace_cases(self, source, calls, isolated=False):
+        """Trace full calls, optionally rebuilding pristine module state per test."""
         namespace = {}
-        exec(compile(source, "m.py", "exec"), namespace)
+        code = compile(source, "m.py", "exec")
+        exec(code, namespace)
         lines, values = {}, []
-        for test_number in (0, 1):
+        for test_number, call in enumerate(calls):
+            if isolated:
+                namespace = {}
+                exec(code, namespace)
             def trace(frame, event, arg):
                 if event == 'line' and frame.f_code.co_filename == 'm.py':
                     lines.setdefault(str(frame.f_lineno), set()).add(test_number)
@@ -26,6 +30,9 @@ class GranularityTests(unittest.TestCase):
             finally:
                 sys.settrace(previous)
         return {line: sorted(tests) for line, tests in lines.items()}, values
+
+    def trace_calls(self, source, call):
+        return self.trace_cases(source, [call, call])
 
     def select(self, before, after, lines, guarded=True):
         tests = [{"id": str(i), "number": i, "seconds": .1} for i in range(3)]
@@ -124,6 +131,55 @@ class GranularityTests(unittest.TestCase):
         selected = self.select(before, after, baseline_lines)
         self.assertEqual(selected, {0})
         self.assertEqual(failing_tests - selected, {1}, 'Known unsafe narrowing must remain explicit')
+
+    def test_isolated_coverage_fixes_sequential_mutable_cache_counterexample(self):
+        before = 'cache = {}\ndef f(x):\n    if x not in cache:\n        cache[x] = x + 1\n    return cache[x]\n'
+        after = before.replace('x + 1', 'x + 2')
+        calls = [lambda ns: ns['f'](1)] * 2
+        isolated_lines, expected = self.trace_cases(before, calls, isolated=True)
+        _, actual = self.trace_cases(after, calls, isolated=True)
+        self.assertEqual(isolated_lines['4'], [0, 1])
+        self.assertEqual(expected, [2, 2])
+        self.assertEqual(actual, [3, 3])
+        self.assertEqual(self.select(before, after, isolated_lines), {0, 1})
+
+    def test_isolated_coverage_fixes_sequential_lazy_registry_counterexample(self):
+        before = 'registry = None\ndef resolve():\n    global registry\n    if registry is None:\n        registry = 1\n    return registry\n'
+        after = before.replace('registry = 1', 'registry = 2')
+        calls = [lambda ns: ns['resolve']()] * 2
+        isolated_lines, expected = self.trace_cases(before, calls, isolated=True)
+        _, actual = self.trace_cases(after, calls, isolated=True)
+        self.assertEqual(isolated_lines['5'], [0, 1])
+        self.assertEqual(expected, [1, 1])
+        self.assertEqual(actual, [2, 2])
+        self.assertEqual(self.select(before, after, isolated_lines), {0, 1})
+
+    def test_known_unsoundness_isolated_factory_code_metadata_consumer(self):
+        # Fresh test state does not make executable-line tracing track metadata.
+        before = 'def factory():\n    def inner():\n        return 1\n    return inner\n'
+        after = before.replace('return 1', 'return 2')
+        calls = [lambda ns: ns['factory']()(), lambda ns: ns['factory']().__code__.co_consts]
+        isolated_lines, expected = self.trace_cases(before, calls, isolated=True)
+        _, actual = self.trace_cases(after, calls, isolated=True)
+        self.assertEqual(isolated_lines['3'], [0])
+        self.assertTrue(all(a != b for a, b in zip(expected, actual)))
+        self.assertEqual(self.select(before, after, isolated_lines), {0})
+
+    def test_known_unsoundness_warm_and_isolated_union_cross_test_state_producer(self):
+        # Isolation cannot assign a producer's lines to a different test that
+        # only observes its state when the evaluator runs tests together.
+        before = 'state = 0\ndef initialize():\n    global state\n    state = 0\ndef read():\n    return state\n'
+        after = before.replace('    state = 0', '    state = 1')
+        calls = [lambda ns: (ns['initialize'](), ns['read']())[1], lambda ns: ns['read']()]
+        warm_lines, expected = self.trace_cases(before, calls)
+        cold_lines, _ = self.trace_cases(before, calls, isolated=True)
+        _, actual = self.trace_cases(after, calls)
+        union = {line: sorted(set(warm_lines.get(line, [])) | set(cold_lines.get(line, [])))
+                 for line in warm_lines.keys() | cold_lines.keys()}
+        self.assertEqual(expected, [0, 0])
+        self.assertEqual(actual, [1, 1])
+        self.assertEqual(union['4'], [0])
+        self.assertEqual(self.select(before, after, union), {0})
 
 
 if __name__ == "__main__":
