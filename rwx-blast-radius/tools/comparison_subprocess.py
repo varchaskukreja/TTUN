@@ -62,5 +62,113 @@ def classify_launch(argv, *, cwd=None, env=None, shell=False, executable=None,
     if not directory.is_dir():
         return dict(result, reason='invalid child working directory')
     return {'supported': True, 'executable': str(resolved), 'cwd': str(directory),
-            'argv_sha256': digest(list(argv)), 'code_sha256': hashlib.sha256(argv[2].encode()).hexdigest(),
+            'argv_sha256': digest([str(resolved), *argv[1:]]), 'code_sha256': hashlib.sha256(argv[2].encode()).hexdigest(),
             'allowlisted_environment_sha256': environment_digest(environment), 'argument_count': len(argv)}
+
+
+# Hook installation is opt-in from comparison_spawn; importing stays side-effect free.
+def install_popen(context_getter, write_event):
+    import inspect
+    import subprocess
+    import threading
+    import uuid
+    original_init = subprocess.Popen.__init__
+    original_wait = subprocess.Popen._wait
+    original_poll = subprocess.Popen._internal_poll
+    signature = inspect.signature(original_init)
+    local = threading.local()
+
+    def record_exit(process):
+        token = getattr(process, '_comparison_capture_token', None)
+        if token and process.returncode is not None and not getattr(process, '_comparison_exit_recorded', False):
+            process._comparison_exit_recorded = True
+            write_event('popen_exit', token=token, child_pid=process.pid,
+                        context=process._comparison_capture_context, returncode=process.returncode)
+
+    def init(process, *args, **kwargs):
+        bound = signature.bind(process, *args, **kwargs)
+        bound.apply_defaults()
+        arguments = bound.arguments
+        try:
+            identity = classify_launch(arguments['args'], cwd=arguments.get('cwd'), env=arguments.get('env'),
+                shell=arguments.get('shell', False), executable=arguments.get('executable'),
+                preexec_fn=arguments.get('preexec_fn'))
+        except (ValueError, TypeError, OSError):
+            identity = {'supported': False, 'reason': 'unverifiable command'}
+        context = context_getter()
+        if not identity['supported']:
+            write_event('untracked_activity', event='unsupported.Popen', context=context, reason=identity['reason'])
+            return original_init(process, *args, **kwargs)
+        token = uuid.uuid4().hex
+        environment = dict(os.environ if arguments.get('env') is None else arguments['env'])
+        environment.update(COMPARISON_POPEN_TOKEN=token, COMPARISON_POPEN_CONTEXT=context,
+                           COMPARISON_POPEN_EXPECTED=json.dumps(identity, sort_keys=True))
+        arguments['env'] = environment
+        write_event('popen_launch', token=token, context=context, identity=identity)
+        previous = getattr(local, 'launch', None)
+        local.launch = (token, identity)
+        try:
+            original_init(*bound.args, **bound.kwargs)
+        except BaseException:
+            write_event('popen_failed', token=token, context=context)
+            raise
+        finally:
+            local.launch = previous
+        process._comparison_capture_token = token
+        process._comparison_capture_context = context
+        write_event('popen_started', token=token, child_pid=process.pid, context=context)
+        record_exit(process)
+
+    def wait(process, *args, **kwargs):
+        result = original_wait(process, *args, **kwargs)
+        record_exit(process)
+        return result
+
+    def poll(process, *args, **kwargs):
+        result = original_poll(process, *args, **kwargs)
+        record_exit(process)
+        return result
+
+    def tracked_audit(event, args):
+        launch = getattr(local, 'launch', None)
+        if launch is None or event not in ('subprocess.Popen', 'os.posix_spawn'):
+            return False
+        token, expected = launch
+        try:
+            if event == 'subprocess.Popen':
+                executable, argv, cwd, environment = args
+            else:
+                executable, argv, environment = args
+                cwd = expected['cwd']
+            identity = classify_launch(argv, executable=executable, cwd=cwd, env=environment)
+            return identity == expected and environment.get('COMPARISON_POPEN_TOKEN') == token
+        except (ValueError, TypeError, OSError, AttributeError):
+            return False
+
+    subprocess.Popen.__init__ = init
+    subprocess.Popen._wait = wait
+    subprocess.Popen._internal_poll = poll
+
+    def restore():
+        subprocess.Popen.__init__ = original_init
+        subprocess.Popen._wait = original_wait
+        subprocess.Popen._internal_poll = original_poll
+    return restore, tracked_audit
+
+
+def consume_bootstrap_identity():
+    """Consume launch token before user code can start nested children."""
+    token = os.environ.pop('COMPARISON_POPEN_TOKEN', None)
+    if token is None:
+        return None
+    context = os.environ.pop('COMPARISON_POPEN_CONTEXT', '')
+    expected_raw = os.environ.pop('COMPARISON_POPEN_EXPECTED', '')
+    try:
+        expected = json.loads(expected_raw)
+        # macOS framework launchers rewrite orig_argv[0]; bind executable
+        # through sys.executable and preserve every actual command argument.
+        actual = classify_launch([sys.executable, *sys.orig_argv[1:]])
+        matched = actual == expected and actual.get('supported') is True
+    except (ValueError, TypeError, OSError):
+        actual, matched = {}, False
+    return {'token': token, 'context': context, 'identity': actual, 'identity_matched': matched}

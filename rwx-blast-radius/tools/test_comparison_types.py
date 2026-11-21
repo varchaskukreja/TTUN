@@ -451,6 +451,27 @@ class ComparisonTypesTests(unittest.TestCase):
         for left, right in ((Word.A, Word.B), (Number.A, Number.B)):
             self.assertTrue(self.certificate(left, right)['equivalent_for_observed_types'])
 
+    def test_getframe_lasti_without_fcode_access_retains_observer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            before = 'import sys\ndef f(x):\n    y = x is None\n    return sys._getframe().f_lasti\n'
+            after = before.replace(' is ', ' == ')
+            original, changed = {}, {}
+            exec(before, original)
+            exec(after, changed)
+            self.assertNotEqual(original['f'](None), changed['f'](None))
+            recorder = Recorder(lambda: 'observer', root=root)
+            code, helper = recorder.compile(before, 'module.py', filename=str(root / 'module.py'))
+            target = {helper: recorder.compare}
+            exec(code, target)
+            recorder.readers.start()
+            try:
+                target['f'](None)
+                cert = observed_certificate(recorder.snapshot(), 'module.py', before, after)
+                self.assertIn('observer', cert['must_retain_observed_code_readers'])
+            finally:
+                recorder.readers.stop()
+
 
 if __name__ == '__main__':
     unittest.main()

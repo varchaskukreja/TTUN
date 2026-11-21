@@ -6,6 +6,7 @@ No target source files are modified. All unassigned worker activity is retained
 under a PID context that must expand to every job observed in that worker.
 """
 import atexit
+from collections import defaultdict
 import json
 import os
 import re
@@ -44,12 +45,18 @@ def save_snapshot(final=False):
         if final:
             _final_saved = True
             write_event('worker_end', contexts=sorted(_state['contexts']))
+            if _state.get('launch'):
+                write_event('popen_child_end', token=_state['launch']['token'], context=_state['context'])
 
 
 def bootstrap():
     global _state
     if _state is not None:
         return
+    argv = sys.orig_argv
+    position = argv.index('-c') + 1 if '-c' in argv else len(argv)
+    if position < len(argv) and re.fullmatch(r'from multiprocessing\.resource_tracker import main;main\([0-9]+\)', argv[position]):
+        return  # Standard tracker executes no target/user jobs.
     # Do not activate comparison_types' pytest plugin in worker interpreters.
     previous = os.environ.pop('COMPARISON_SOURCE', None)
     try:
@@ -57,8 +64,10 @@ def bootstrap():
     finally:
         if previous is not None:
             os.environ['COMPARISON_SOURCE'] = previous
-    context = f'@worker-unassigned:{os.getpid()}'
-    _state = {'context': context, 'unassigned': context, 'contexts': set()}
+    from comparison_subprocess import consume_bootstrap_identity
+    launch = consume_bootstrap_identity()
+    context = launch['context'] if launch else f'@worker-unassigned:{os.getpid()}'
+    _state = {'context': context, 'unassigned': context, 'contexts': {context} if launch else set(), 'launch': launch}
     recorder = Recorder(lambda: _state['context'], root=os.environ['COMPARISON_SPAWN_SOURCE'])
     _state['recorder'] = recorder
     finder = Finder(os.environ['COMPARISON_SPAWN_SOURCE'], recorder, ('sqlglot/',))
@@ -66,7 +75,9 @@ def bootstrap():
     finder.record_preexisting()
     recorder.readers.start()
     sys.meta_path.insert(0, finder)
-    write_event('worker_start', argv=sys.orig_argv)
+    write_event('worker_start', argv=[] if launch else sys.orig_argv)
+    if launch:
+        write_event('popen_child_start', **launch)
     watch_activity(lambda: _state['context'], allow_pool=False)
     atexit.register(save_snapshot, True)
     from multiprocessing.util import Finalize
@@ -94,6 +105,8 @@ def watch_activity(context_getter, allow_pool):
     from multiprocessing.process import BaseProcess
     original = BaseProcess.start
     active = [True]
+    from comparison_subprocess import install_popen
+    restore_popen, tracked_popen_audit = install_popen(context_getter, write_event)
     def start(process):
         target = getattr(process, '_target', None)
         allowed = (allow_pool and getattr(target, '__module__', None) == 'concurrent.futures.process'
@@ -105,10 +118,12 @@ def watch_activity(context_getter, allow_pool):
     BaseProcess.start = start
     def audit(event, args):
         if active[0] and event in ('subprocess.Popen', 'os.system', 'os.fork', 'os.posix_spawn'):
-            write_event('untracked_activity', event=event, context=context_getter())
+            if not tracked_popen_audit(event, args):
+                write_event('untracked_activity', event=event, context=context_getter())
     sys.addaudithook(audit)
     def restore():
         active[0] = False
+        restore_popen()
         BaseProcess.start = original
     return restore
 
@@ -143,63 +158,96 @@ def install_parent(context_getter, source, output):
 
 
 def audit_receipts(directory):
-    """Conservative evidence summary; callers must additionally handle untracked activity."""
-    events = []
-    errors = []
-    for path in Path(directory).glob('events-*.jsonl'):
+    """Index receipts once and parse each cumulative PID snapshot exactly once."""
+    directory = Path(directory)
+    events, errors = [], []
+    indexed = defaultdict(lambda: defaultdict(list))
+    by_kind = defaultdict(list)
+    for path in directory.glob('events-*.jsonl'):
         try:
-            events.extend(json.loads(line) for line in path.read_text().splitlines())
-        except (OSError, ValueError):
+            for line in path.read_text().splitlines():
+                event = json.loads(line)
+                if type(event) is not dict or type(event.get('kind')) is not str or type(event.get('pid')) is not int:
+                    raise ValueError('invalid event')
+                events.append(event)
+                by_kind[event['kind']].append(event)
+                key = event.get('job', event.get('token', event['pid']))
+                indexed[event['kind']][key].append(event)
+        except (OSError, ValueError, TypeError):
             errors.append(f'invalid receipt shard: {path.name}')
-    submitted_events = [e for e in events if e['kind'] == 'submitted']
-    submits = {e['job']: e for e in submitted_events}
-    if len(submits) != len(submitted_events):
-        errors.append('duplicate submitted job IDs')
-    if any(e['kind'] in ('job_start', 'job_end') and e['job'] not in submits for e in events):
-        errors.append('job receipt without submission')
-    retain = set()
-    workers = {}
-    for job, submitted in submits.items():
-        starts = [e for e in events if e['kind'] == 'job_start' and e['job'] == job]
-        ends = [e for e in events if e['kind'] == 'job_end' and e['job'] == job]
-        if not submitted['supported'] or len(starts) != 1 or len(ends) != 1:
-            retain.add(submitted['context']); continue
-        start, end = starts[0], ends[0]
+    retain, workers = set(), defaultdict(set)
+    submits = indexed['submitted']
+    launches = indexed['popen_launch']
+    all_contexts = {e.get('context', '') for e in by_kind['submitted'] + by_kind['popen_launch']}
+    valid_shards = {}
+
+    def shard_complete(pid):
+        if pid not in valid_shards:
+            try:
+                shard = json.loads((directory / f'observations-{pid}.json').read_text())
+                valid_shards[pid] = (type(shard.get('sites')) is dict and type(shard.get('read_dependencies')) is dict
+                    and len(indexed['worker_start'][pid]) == 1 and len(indexed['worker_end'][pid]) == 1)
+            except (OSError, ValueError, AttributeError):
+                valid_shards[pid] = False
+        return valid_shards[pid]
+
+    def one(kind, key):
+        values = indexed[kind][key]
+        return values[0] if len(values) == 1 else None
+
+    for job, submitted_events in submits.items():
+        submitted = submitted_events[0]
+        context = submitted.get('context', '')
+        start, end = one('job_start', job), one('job_end', job)
+        if len(submitted_events) != 1 or not submitted.get('supported') or not start or not end:
+            retain.add(context); errors.append(f'incomplete job {job}'); continue
         pid = start['pid']
-        workers.setdefault(str(pid), set()).add(submitted['context'])
-        if end['pid'] != pid or start['context'] != submitted['context'] or end['context'] != submitted['context'] or not end['returned']:
-            retain.add(submitted['context'])
-        if not any(e['kind'] == 'worker_start' and e['pid'] == pid for e in events):
-            retain.add(submitted['context'])
-        try:
-            shard = json.loads((Path(directory) / f'observations-{pid}.json').read_text())
-            if not isinstance(shard.get('sites'), dict) or not isinstance(shard.get('read_dependencies'), dict):
-                raise ValueError('invalid observation schema')
-        except (OSError, ValueError, AttributeError):
-            retain.add(submitted['context'])
-        if not any(e['kind'] == 'worker_end' and e['pid'] == pid for e in events) or not (Path(directory) / f'observations-{pid}.json').exists():
-            retain.add(submitted['context'])
-    # Bootstrap-only infrastructure is allowed only for the exact standard
-    # multiprocessing resource tracker command, which executes no user jobs.
-    tracked_pids = {e['child_pid'] for e in events if e['kind'] == 'process_start' and e['tracked']}
-    for event in events:
-        if event['kind'] == 'worker_start' and event['pid'] not in tracked_pids:
+        workers[str(pid)].add(context)
+        if end['pid'] != pid or start.get('context') != context or end.get('context') != context or end.get('returned') is not True or not shard_complete(pid):
+            retain.add(context); errors.append(f'inconsistent job {job}')
+    for kind in ('job_start', 'job_end'):
+        if set(indexed[kind]) - set(submits):
+            errors.append('job receipt without submission')
+
+    tracked_pids = {e['child_pid'] for e in by_kind['process_start'] if e.get('tracked') is True}
+    for token, launch_events in launches.items():
+        launch = launch_events[0]
+        context = launch.get('context', '')
+        started, exited = one('popen_started', token), one('popen_exit', token)
+        child_start, child_end = one('popen_child_start', token), one('popen_child_end', token)
+        if len(launch_events) != 1 or not all((started, exited, child_start, child_end)) or indexed['popen_failed'][token]:
+            retain.add(context); errors.append(f'incomplete Python launch {token}'); continue
+        pid = started['child_pid']
+        tracked_pids.add(pid)
+        workers[str(pid)].add(context)
+        if (child_start['pid'] != pid or child_end['pid'] != pid or exited['child_pid'] != pid
+                or any(e.get('context') != context for e in (started, exited, child_start, child_end))
+                or child_start.get('identity_matched') is not True or child_start.get('identity') != launch.get('identity')
+                or exited.get('returncode') != 0 or not shard_complete(pid)):
+            retain.add(context); errors.append(f'inconsistent Python launch {token}')
+    for kind in ('popen_started', 'popen_exit', 'popen_child_start', 'popen_child_end', 'popen_failed'):
+        if set(indexed[kind]) - set(launches):
+            errors.append('Python receipt without launch')
+    for event in by_kind['worker_start']:
+        if event['pid'] not in tracked_pids:
             argv = event.get('argv', [])
             position = argv.index('-c') + 1 if '-c' in argv else len(argv)
-            infrastructure = (position < len(argv) and re.fullmatch(
-                r'from multiprocessing\.resource_tracker import main;main\([0-9]+\)', argv[position]) is not None)
+            infrastructure = position < len(argv) and re.fullmatch(
+                r'from multiprocessing\.resource_tracker import main;main\([0-9]+\)', argv[position]) is not None
             if not infrastructure:
                 errors.append(f"untracked bootstrap PID {event['pid']}")
-        if event['kind'] == 'untracked_activity' or (event['kind'] == 'process_start' and not event['tracked']):
-            context = event['context']
-            if context.startswith('@worker-unassigned:'):
-                retain.update(workers.get(str(event['pid']), ()))
-            elif not context:
-                retain.update(e['context'] for e in submits.values())
-            else:
-                retain.add(context)
+    for event in by_kind['untracked_activity'] + [e for e in by_kind['process_start'] if not e.get('tracked')]:
+        context = event.get('context', '')
+        errors.append(f"untracked child activity in {context or '<collection>'}")
+        if context.startswith('@worker-unassigned:'):
+            retain.update(workers.get(str(event['pid']), ()))
+        elif not context:
+            retain.update(all_contexts)
+        else:
+            retain.add(context)
     if errors:
-        retain.update(e['context'] for e in submits.values())
-    return {'submitted': len(submits), 'must_retain': sorted(retain), 'errors': errors,
-            'worker_contexts': {pid: sorted(contexts) for pid, contexts in workers.items()},
-            'untracked_child_activity_checked': True, 'activity_audit_exhaustive': False, 'narrowing_authorized': False}
+        retain.update(all_contexts)
+    return {'submitted': len(submits), 'python_subprocesses': len(launches), 'must_retain': sorted(retain),
+            'errors': sorted(set(errors)), 'worker_contexts': {pid: sorted(contexts) for pid, contexts in workers.items()},
+            'parsed_observation_shards': len(valid_shards), 'untracked_child_activity_checked': True,
+            'activity_audit_exhaustive': False, 'narrowing_authorized': False}

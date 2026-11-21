@@ -10,6 +10,7 @@ import re
 from comparison_spawn import audit_receipts
 
 SITE_FIELDS = {'path', 'line', 'column', 'end_line', 'end_column', 'operator', 'source_sha256'}
+ENUM_FIELDS = {'backed_enum_kind', 'canonical_member', 'builtin_values_bijective'}
 TYPE_FIELDS = {'module', 'qualname', 'eq', 'ne', 'none_type', 'standard_enum_type', 'supported_metaclass'}
 CODE_FIELDS = {'path', 'name', 'qualname', 'first_line', 'span_first_line', 'span_last_line'}
 
@@ -121,11 +122,15 @@ def merge_snapshots(snapshots, catalog, worker_contexts):
                     require(type(pair['same_type']) is bool, 'invalid same_type')
                     for side in ('left', 'right'):
                         value = pair[side]
-                        require(type(value) is dict and set(value) == TYPE_FIELDS, 'invalid type descriptor')
+                        require(type(value) is dict and set(value) in (TYPE_FIELDS, TYPE_FIELDS | ENUM_FIELDS), 'invalid type descriptor')
                         for field in ('module', 'qualname'):
                             require(type(value[field]) is str, 'invalid type name')
                         for field in ('eq', 'ne'):
                             require(value[field] in ('object_identity', 'none_identity', 'overridden'), 'invalid slot classification')
+                        if 'backed_enum_kind' in value:
+                            require(value['backed_enum_kind'] in ('', 'str', 'int'), 'invalid backed Enum kind')
+                            for field in ('canonical_member', 'builtin_values_bijective'):
+                                require(type(value[field]) is bool, 'invalid backed Enum flag')
                         for field in ('none_type', 'standard_enum_type', 'supported_metaclass'):
                             require(type(value[field]) is bool, 'invalid type flag')
                     descriptor = {k: v for k, v in pair.items() if k != 'contexts'}
@@ -220,8 +225,10 @@ def merge_capture(parent, workers, catalog, outcomes, required_count=1620, instr
     except (OSError, ValueError, TypeError, KeyError) as exc:
         all_passed = False
         errors.append(f'outcomes: {exc}')
+    version = report.get('configuration', {}).get('python', '') if all_passed else ''
+    merged['python_version'] = '.'.join(version.split()[0].split('.')[:2]) if version else None
     merged['capture_complete'] = not errors and all_passed and len(nodes) == required_count
-    merged['capture_report'] = {'errors': errors, 'catalog_count': len(nodes), 'all_catalog_passed': all_passed,
+    merged['capture_report'] = {'errors': errors, 'python_version': merged['python_version'], 'catalog_count': len(nodes), 'all_catalog_passed': all_passed,
         'catalog_node_ids_sha256': hashlib.sha256(json.dumps(sorted(nodes), separators=(',', ':')).encode()).hexdigest(),
         'baseline_outcomes_sha256': hashlib.sha256(json.dumps(report.get('outcomes', {}), sort_keys=True, separators=(',', ':')).encode()).hexdigest() if all_passed else None,
         'receipt_audit': receipt, 'source_reader_coverage_complete': False, 'code_reader_coverage_complete': False,
@@ -230,7 +237,7 @@ def merge_capture(parent, workers, catalog, outcomes, required_count=1620, instr
     input_files.extend((f'workers/{path.name}', path) for path in sorted(Path(workers).glob('*')) if path.is_file())
     merged['capture_report']['input_sha256'] = {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in input_files if path.is_file()}
     tools = Path(__file__).resolve().parent
-    instrumenters = ('comparison_types.py', 'comparison_spawn.py', 'comparison_bootstrap/sitecustomize.py')
+    instrumenters = ('comparison_types.py', 'comparison_spawn.py', 'comparison_subprocess.py', 'comparison_bootstrap/sitecustomize.py')
     merged['capture_report']['instrumentation_files_at_merge_sha256'] = {name: hashlib.sha256((tools / name).read_bytes()).hexdigest() for name in instrumenters}
     merged['capture_report']['instrumentation_files_at_merge_mtime_ns'] = {name: (tools / name).stat().st_mtime_ns for name in instrumenters}
     merged['capture_report']['per_worker_instrumentation_attested'] = False

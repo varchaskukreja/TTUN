@@ -184,13 +184,22 @@ class ReaderAudit:
                 self.code.setdefault(relative, set()).add(self.context())
             pending.extend(value for value in current.co_consts if type(value) is types.CodeType)
 
+    def record_frame(self, frame):
+        # Acquiring a frame exposes f_lasti/f_lineno and f_back without any
+        # subsequent f_code audit. Include every accessible ancestor frame.
+        while frame is not None:
+            self.record_code(object.__getattribute__(frame, 'f_code'))
+            frame = object.__getattribute__(frame, 'f_back')
+
     def audit(self, event, args):
         if not self.active or getattr(self.local, 'depth', 0):
             return
-        if event not in ('open', 'object.__getattr__'):
+        if event not in ('open', 'object.__getattr__', 'sys._getframe'):
             return
         with self.muted():
-            if event == 'open' and args and isinstance(args[0], (str, bytes)):
+            if event == 'sys._getframe' and args and type(args[0]) is types.FrameType:
+                self.record_frame(args[0])
+            elif event == 'open' and args and isinstance(args[0], (str, bytes)):
                 if len(args) < 3 or not (args[2] & os.O_WRONLY):
                     self.record(os.fsdecode(args[0]), self.source)
             elif event == 'object.__getattr__' and len(args) == 2:
@@ -201,7 +210,7 @@ class ReaderAudit:
                 elif name == 'f_code' and type(obj) is types.FrameType:
                     code = object.__getattribute__(obj, 'f_code')
                 elif name == 'tb_frame' and type(obj) is types.TracebackType:
-                    code = object.__getattribute__(object.__getattribute__(obj, 'tb_frame'), 'f_code')
+                    self.record_frame(object.__getattribute__(obj, 'tb_frame'))
                 elif name in ('gi_code', 'cr_code', 'ag_code') and type(obj) in (types.GeneratorType, types.CoroutineType, types.AsyncGeneratorType):
                     code = object.__getattribute__(obj, name)
                 if code is not None:
