@@ -405,6 +405,33 @@ class Brain {
       wantAim = true
     }
 
+    // free-for-all endgame: sit in cover inside the next circle
+    if (this.ffa && !target && !avoid && !moveGoal && !zoneGoal && o.alive <= 6 && hpFrac > 0.4 && map) {
+      const ang = Math.atan2(y - zn.next_center[1], x - zn.next_center[0])
+      const r = Math.min(zn.next_radius * 0.55, Math.max(12, dNext - 15))
+      const hx = zn.next_center[0] + Math.cos(ang) * r, hy = zn.next_center[1] + Math.sin(ang) * r
+      // prefer a cover spot from the nearest recent track / threat bearing
+      let from: [number, number, number] | null = null
+      let nearest: Track | null = null
+      for (const tr of this.tracks.values()) {
+        if (t - tr.t > 8) continue
+        if (!nearest || hyp2(x, y, tr.pos[0], tr.pos[1]) < hyp2(x, y, nearest.pos[0], nearest.pos[1])) nearest = tr
+      }
+      if (nearest) from = [nearest.pos[0], nearest.pos[1], nearest.pos[2] + 8]
+      else if (this.threatBearing != null && t - this.threatT < 6) {
+        from = [x + Math.cos(this.threatBearing) * 40, y + Math.sin(this.threatBearing) * 40, z + 8]
+      }
+      if (from) {
+        const cov = map.coverFrom(hx, hy, from[0], from[1], from[2], 35)
+        moveGoal = cov ?? [hx, hy]
+      } else moveGoal = [hx, hy]
+      mode = "hold"
+      if (from) {
+        aimYaw = Math.atan2(from[1] - y, from[0] - x)
+        wantAim = true
+      }
+    }
+
     // heal: hold still (silent) out of sight until HP is back
     const healing = !moveGoal && !target && !zoneGoal && (hpFrac < 0.55 || (t < this.hideUntil && hpFrac < 0.9))
     let slow = false
