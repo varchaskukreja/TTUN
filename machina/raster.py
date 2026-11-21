@@ -2,7 +2,8 @@
 
 All changed rectangles require review: geometry underneath identifying text
 cannot be recovered. OCR false negatives and logos remain possible. PNG results
-preserve decoded RGB pixels outside approved rectangles, not original metadata.
+preserve decoded pixels outside approved rectangles. Text metadata uses the same
+identity mapping; unsupported metadata surfaces are explicitly reported.
 """
 from __future__ import annotations
 
@@ -100,53 +101,200 @@ def transform_pdf(data: bytes, replacements: dict[str, str], *, ocr_report=None,
         return doc.tobytes(garbage=4, deflate=False), report
 
 
-def transform_png(data: bytes, replacements: dict[str, str], *, ocr_report=None,
-                  min_confidence=85, max_pixels=16_000_000, padding=1, **ocr_options) -> tuple[bytes, dict]:
-    """Return lossless RGB PNG with exact unchanged pixels outside edited boxes.
+def transform_png(data: bytes, replacements: dict[str, str], **options) -> tuple[bytes, dict]:
+    """Compatibility wrapper for mode-preserving lossless PNG processing."""
+    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError("Expected PNG input")
+    return transform_image(data, replacements, **options)
 
-    Optional ocr_report coordinates must use original image pixels, unlike
-    transform_pdf's PDF points. Input is restricted to nontransparent RGB PNG.
+
+def _metadata_value(value, replace, limits):
+    if isinstance(value, str):
+        return replace(value)
+    if isinstance(value, bytes):
+        try:
+            return replace(value.decode("utf-8")).encode("utf-8")
+        except UnicodeError:
+            limits.add("binary_image_metadata_preserved_requires_review")
+            return value
+    if isinstance(value, tuple):
+        return tuple(_metadata_value(v, replace, limits) for v in value)
+    if isinstance(value, dict):
+        return {k: _metadata_value(v, replace, limits) for k, v in value.items()}
+    return value
+
+
+def transform_image(data: bytes, replacements: dict[str, str], *, ocr_report=None,
+                    min_confidence=85, max_pixels=16_000_000, max_frames=20,
+                    padding=1, **ocr_options) -> tuple[bytes, dict]:
+    """Preserve PNG/JPEG/TIFF format, frames, modes, and engineering metadata.
+
+    Lossless outputs retain decoded pixels outside reported rectangles exactly.
+    JPEG is re-encoded at quality 100 with no chroma subsampling, explicitly
+    reported as lossy. Supplied OCR coordinates use raw image pixels (before
+    EXIF orientation), with page index equal to TIFF frame index. Alpha is
+    unchanged outside edits; replacement rectangles are opaque for legibility.
+    Unknown binary metadata is preserved and flagged. Unsupported modes, frames,
+    or dimensions raise before returning any partial output.
     """
-    if not data.startswith(b'\x89PNG\r\n\x1a\n'):
-        raise ValueError('Only PNG input is supported by this lossless handler')
-    # Read IHDR dimensions before decoding to enforce the allocation bound.
-    width, height = int.from_bytes(data[16:20], 'big'), int.from_bytes(data[20:24], 'big')
-    if width < 1 or height < 1 or width * height > max_pixels:
-        raise ValueError('PNG exceeds pixel budget or has invalid dimensions')
-    pix = fitz.Pixmap(data)
-    if pix.alpha or pix.n != 3:
-        raise ValueError('Only RGB PNG without alpha is supported')
-    if not 0 <= min_confidence <= 100 or not 0 <= padding <= 5:
-        raise ValueError('Invalid OCR confidence threshold')
-    if ocr_report is None:
-        # One PDF point per source pixel avoids coordinate ambiguity.
-        with fitz.open() as wrapper:
-            page = wrapper.new_page(width=width, height=height)
-            page.insert_image(page.rect, stream=data)
-            ocr_report = extract_pdf(wrapper.tobytes(), max_pixels=max_pixels, **ocr_options)
-    limits = set(ocr_report['limitations']) | {'ocr_false_negatives_and_logos_require_review'}
-    edits, extra = _regions(ocr_report['pages'][0]['lines'] if ocr_report['pages'] else [], replacements, min_confidence, padding)
-    limits |= extra
-    samples = bytearray(pix.samples)
-    report = {'format': 'png-raster', 'replacements': 0, 'regions': [], 'complete': False}
-    for edit in edits:
-        rectangles = [fitz.IRect(math.floor(b.x0), math.floor(b.y0), math.ceil(b.x1), math.ceil(b.y1)) & pix.irect for b in edit['boxes']]
-        if any(r.is_empty for r in rectangles):
-            limits.add('invalid_ocr_region_preserved')
-            continue
-        for index, rect in enumerate(rectangles):
-            with fitz.open() as patch:
-                page = patch.new_page(width=rect.width, height=rect.height)
-                if index == 0:
-                    page.insert_text((0, edit['fontsize']), edit['alias'], fontsize=edit['fontsize'], color=(0, 0, 0))
-                replacement = page.get_pixmap(alpha=False).samples
-            for row in range(rect.height):
-                start = ((rect.y0 + row) * width + rect.x0) * 3
-                source = row * rect.width * 3
-                samples[start:start + rect.width * 3] = replacement[source:source + rect.width * 3]
-            report['regions'].append({'bbox': list(rect)})
-        report['replacements'] += 1
-    if report['replacements']:
-        limits.add('geometry_inside_replacement_regions_requires_review')
-    report['limitations'] = sorted(limits)
-    return fitz.Pixmap(fitz.csRGB, width, height, bytes(samples), False).tobytes('png'), report
+    import io
+    import struct
+    from PIL import Image, PngImagePlugin, TiffImagePlugin
+    if not 0 <= min_confidence <= 100 or not 0 <= padding <= 5 or max_frames < 1 or max_pixels < 1:
+        raise ValueError("Invalid image processing limits")
+    replace, _ = _replacer(replacements)
+    limits = {"ocr_false_negatives_and_logos_require_review"}
+    report = {"format": "", "replacements": 0, "regions": [], "complete": False,
+              "pixel_preservation": "exact_outside_regions", "frames": 0}
+    frames = []
+    save_options = []
+    total_pixels = 0
+    with Image.open(io.BytesIO(data)) as original:
+        kind = original.format
+        if kind not in {"PNG", "JPEG", "TIFF"}:
+            raise ValueError("Supported raster formats are PNG, JPEG, and TIFF")
+        count = getattr(original, "n_frames", 1)
+        if count > max_frames or kind == "PNG" and count != 1:
+            raise ValueError("Frame limit exceeded or animated PNG unsupported")
+        report.update(format=kind.lower()+"-raster", frames=count)
+        for frame_index in range(count):
+            original.seek(frame_index)
+            width, height = original.size
+            total_pixels += width * height
+            if total_pixels > max_pixels or min(width, height) < 1:
+                raise ValueError("Image exceeds total decoded pixel budget")
+            if original.mode not in {"1", "L", "LA", "RGB", "RGBA", "CMYK", "I;16", "I;16B", "I;16L"}:
+                raise ValueError("Unsupported image mode: " + original.mode)
+            # TIFF loaders may apply orientation while decoding; avoid writing
+            # a second orientation transform until a verified normalization path exists.
+            if kind == "TIFF" and original.getexif().get(274, 1) != 1:
+                raise ValueError("Oriented TIFF requires explicit normalization")
+            frame = original.copy()
+            options = {}
+            if original.info.get("dpi"):
+                options["dpi"] = original.info["dpi"]
+            if original.info.get("icc_profile"):
+                options["icc_profile"] = original.info["icc_profile"]
+                limits.add("icc_profile_preserved_requires_identity_review")
+            exif = original.getexif()
+            clean_exif = Image.Exif()
+            for key, value in exif.items():
+                if key in (34665, 34853):
+                    value = exif.get_ifd(key)
+                    if key == 34853:
+                        limits.add("gps_metadata_requires_review")
+                clean_exif[key] = _metadata_value(value, replace, limits)
+            if kind != "TIFF" and clean_exif:
+                options["exif"] = clean_exif.tobytes()
+                limits.add("embedded_exif_thumbnail_requires_review")
+            if kind == "PNG":
+                info = PngImagePlugin.PngInfo()
+                for key, value in getattr(original, "text", {}).items():
+                    info.add_itxt(replace(key), replace(value))
+                if "gamma" in original.info:
+                    info.add(b"gAMA", struct.pack(">I", round(original.info["gamma"] * 100000)))
+                if "srgb" in original.info:
+                    info.add(b"sRGB", bytes([original.info["srgb"]]))
+                if "chromaticity" in original.info:
+                    info.add(b"cHRM", struct.pack(">8I", *(round(v*100000) for v in original.info["chromaticity"])))
+                # Retain simple ancillary chunks that do not contain free text.
+                # Report other unknown chunks instead of silently claiming full metadata coverage.
+                offset = 8
+                known = {b"IHDR",b"IDAT",b"IEND",b"iTXt",b"tEXt",b"zTXt",b"gAMA",b"sRGB",b"cHRM",b"pHYs",b"iCCP",b"eXIf",b"tRNS"}
+                while offset + 12 <= len(data):
+                    size = int.from_bytes(data[offset:offset+4], "big")
+                    chunk = data[offset+4:offset+8]
+                    body = data[offset+8:offset+8+size]
+                    if offset + size + 12 > len(data):
+                        raise ValueError("Truncated PNG chunk")
+                    if chunk in {b"bKGD",b"tIME"}:
+                        info.add(chunk, body)
+                    elif chunk not in known:
+                        limits.add("unhandled_png_ancillary_chunks_omitted_requires_review")
+                    offset += size + 12
+                options["pnginfo"] = info
+                if "transparency" in original.info:
+                    options["transparency"] = original.info["transparency"]
+            elif kind == "JPEG":
+                if "comment" in original.info:
+                    options["comment"] = _metadata_value(original.info["comment"], replace, limits)
+                if "xmp" in original.info:
+                    options["xmp"] = _metadata_value(original.info["xmp"], replace, limits)
+                if any(marker not in {"APP0","APP1","APP2","APP14","COM"} for marker, _ in getattr(original,"applist",[])):
+                    limits.add("unhandled_jpeg_application_metadata_omitted_requires_review")
+                options.update(quality=100, subsampling=0)
+                limits.add("jpeg_recompression_changes_pixels_outside_regions")
+                report["pixel_preservation"] = "lossy_jpeg_recompression"
+            else:
+                # Rebuild layout-dependent tags, preserve remaining metadata.
+                structural = {256,257,258,259,262,273,277,278,279,284,317,320,322,323,324,325,330,338,339,347,34665,34853}
+                if 330 in original.tag_v2:
+                    limits.add("tiff_subifds_omitted_requires_review")
+                tags = TiffImagePlugin.ImageFileDirectory_v2()
+                for key, value in original.tag_v2.items():
+                    if key in structural:
+                        continue
+                    tags[key] = _metadata_value(value, replace, limits)
+                    tags.tagtype[key] = original.tag_v2.tagtype[key]
+                for pointer in (34665, 34853):
+                    if pointer in clean_exif:
+                        tags[pointer] = clean_exif[pointer]
+                options.update(tiffinfo=tags, compression="tiff_adobe_deflate")
+            if ocr_report is None:
+                # OCR composite only; source alpha and pixels remain untouched.
+                preview = frame.convert("RGBA")
+                background = Image.new("RGBA", frame.size, "white")
+                background.alpha_composite(preview)
+                buf = io.BytesIO(); background.convert("RGB").save(buf, format="PNG")
+                with fitz.open() as wrapper:
+                    page = wrapper.new_page(width=width, height=height)
+                    page.insert_image(page.rect, stream=buf.getvalue())
+                    scan = extract_pdf(wrapper.tobytes(), max_pixels=max_pixels, **ocr_options)
+                lines = scan["pages"][0]["lines"] if scan["pages"] else []
+                limits.update(scan["limitations"])
+            else:
+                limits.update(ocr_report["limitations"])
+                found = [p for p in ocr_report["pages"] if p["page"] == frame_index]
+                lines = found[0]["lines"] if found else []
+                if not found:
+                    limits.add("frame_not_ocr_processed")
+            edits, extra = _regions(lines, replacements, min_confidence, padding)
+            limits |= extra
+            for edit in edits:
+                rectangles = [fitz.IRect(math.floor(b.x0), math.floor(b.y0), math.ceil(b.x1), math.ceil(b.y1)) & fitz.IRect(0,0,width,height) for b in edit["boxes"]]
+                if any(r.is_empty for r in rectangles):
+                    limits.add("invalid_ocr_region_preserved"); continue
+                for index, rect in enumerate(rectangles):
+                    with fitz.open() as patch:
+                        page = patch.new_page(width=rect.width, height=rect.height)
+                        if index == 0:
+                            page.insert_text((0, edit["fontsize"]), edit["alias"], fontsize=edit["fontsize"], color=(0,0,0))
+                        pix = page.get_pixmap(alpha=False)
+                        replacement = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+                    if frame.mode.startswith("I;16"):
+                        # Expand 8-bit patch to the full 16-bit range without
+                        # converting any of the original engineering pixels.
+                        import array
+                        values = array.array("H", (v*257 for v in replacement.convert("L").tobytes()))
+                        import sys
+                        if (frame.mode == "I;16B") != (sys.byteorder == "big"):
+                            values.byteswap()
+                        replacement = Image.frombytes(frame.mode, replacement.size, values.tobytes())
+                    else:
+                        replacement = replacement.convert(frame.mode)
+                    frame.paste(replacement, (rect.x0,rect.y0))
+                    report["regions"].append({"page": frame_index, "bbox": list(rect)})
+                report["replacements"] += 1
+            frames.append(frame); save_options.append(options)
+    output = io.BytesIO()
+    if kind == "TIFF" and len(frames) > 1:
+        with TiffImagePlugin.AppendingTiffWriter(output) as writer:
+            for frame, options in zip(frames, save_options):
+                frame.save(writer, format="TIFF", **options)
+                writer.newFrame()
+    else:
+        frames[0].save(output, format=kind, **save_options[0])
+    if report["replacements"]:
+        limits.add("geometry_inside_replacement_regions_requires_review")
+    report["limitations"] = sorted(limits)
+    return output.getvalue(), report

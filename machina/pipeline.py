@@ -16,6 +16,7 @@ from . import solidworks
 from . import archives
 from . import freecad
 from . import text_handler
+from . import source_formats
 from . import raster
 from .identity import Registry
 
@@ -54,6 +55,8 @@ def transform(data: bytes, suffix: str, registry: Registry, *, ocr=False):
         return archives.transform(data,'file'+suffix,member,
             limits=archives.Limits(max_expanded_bytes=256*1024*1024,max_output_bytes=256*1024*1024),
             callback_factory=factory)
+    if suffix in source_formats.SUPPORTED:
+        return source_formats.transform(data,suffix,registry.replace)
     if suffix == '.xml':
         return text_handler.transform_xml(data,registry.replace)
     if suffix in {'.txt', '.csv', '.md'}:
@@ -67,8 +70,8 @@ def transform(data: bytes, suffix: str, registry: Registry, *, ocr=False):
         if ocr:
             output,report['raster']=raster.transform_pdf(output,registry.mapping)
         return output,report
-    if suffix == '.png' and ocr:
-        return raster.transform_png(data,registry.mapping)
+    if suffix in {'.png','.jpg','.jpeg','.tif','.tiff'} and ocr:
+        return raster.transform_image(data,registry.mapping)
     if data.startswith(b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'):
         with tempfile.TemporaryDirectory(prefix='machina-') as temp:
             source=Path(temp)/'source'; dest=Path(temp)/'result'
@@ -78,46 +81,9 @@ def transform(data: bytes, suffix: str, registry: Registry, *, ocr=False):
     return data, {'status':'unsupported','complete_deidentification':False}
 
 
-def run(source: Path, output: Path, registry: Registry, report_path: Path, *, ocr=False):
-    source=source.resolve();output=output.resolve();report_path=report_path.resolve()
-    if source==output or source in output.parents or output in source.parents:
-        raise ValueError('Input and output must be separate non-nested directories')
-    if output.exists(): raise ValueError('Output must be new; do not mutate an existing attempt')
-    if report_path==output or output in report_path.parents:
-        raise ValueError('Keep private run report outside output')
-    files=[]; destinations={}
-    for p in sorted(source.rglob('*')):
-        if p.is_symlink():raise ValueError('Symlinks require explicit review')
-        if not p.is_file():continue
-        rel=registry.path(p.relative_to(source).as_posix())
-        # Casefold collision check is conservative and portable.
-        if rel.casefold() in destinations:raise ValueError('Pseudonym path collision')
-        destinations[rel.casefold()]=p;files.append((p,rel))
-    output.mkdir(parents=True)
-    report_path.parent.mkdir(parents=True,exist_ok=True)
-    totals={'files':0,'bytes':0,'errors':0,'ready_to_submit':False}
-    with report_path.open('x') as ledger:
-        report_path.chmod(0o600)
-        for p,rel in files:
-            target=output/rel;target.parent.mkdir(parents=True,exist_ok=True)
-            row={'input':p.relative_to(source).as_posix(),'output':rel,'input_bytes':p.stat().st_size}
-            try:
-                if p.stat().st_size>256_000_000:
-                    # Preserve source fidelity, but explicitly mark blocked coverage.
-                    shutil.copyfile(p,target)
-                    detail={'status':'deferred_large_file','complete_deidentification':False}
-                else:
-                    result,detail=transform(p.read_bytes(),p.suffix.lower(),registry,ocr=ocr)
-                    target.write_bytes(result)
-                row['coverage']=detail
-                row['output_bytes']=target.stat().st_size
-                with target.open('rb') as f:row['sha256']=hashlib.file_digest(f,'sha256').hexdigest()
-                totals['bytes']+=row['output_bytes']
-            except Exception as e:
-                row['error']=type(e).__name__+': '+str(e);totals['errors']+=1
-                # Keep source defects private; never silently claim omission is sanitization.
-            ledger.write(json.dumps(row)+'\n');ledger.flush();totals['files']+=1
-    return totals
+def run(source: Path, output: Path, registry: Registry, report_path: Path, *, ocr=False,manifest=None,workers=1):
+    from .batch import run_pipeline
+    return run_pipeline(source,output,registry,report_path,ocr=ocr,manifest=manifest,workers=workers)
 
 
 def main():
@@ -127,8 +93,10 @@ def main():
     p.add_argument('--key-file',type=Path,required=True)
     p.add_argument('--private-report',type=Path,required=True)
     p.add_argument('--ocr',action='store_true',help='Enable bounded known-identity raster edits; all edited regions require review')
+    p.add_argument('--manifest',type=Path,help='Select exactly these input paths; required for get-input.sh output')
+    p.add_argument('--workers',type=int,default=1)
     a=p.parse_args()
     registry=Registry(json.loads(a.registry.read_text()),a.key_file.read_bytes())
-    print(json.dumps(run(a.input,a.output,registry,a.private_report,ocr=a.ocr),indent=2))
+    print(json.dumps(run(a.input,a.output,registry,a.private_report,ocr=a.ocr,manifest=a.manifest,workers=a.workers),indent=2))
 
 if __name__=='__main__':main()

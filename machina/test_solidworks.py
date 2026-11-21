@@ -4,8 +4,7 @@ import zlib
 from machina.solidworks import MARKER, read_streams, rewrite_bytes
 
 
-def fixture(payload=b'<root><creator>Alice</creator><company>Alice</company></root>', slack=64):
-    name = b'docProps/core.xml'
+def fixture(payload=b'<root><creator>Alice</creator><company>Alice</company></root>', slack=64, name=b'docProps/core.xml'):
     encoded = bytes(((x >> 4) | (x << 4)) & 255 for x in name)
     co = zlib.compressobj(9, zlib.DEFLATED, -15)
     compressed = co.compress(payload) + co.flush()
@@ -46,6 +45,28 @@ class SolidWorksTests(unittest.TestCase):
     def test_conflicting_casefold_mapping(self):
         with self.assertRaisesRegex(ValueError, 'conflicting_casefold'):
             rewrite_bytes(fixture(), {'Alice': 'Agent', 'ALICE': 'Other'})
+
+    def test_xml_reference_attributes_preserve_structural_fields(self):
+        xml=b'<root swPath="C:\\Users\\Alice\\Alice_part.sldprt" swName="Alice_part" id="Alice" Material="Alice">Alice</root>'
+        result, report = rewrite_bytes(fixture(xml,name=b'swXmlContents/Features'), {'alice':'Agent'})
+        payload=read_streams(result)[0][0].payload
+        self.assertIn(b'swName="Agent_part"',payload)
+        self.assertIn(b'id="Alice"',payload);self.assertIn(b'Material="Alice"',payload)
+        self.assertEqual(report['changed_streams'],1)
+
+    def test_keyword_xml_prefix_preserved(self):
+        data=fixture(b'\x86<?xml version="1.0"?><Keywords Name="Alice"/>',name=b'swXmlContents/KeyWords')
+        result, _=rewrite_bytes(data,{'alice':'Agent'})
+        self.assertEqual(read_streams(result)[0][0].payload,b'\x86<?xml version="1.0"?><Keywords Name="Agent"/>')
+
+    def test_binary_reference_only_in_metadata_streams(self):
+        from machina.test_native_reference import framed
+        payload=framed('C:\\Users\\Alice\\file.sldprt')
+        for name,expected in [(b'Header2',1),(b'Contents/Config-0-Partition',0)]:
+            data=fixture(payload,name=name)
+            result,report=rewrite_bytes(data,{'alice':'Agent'})
+            self.assertEqual(report['changed_references'],expected)
+            if not expected:self.assertEqual(data,result)
 
     def test_overflow_refused(self):
         data = fixture(slack=0)

@@ -3,7 +3,11 @@ name = "machina-deid"
 version = "0.1.0"
 description = "Reproducible CAD corpus de-identification"
 requires-python = ">=3.11"
-dependencies = ["pymupdf==1.26.6", "olefile==0.47"]
+dependencies = [
+    "pymupdf==1.26.6",
+    "olefile==0.47",
+    "pillow==12.0.0",
+]
 
 [dependency-groups]
 dev = ["pytest==9.0.1"]
