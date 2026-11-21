@@ -74,6 +74,42 @@ def describe_type(cls):
             'supported_metaclass': standard_meta and not custom_metaclass_object}
 
 
+def describe_operand(value):
+    cls = type(value)
+    descriptor = describe_type(cls)
+    descriptor.update(backed_enum_kind='', canonical_member=False, builtin_values_bijective=False)
+    if not descriptor['standard_enum_type'] or not descriptor['supported_metaclass']:
+        return descriptor
+    mro = TYPE_MRO.__get__(cls, type(cls))
+    builtin = str if any(base is str for base in mro) else int if any(base is int for base in mro) else None
+    if builtin is None or effective_slot(cls, '__eq__') is not builtin.__eq__ or effective_slot(cls, '__ne__') is not builtin.__ne__:
+        return descriptor
+    members = namespace(cls).get('_member_map_')
+    if type(members) is not dict:
+        return descriptor
+    descriptor['backed_enum_kind'] = builtin.__name__
+    seen = {}
+    valid = True
+    # Invoke exact builtin conversion implementations, never member hooks.
+    for member in members.values():
+        if type(member) is not cls:
+            valid = False
+            break
+        if member is value:
+            descriptor['canonical_member'] = True
+        raw = str.__str__(member) if builtin is str else int.__int__(member)
+        if type(raw) is not builtin:
+            valid = False
+            break
+        previous = seen.get(raw)
+        if previous is not None and previous is not member:
+            valid = False
+            break
+        seen[raw] = member
+    descriptor['builtin_values_bijective'] = valid and bool(seen)
+    return descriptor
+
+
 def site_key(path, node):
     return f'{path}:{node.lineno}:{node.col_offset}:{node.end_lineno}:{node.end_col_offset}'
 
@@ -188,6 +224,7 @@ class Recorder:
         self.execution_codes = {}
         self.code_ancestry = {}
         self.preexisting_modules = {}
+        self.serialization_cache = {}
 
     def compare(self, site, operation, left, right):
         # No operand values or comparison results are stored. Type slot lookups
@@ -200,9 +237,18 @@ class Recorder:
         path = self.sites[site]['path']
         owner = code_key(path, caller)
         self.execution_codes.setdefault(site, {}).setdefault(owner, set()).add(self.context())
-        pair = {'left': describe_type(type(left)), 'right': describe_type(type(right)),
-                'same_type': type(left) is type(right)}
-        key = json.dumps(pair, sort_keys=True, separators=(',', ':'))
+        left_desc, right_desc = describe_operand(left), describe_operand(right)
+        for descriptor in (left_desc, right_desc):
+            if type(descriptor['qualname']) is not str:
+                descriptor['qualname'] = str.__str__(descriptor['qualname'])
+        primitive_key = (tuple(left_desc.values()), tuple(right_desc.values()), type(left) is type(right))
+        key = self.serialization_cache.get(primitive_key)
+        if key is None:
+            pair = {'left': left_desc, 'right': right_desc, 'same_type': type(left) is type(right)}
+            key = json.dumps(pair, sort_keys=True, separators=(',', ':'))
+            if len(self.serialization_cache) >= 4096:
+                self.serialization_cache.clear()
+            self.serialization_cache[primitive_key] = key
         self.pairs.setdefault(site, {}).setdefault(key, set()).add(self.context())
         # Execute Python's original operation, preserving dispatch and its exact
         # return object. Never coerce a rich comparison result with bool().
@@ -394,7 +440,11 @@ def observed_certificate(mapping, path, before, after, changed_files=1):
         identity = all(t['supported_metaclass'] and t['eq'] in ('object_identity', 'none_identity') and (not require_ne or t['ne'] in ('object_identity', 'none_identity')) for t in (left, right))
         none_case = left['none_type'] or right['none_type']
         enum_case = pair['same_type'] and left['standard_enum_type'] and right['standard_enum_type']
-        if not identity or not (none_case or enum_case):
+        backed_enum_case = pair['same_type'] and all(
+            t.get('standard_enum_type') and t.get('supported_metaclass') and
+            t.get('backed_enum_kind') in ('str', 'int') and t.get('canonical_member') and t.get('builtin_values_bijective')
+            for t in (left, right)) and left.get('backed_enum_kind') == right.get('backed_enum_kind')
+        if not (identity and (none_case or enum_case)) and not backed_enum_case:
             return {'equivalent_for_observed_types': False, 'reason': 'unproved operand type pair', 'site': edit['site']}
     dependencies = mapping.get('read_dependencies', {})
     source_readers = dependencies.get('source', {}).get(path, [])

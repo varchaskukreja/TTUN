@@ -4,7 +4,7 @@
   "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
   "production_enabled": false,
   "synthetic_tests": {
-    "passed": 24,
+    "passed": 28,
     "seconds": 0.017,
     "command": ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_comparison_types.py"
   },
@@ -91,7 +91,18 @@
     "Instrumentation changes stack, globals, timing and reference lifetimes; reflection coverage remains empirical."
   ],
   "artifacts": {
-    "rwx-blast-radius/tools/comparison_types.py": "f70953873d74e4a2c610a0a4ff53f05dda31e99230740c7060c54f3ff3a581bd",
-    "rwx-blast-radius/tools/test_comparison_types.py": "6094d8a10aeef7d30dcc2d1a7144a2c2ed30ff7166d0851aa35f9f8e4b82e0b4"
+    "rwx-blast-radius/tools/comparison_types.py": "95371b6039ff54feee7321e64c90d8e3aeb6e165e50e8876ab5dd8d2ab9de8c1",
+    "rwx-blast-radius/tools/test_comparison_types.py": "03b6f18bc1e01510720ff620599e16cef557a7a009e07cdea68f3028029256d6"
+  },
+  "v2_extensions": {
+    "serialization_cache": "bounded4096 cache of JSON strings keyed by fresh primitive operand descriptors; no type/slot/value/result caches",
+    "backed_enum": "same exact standard EnumType; both operands canonical members; exact str/int eq/ne slots; distinct member identities have distinct actual builtin values; aliases allowed; raw values never persisted",
+    "full_v1": {
+      "plain": "1620 tests and25440subtests passed,44.12s",
+      "instrumented": "intentionalabortafter1490tests/23119subtests passed483.44s",
+      "reason": "untracked plain Python Popen gap and validated recorder performance fix",
+      "all_receipt_pids_terminal": true,
+      "globally_complete": false
+    }
   }
 }

@@ -79,7 +79,7 @@ class ComparisonTypesTests(unittest.TestCase):
         class Word(enum.StrEnum):
             ONE = 'one'
         for value in (Number.ONE, Word.ONE):
-            self.assertFalse(self.certificate(value, value)['equivalent_for_observed_types'])
+            self.assertTrue(self.certificate(value, value)['equivalent_for_observed_types'])
 
     def test_custom_enum_equality_rejected(self):
         class Custom(enum.Enum):
@@ -364,6 +364,92 @@ class ComparisonTypesTests(unittest.TestCase):
             target['f'](object())
             patch = 'diff --git a/module.py b/module.py\n' + ''.join(difflib.unified_diff(before.splitlines(True), after.splitlines(True), fromfile='a/module.py', tofile='b/module.py'))
             self.assertFalse(qualify_patch(recorder.snapshot(), root, patch)['equivalent_for_observed_types'])
+
+    def test_backed_enum_canonical_members_aliases_and_forgery(self):
+        class Word(str, enum.Enum):
+            A = 'a'
+            ALIAS = 'a'
+            B = 'b'
+        for left, right in ((Word.A, Word.B), (Word.A, Word.ALIAS)):
+            self.assertTrue(self.certificate(left, right)['equivalent_for_observed_types'])
+        self.assertFalse(self.certificate(Word.A, 'a')['equivalent_for_observed_types'])
+        forged = str.__new__(Word, 'a')
+        self.assertFalse(self.certificate(Word.A, forged)['equivalent_for_observed_types'])
+        class Number(int, enum.Enum):
+            A = 1
+            B = 2
+        self.assertTrue(self.certificate(Number.A, Number.B)['equivalent_for_observed_types'])
+        self.assertFalse(self.certificate(Number.A, int.__new__(Number, 1))['equivalent_for_observed_types'])
+
+    def test_backed_enum_duplicate_underlying_value_rejected(self):
+        class Weird(str, enum.Enum):
+            def __new__(cls, label):
+                obj = str.__new__(cls, 'same')
+                obj._value_ = label
+                return obj
+            A = 'a'
+            B = 'b'
+        self.assertIsNot(Weird.A, Weird.B)
+        self.assertEqual(Weird.A, Weird.B)
+        self.assertFalse(self.certificate(Weird.A, Weird.B)['equivalent_for_observed_types'])
+
+    def test_backed_enum_member_map_mutation_refreshes_flags(self):
+        class Word(str, enum.Enum):
+            A = 'a'
+        recorder = Recorder(lambda: 'test')
+        before = 'def compare(a,b):\n    return a is b\n'
+        function = recorder.execute(before)['compare']
+        function(Word.A, Word.A)
+        Word._member_map_['BAD'] = str.__new__(Word, 'a')
+        function(Word.A, Word.A)
+        cert = observed_certificate(recorder.snapshot(), 'synthetic.py', before, before.replace(' is ', ' == '))
+        self.assertFalse(cert['equivalent_for_observed_types'])
+        self.assertEqual(len(recorder.serialization_cache), 2)
+
+    def test_serialization_cache_refreshes_slots_and_is_bounded(self):
+        recorder = Recorder(lambda: 'test')
+        before = 'def compare(value):\n    return value is None\n'
+        function = recorder.execute(before)['compare']
+        class Value:
+            pass
+        function(Value())
+        Value.__eq__ = lambda self, other: True
+        function(Value())
+        self.assertEqual(len(recorder.serialization_cache), 2)
+        self.assertFalse(observed_certificate(recorder.snapshot(), 'synthetic.py', before, before.replace(' is ', ' == '))['equivalent_for_observed_types'])
+        recorder.serialization_cache = {('dummy', i): 'unused' for i in range(4096)}
+        function(None)
+        self.assertEqual(len(recorder.serialization_cache), 1)
+
+    def test_backed_enum_custom_slots_and_metaclasses_rejected(self):
+        class CustomEq(str, enum.Enum):
+            A = 'a'
+            def __eq__(self, other):
+                return True
+        class CustomNe(str, enum.Enum):
+            A = 'a'
+            def __ne__(self, other):
+                return True
+        class Meta(enum.EnumType):
+            pass
+        class CustomMeta(str, enum.Enum, metaclass=Meta):
+            A = 'a'
+        for value in (CustomEq.A, CustomNe.A, CustomMeta.A):
+            self.assertFalse(self.certificate(value, value)['equivalent_for_observed_types'])
+
+    def test_backed_enum_custom_conversion_hooks_not_invoked(self):
+        class Word(str, enum.Enum):
+            A = 'a'
+            B = 'b'
+            def __str__(self):
+                raise AssertionError('custom str called')
+        class Number(int, enum.Enum):
+            A = 1
+            B = 2
+            def __int__(self):
+                raise AssertionError('custom int called')
+        for left, right in ((Word.A, Word.B), (Number.A, Number.B)):
+            self.assertTrue(self.certificate(left, right)['equivalent_for_observed_types'])
 
 
 if __name__ == '__main__':
