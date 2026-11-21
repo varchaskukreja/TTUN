@@ -258,27 +258,43 @@ class Brain {
       const tp = target.pos
       const d = hyp2(x, y, tp[0], tp[1])
       const tScale = 1 + 0.05 * target.cubes
-      const tcz = tp[2] + 4.5 * tScale
+      let shotX = tp[0], shotY = tp[1], tcz = tp[2] + 4.5 * tScale
       const seen = t - target.t < 0.11
-      const hasLos = map ? map.los(x, y, muzzleZ, tp[0], tp[1], tcz) : true
+      let hasLos = map ? map.los(x, y, muzzleZ, shotX, shotY, tcz) : true
+      // A visible cylinder can extend above a ledge or past a campus wall
+      // while its center is hidden. Use an interior point on its visible face.
+      if (!hasLos && seen && map && d > 1 && (gunS >= 0 || laserS >= 0)) {
+        const lateralX = (y - tp[1]) / d, lateralY = (tp[0] - x) / d
+        for (const [side, height] of [[0, 7.4], [0, 1.6], [1.6, 4.9], [-1.6, 4.9]]) {
+          const px = tp[0] + side * lateralX * tScale
+          const py = tp[1] + side * lateralY * tScale
+          const pz = tp[2] + height * tScale
+          if (!map.los(x, y, muzzleZ, px, py, pz)) continue
+          shotX = px
+          shotY = py
+          tcz = pz
+          hasLos = true
+          break
+        }
+      }
       mode = "fight"
 
       // aim solution
       const aimFor = (spd: number): [number, number] => {
-        let px = tp[0], py = tp[1], pz = tcz
+        let px = shotX, py = shotY, pz = tcz
         const age = t - target!.t
         px += target!.vel[0] * age
         py += target!.vel[1] * age
         for (let it = 0; it < 3; it++) {
           const dd = Math.hypot(px - x, py - y, pz - muzzleZ)
           const tt = dd / spd
-          px = tp[0] + target!.vel[0] * (tt + age)
-          py = tp[1] + target!.vel[1] * (tt + age)
+          px = shotX + target!.vel[0] * (tt + age)
+          py = shotY + target!.vel[1] * (tt + age)
           pz = tcz + (target!.vel[2] ?? 0) * Math.min(tt, 0.3)
         }
         return [Math.atan2(py - y, px - x), Math.atan2(pz - muzzleZ, Math.hypot(px - x, py - y))]
       }
-      const instant = (): [number, number] => [Math.atan2(tp[1] - y, tp[0] - x), Math.atan2(tcz - muzzleZ, d)]
+      const instant = (): [number, number] => [Math.atan2(shotY - y, shotX - x), Math.atan2(tcz - muzzleZ, Math.hypot(shotX - x, shotY - y))]
 
       // pick weapon emphasis
       let a: [number, number]
