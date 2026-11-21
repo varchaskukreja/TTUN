@@ -1,7 +1,7 @@
 //! A minimal Parquet writer for the two output tables: one row group, one PLAIN-encoded,
 //! uncompressed data page per column, and a thrift-compact footer.
 
-use crate::keys::{is_long, unpack};
+use crate::keys::{len64, put64};
 use crate::URow;
 use std::fs::File;
 use std::io::Write;
@@ -194,13 +194,9 @@ fn put_str(d: &mut Vec<u8>, s: &[u8]) {
     d.extend_from_slice(s);
 }
 
-fn put_key(d: &mut Vec<u8>, k: u128) {
-    if is_long(k) {
-        put_str(d, &unpack(k));
-    } else {
-        let b = k.to_be_bytes();
-        put_str(d, &b[..b[15] as usize]);
-    }
+fn put_key(d: &mut Vec<u8>, k: u64) {
+    d.extend_from_slice(&(len64(k) as u32).to_le_bytes());
+    put64(d, k);
 }
 
 /// Definition levels for a max-level-1 column: one bit-packed run, length-prefixed.
