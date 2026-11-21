@@ -7,7 +7,7 @@ mod ptable;
 mod scan;
 
 use hashbrown::HashMap;
-use keys::{cmp_keys, mix2, pack, pack_in, KeyHasher};
+use keys::{cmp64, k64, k64_in, mix64b, pack, pack_in, KeyHasher};
 use memmap2::Mmap;
 use parse::{parse_price, parse_ts};
 use ptable::PTable;
@@ -18,6 +18,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 
 pub type KMap<V> = HashMap<u128, V, BuildHasherDefault<KeyHasher>>;
+pub type KMap64<V> = HashMap<u64, V, BuildHasherDefault<KeyHasher>>;
 
 const DAY_MS: i64 = 86_400_000;
 const GAP_MS: i64 = 1_800_000;
@@ -145,8 +146,8 @@ fn manifest_ts(text: &str, key: &str) -> i64 {
 #[derive(Clone, Copy)]
 #[repr(C, packed(8))]
 struct EvRaw {
-    key: u128,
-    uid: u128,
+    key: u64,
+    uid: u64,
     ingest: i64,
     ts: u32,
     pc: u32,
@@ -156,7 +157,7 @@ struct EvRaw {
 #[derive(Clone, Copy)]
 #[repr(C, packed(8))]
 struct Ev {
-    who: u128,
+    who: u64,
     ts: u32,
     pc: u32,
 }
@@ -165,14 +166,14 @@ struct Ev {
 #[derive(Clone, Copy)]
 #[repr(C, packed(8))]
 struct Click {
-    who: u128,
-    click: u128,
+    who: u64,
+    click: u64,
     ts: u32,
     camp: u32,
 }
 
 pub struct URow {
-    pub person: u128,
+    pub person: u64,
     pub day: i32,
     pub sessions: u32,
     pub events: u32,
@@ -191,8 +192,8 @@ struct Ctx {
 const PF: usize = 16;
 
 #[inline]
-fn pbucket(p: u128) -> usize {
-    (mix2(p) >> (64 - PERSON_BITS)) as usize
+fn pbucket(p: u64) -> usize {
+    (mix64b(p) >> (64 - PERSON_BITS)) as usize
 }
 
 fn main() {
@@ -259,11 +260,11 @@ fn main() {
     // Links are small: one thread parses them and runs the union-find while the rest parse events.
     let (persons, ev_parts) = std::thread::scope(|s| {
         let h = s.spawn(|| {
-            let mut links: Vec<(u128, u128)> = Vec::with_capacity(li.bytes / 20);
+            let mut links: Vec<(u64, u64)> = Vec::with_capacity(li.bytes / 20);
             for i in 0..nl {
                 scan::scan::<2, _>(li.chunk(i), |f| {
                     if !f[0].is_empty() && !f[1].is_empty() {
-                        links.push((pack(f[0]), pack(f[1])));
+                        links.push((k64(f[0]), k64(f[1])));
                     }
                 });
             }
@@ -296,7 +297,7 @@ fn main() {
             return;
         }
         let g = i - nc;
-        let mut map: KMap<u32> = KMap::default();
+        let mut map: KMap64<u32> = KMap64::default();
         let mut buf: Vec<EvRaw> = Vec::new();
         for b in g * per_group..((g + 1) * per_group).min(nd) {
             buf.clear();
@@ -356,7 +357,7 @@ fn main() {
             cls.extend_from_slice(&r.cl[b]);
         }
         evs.sort_unstable_by(|a, b| { a.who }.cmp(&{ b.who }).then({ a.ts }.cmp(&{ b.ts })));
-        cls.sort_unstable_by(|a, b| { a.who }.cmp(&{ b.who }).then({ a.ts }.cmp(&{ b.ts })).then_with(|| cmp_keys(a.click, b.click)));
+        cls.sort_unstable_by(|a, b| { a.who }.cmp(&{ b.who }).then({ a.ts }.cmp(&{ b.ts })).then_with(|| cmp64(a.click, b.click)));
         let mut sc = Scratch::new(ncat);
         let mut j = 0usize;
         let mut i = 0usize;
@@ -450,7 +451,7 @@ struct Sess {
     purchase: bool,
 }
 
-fn flush_row(sc: &mut Scratch, p: u128, day: i64, s: u32, e: u32, r: i64, urows: &mut Vec<URow>) {
+fn flush_row(sc: &mut Scratch, p: u64, day: i64, s: u32, e: u32, r: i64, urows: &mut Vec<URow>) {
     let mut top: i32 = -1;
     let mut best = 0i64;
     for &c in &sc.touched {
@@ -472,7 +473,7 @@ fn flush_row(sc: &mut Scratch, p: u128, day: i64, s: u32, e: u32, r: i64, urows:
     }
 }
 
-fn process_person(p: u128, evs: &[Ev], cls: &[Click], c: &PCtx, sc: &mut Scratch, urows: &mut Vec<URow>, camp: &mut [[i64; 4]]) {
+fn process_person(p: u64, evs: &[Ev], cls: &[Click], c: &PCtx, sc: &mut Scratch, urows: &mut Vec<URow>, camp: &mut [[i64; 4]]) {
     sc.sess.clear();
     let ndays = c.ndays;
     let mut cur_day: i64 = i64::MIN;
@@ -580,11 +581,11 @@ fn parse_events(data: &[u8], ctx: &Ctx, out: &mut [Vec<EvRaw>]) {
         if f[0].is_empty() {
             return;
         }
-        let key = pack_in(f[0], end);
+        let key = k64_in(f[0], end);
         let ingest = parse_ts(f[3]).unwrap_or(i64::MAX);
         let mut ts_rel = NO_TS;
         let mut pc = 0u32;
-        let mut uid = 0u128;
+        let mut uid = 0u64;
         'v: {
             if f[1].is_empty() || f[5].is_empty() {
                 break 'v;
@@ -609,10 +610,10 @@ fn parse_events(data: &[u8], ctx: &Ctx, out: &mut [Vec<EvRaw>]) {
             if ingest == i64::MAX || ingest - ts > LATE_MS {
                 break 'v;
             }
-            uid = pack_in(f[1], end);
+            uid = k64_in(f[1], end);
             ts_rel = (ts - ctx.ws) as u32;
         }
-        let b = (mix2(key) >> (64 - DEDUP_BITS)) as usize;
+        let b = (mix64b(key) >> (64 - DEDUP_BITS)) as usize;
         unsafe { out.get_unchecked_mut(b) }.push(EvRaw { key, uid, ingest, ts: ts_rel, pc });
     });
 }
@@ -633,7 +634,7 @@ fn parse_clicks(data: &[u8], ctx: &Ctx, persons: &PTable, out: &mut [Vec<Click>]
             Some(&c) => c,
             None => return,
         };
-        local.push(Click { who: pack_in(f[1], end), click: pack_in(f[0], end), ts: (ts - lo) as u32, camp: camp as u32 });
+        local.push(Click { who: k64_in(f[1], end), click: k64_in(f[0], end), ts: (ts - lo) as u32, camp: camp as u32 });
     });
     let n = local.len();
     for i in 0..n {
@@ -647,10 +648,10 @@ fn parse_clicks(data: &[u8], ctx: &Ctx, persons: &PTable, out: &mut [Vec<Click>]
 }
 
 /// Union-find over linked IDs; returns id -> person name (smallest id) for every linked id.
-fn build_persons(links: Vec<(u128, u128)>) -> PTable {
+fn build_persons(links: Vec<(u64, u64)>) -> PTable {
     let total = links.len();
-    let mut idx: KMap<u32> = KMap::with_capacity_and_hasher(total, Default::default());
-    let mut ids: Vec<u128> = Vec::with_capacity(total);
+    let mut idx: KMap64<u32> = KMap64::with_capacity_and_hasher(total, Default::default());
+    let mut ids: Vec<u64> = Vec::with_capacity(total);
     let mut parent: Vec<u32> = Vec::with_capacity(total);
     fn find(parent: &mut [u32], mut x: u32) -> u32 {
         while parent[x as usize] != x {
@@ -662,7 +663,7 @@ fn build_persons(links: Vec<(u128, u128)>) -> PTable {
     }
     {
         for &(a, b) in &links {
-            let mut get = |k: u128| -> u32 {
+            let mut get = |k: u64| -> u32 {
                 *idx.entry(k).or_insert_with(|| {
                     ids.push(k);
                     parent.push(parent.len() as u32);
@@ -675,7 +676,7 @@ fn build_persons(links: Vec<(u128, u128)>) -> PTable {
             let rb = find(&mut parent, ib);
             if ra != rb {
                 // Keep the root at the smaller id so the root is the person's name.
-                if cmp_keys(ids[ra as usize], ids[rb as usize]).is_lt() {
+                if cmp64(ids[ra as usize], ids[rb as usize]).is_lt() {
                     parent[rb as usize] = ra;
                 } else {
                     parent[ra as usize] = rb;
