@@ -1,0 +1,115 @@
+{
+  "all_runs_completed": true,
+  "all_runs_passed": false,
+  "full_run_evidence": "rwx-blast-radius/validation/order-baselines.json",
+  "full_run_evidence_sha256": "fa4748af95d24277551e6a72d7f9fbca5fa442b9722640585fd7db89cbd95c95",
+  "future_stress_run_requirement": "Compare against matched-order baseline failures. Retain/account for unstable nodes; do not count preexisting order failures as mutation-caused or claim universal zero misses.",
+  "interpretation": "Both failures pass in individual fresh-process controls; suite-order registry clearing precedes both failures in reverse and fixed-seed shuffle. This supports shared-state contamination rather than isolated baseline failure. No upstream source changes made.",
+  "kind": "baseline_order_instability_read_only_audit",
+  "order_positions": {
+    "normal": {
+      "affected_tests": {
+        "tests/dialects/test_dialect.py::TestDialect::test_enum": 184,
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip": 895
+      },
+      "registry_clear_tests": [
+        [
+          1050,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_discovery_legacy_api"
+        ],
+        [
+          1051,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_discovery_modern_api"
+        ],
+        [
+          1052,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found"
+        ]
+      ]
+    },
+    "reversed": {
+      "affected_tests": {
+        "tests/dialects/test_dialect.py::TestDialect::test_enum": 1435,
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip": 724
+      },
+      "registry_clear_tests": [
+        [
+          567,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found"
+        ],
+        [
+          568,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_discovery_modern_api"
+        ],
+        [
+          569,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_discovery_legacy_api"
+        ]
+      ]
+    },
+    "shuffle": {
+      "affected_tests": {
+        "tests/dialects/test_dialect.py::TestDialect::test_enum": 277,
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip": 1271
+      },
+      "registry_clear_tests": [
+        [
+          117,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_not_found"
+        ],
+        [
+          363,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_discovery_legacy_api"
+        ],
+        [
+          612,
+          "tests/test_dialect_entry_points.py::TestDialectEntryPoints::test_entry_point_plugin_discovery_modern_api"
+        ]
+      ]
+    }
+  },
+  "order_receipts_verified": {
+    "reversed_exactly": true,
+    "shuffle_exactly": true
+  },
+  "post_control_research_tool_fix": {
+    "change": "Normalize distribution pairs to JSON-native lists, fixing plan/receipt equality after JSON roundtrip.",
+    "control_suites_rerun": false,
+    "new_runner_sha256": "55298fe7f04286635a3214daae5f9076996e037e49b57cc1bd582b6edf398df9",
+    "old_receipts_migrated": false,
+    "old_runner_sha256": "e3e52375b8077b51c5838c6912f0554a91ea6768d83cc5d1469074bc53c3956d",
+    "performed_after_all_controls_terminal": true,
+    "reuse_policy": "Old controls remain valid observations. Their frozen runtime hashes do not match the amended runner, so future mutation execution needs a fresh matching baseline unless independently reviewed."
+  },
+  "root_cause_evidence": [
+    {
+      "finding": "setUp and tearDown both clear Dialect._classes, without restoring the default empty-string dialect registration.",
+      "lines": [
+        14,
+        17
+      ],
+      "path": "tests/test_dialect_entry_points.py"
+    },
+    {
+      "finding": "Class equality with a string resolves through cls.get(other); instance equality delegates to class equality. Registry __getitem__ indexes the missing key.",
+      "lines": [
+        217,
+        221,
+        297,
+        1180,
+        1182
+      ],
+      "path": "sqlglot/dialects/dialect.py"
+    },
+    {
+      "finding": "TimeSlice origin is included only when self.dialect == empty string. Losing default registration makes this comparison false and omits origin.",
+      "lines": [
+        6185,
+        6187
+      ],
+      "path": "sqlglot/generator.py"
+    }
+  ],
+  "targeted_evidence": "rwx-blast-radius/validation/order-targeted-controls.json",
+  "targeted_evidence_sha256": "20c5b0302e64e1ac38e0a4dc113a70429f6110a327a01ccc7bd60ae692d6d6a2"
+}

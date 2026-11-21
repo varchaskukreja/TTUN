@@ -13,12 +13,28 @@ import test_validate_comparison_holdout as fixtures
 
 
 class RunnerTests(unittest.TestCase):
+    def test_runtime_identity_survives_json_receipt_roundtrip(self):
+        identity = runner.runtime_identity()
+        self.assertEqual(json.loads(json.dumps(identity)), identity)
+
+    def test_plan_provenance_survives_json_roundtrip(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'map.json').write_text('{}')
+            (root / 'proofs.json').write_text('{}')
+            samples = root / 'samples'; samples.mkdir()
+            (samples / 'sample.patch').write_text('example')
+            with patch.object(runner, 'source_identity', return_value={'revision': 'pin', 'archive_sha256': 'sha'}):
+                provenance = runner.plan_provenance(root, root / 'map.json', root / 'proofs.json', samples)
+            self.assertEqual(json.loads(json.dumps(provenance)), provenance)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.ids = {f'test::{i}' for i in range(1620)}
         self.report = {'complete': True, 'process_timeout': False, 'process_exitcode': 0,
+                       'collected_order': sorted(self.ids), 'collection_order_policy': 'normal', 'collection_order_seed': 0,
                        'requested': sorted(self.ids), 'collected': sorted(self.ids), 'finished': sorted(self.ids),
                        'outcomes': dict.fromkeys(self.ids, 'passed'), 'collection_errors': [], 'unresolved': []}
         self.report['phase_audit'] = {node: {'phases': {'setup': 'passed', 'call': 'passed', 'teardown': 'passed'}, 'subtests': {}} for node in self.ids}
@@ -84,7 +100,7 @@ class RunnerTests(unittest.TestCase):
     def test_baseline_receipt_hash_runtime_and_catalog_bound(self):
         report_path, receipt_path = self.root / 'report.json', self.root / 'receipt.json'
         report_path.write_text(json.dumps(self.report))
-        identity = {'source': 'pinned', 'runtime': '3.13', 'catalog_sha256': 'catalog'}
+        identity = {'source': 'pinned', 'runtime': '3.13', 'catalog_sha256': 'catalog', 'order': {'policy': 'normal', 'seed': 0}}
         receipt_path.write_text(json.dumps({'baseline_identity': identity, 'report_sha256': runner.sha(report_path)}))
         self.assertIsNotNone(runner.reuse_baseline(report_path, receipt_path, identity, self.ids))
         self.assertIsNone(runner.reuse_baseline(report_path, receipt_path, dict(identity, runtime='3.15'), self.ids))

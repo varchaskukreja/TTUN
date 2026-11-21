@@ -31,12 +31,25 @@ if os.environ.get('HOLDOUT_SELECT'):
     _requested &= set(json.loads(os.environ['HOLDOUT_SELECT']))
 _outcomes, _details, _collected, _finished = {}, {}, set(), set()
 _phase_audit = {}
+_collected_order = []
 _collection_errors = []
+
+
+def order_items(items, policy='normal', seed=0):
+    """Mutate only the item list; never seed Python's process-global RNG."""
+    if policy == 'reversed':
+        items.reverse()
+    elif policy == 'shuffle':
+        random.Random(seed).shuffle(items)
+    elif policy != 'normal':
+        raise ValueError(f'Unknown holdout order: {policy}')
 
 
 def pytest_collection_modifyitems(session, config, items):
     items[:] = [item for item in items if item.nodeid in _requested]
+    order_items(items, os.environ.get('HOLDOUT_ORDER', 'normal'), int(os.environ.get('HOLDOUT_ORDER_SEED', '0')))
     _collected.update(item.nodeid for item in items)
+    _collected_order[:] = [item.nodeid for item in items]
 
 
 def pytest_collectreport(report):
@@ -74,6 +87,9 @@ def pytest_sessionfinish(session, exitstatus):
         return
     result = {'requested': sorted(_requested), 'outcomes': _outcomes, 'details': _details, 'collected': sorted(_collected),
               'phase_audit': _phase_audit,
+              'collected_order': _collected_order,
+              'collection_order_policy': os.environ.get('HOLDOUT_ORDER', 'normal'),
+              'collection_order_seed': int(os.environ.get('HOLDOUT_ORDER_SEED', '0')),
               'finished': sorted(_finished), 'unresolved': sorted(_requested - _finished),
               'collection_errors': _collection_errors, 'pytest_exitcode': int(exitstatus),
               'complete': not (_requested - _finished) and int(exitstatus) in (0, 1, 2),
@@ -146,9 +162,12 @@ def isolated_tree(source, destination):
         tree.extractall(destination, filter='data')
 
 
-def run_suite(tree, catalog, directory, timeout, nodes=None):
+def run_suite(tree, catalog, directory, timeout, nodes=None, order='normal', order_seed=0):
+    if order not in ('normal', 'reversed', 'shuffle') or type(order_seed) is not int:
+        raise ValueError('Invalid holdout order policy or seed')
     env = {key: value for key, value in os.environ.items() if not key.startswith(('BLAST_', 'HOLDOUT_')) and key != 'PYTEST_ADDOPTS'}
     env.update(HOLDOUT_CATALOG=str(catalog), HOLDOUT_REPORT=str(directory / 'pytest.json'),
+               HOLDOUT_ORDER=order, HOLDOUT_ORDER_SEED=str(order_seed),
                PYTHONPATH=str(Path(__file__).parent) + os.pathsep + str(tree),
                PYTEST_DISABLE_PLUGIN_AUTOLOAD='1', PYTHONDONTWRITEBYTECODE='1',
                PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ.get('PATH', ''))
@@ -267,6 +286,8 @@ def main():
     parser.add_argument('--selection', choices=['production', 'class_guard', 'both', 'factory', 'factory_both'], default='both')
     parser.add_argument('--plan-only', action='store_true')
     parser.add_argument('--timeout', type=int, default=600)
+    parser.add_argument('--order', choices=('normal', 'reversed', 'shuffle'), default='normal')
+    parser.add_argument('--order-seed', type=int, default=0)
     parser.add_argument('--reference-report', type=Path, help='Reuse an explicit complete full-catalog baseline report; no tests are inferred from mutation labels')
     parser.add_argument('--recheck-test', action='append', default=[])
     parser.add_argument('--recheck-reason', default='Explicit targeted rerun in corrected runner environment')
@@ -302,7 +323,8 @@ def main():
     else:
         reference_dir = output / 'reference'
         isolated_tree(source, reference_dir / 'source')
-        reference = run_suite(reference_dir / 'source', catalog, reference_dir, args.timeout)
+        reference = run_suite(reference_dir / 'source', catalog, reference_dir, args.timeout,
+                              order=args.order, order_seed=args.order_seed)
     baseline_failed = {node for node, outcome in reference['outcomes'].items() if outcome == 'failed'}
     summary = {'revision': REVISION, 'reused_reference_report': str(args.reference_report.resolve()) if args.reference_report else None, 'reference_complete': reference['complete'], 'baseline_failed': sorted(baseline_failed), 'mutations': []}
     print(f'Reference: complete={reference["complete"]}, failures={len(baseline_failed)}, seconds={reference["wall_seconds"]}', flush=True)
@@ -316,7 +338,8 @@ def main():
                 raise ValueError('Holdout patches must modify existing files inside isolated tree')
             updated, _ = apply_file(target.read_text(), change)
             target.write_text(updated)
-        actual = run_suite(tree, catalog, directory, args.timeout)
+        actual = run_suite(tree, catalog, directory, args.timeout,
+                           order=args.order, order_seed=args.order_seed)
         failing = {node for node, outcome in actual['outcomes'].items() if outcome == 'failed'}
         result = {'name': item['name'], 'complete': actual['complete'] and reference['complete'], 'all_failures': sorted(failing), 'new_failures': sorted(failing - baseline_failed), 'wall_seconds': actual['wall_seconds'], 'selections': {}}
         for kind, selected in item['selections'].items():

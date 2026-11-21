@@ -50,7 +50,7 @@ def runtime_identity():
             'executable': str(Path(sys.executable).resolve()), 'platform': platform.platform(),
             'inherited_environment_sha256': canonical(inherited),
             'process_cpu_count': getattr(os, 'process_cpu_count', os.cpu_count)(),
-            'distributions': sorted((dist.metadata['Name'], dist.version) for dist in importlib.metadata.distributions()),
+            'distributions': sorted([dist.metadata['Name'], dist.version] for dist in importlib.metadata.distributions()),
             'runner_sha256': sha(__file__), 'physical_runner_sha256': sha(Path(__file__).with_name('validate_holdout.py'))}
 
 
@@ -74,7 +74,9 @@ def complete_result(report, catalog_ids, *, baseline=False):
             return False
         if report.get('collection_errors') != [] or report.get('unresolved') != []:
             return False
-        for field in ('requested', 'collected', 'finished'):
+        if report.get('collection_order_policy') not in ('normal', 'reversed', 'shuffle') or type(report.get('collection_order_seed')) is not int:
+            return False
+        for field in ('requested', 'collected', 'finished', 'collected_order'):
             values = report[field]
             if type(values) is not list or len(values) != 1620 or set(values) != catalog_ids:
                 return False
@@ -173,7 +175,8 @@ def reuse_baseline(report_path, receipt_path, identity, ids):
         return None
     try:
         receipt, report = read_json(receipt_path), read_json(report_path)
-        if receipt.get('baseline_identity') == identity and receipt.get('report_sha256') == sha(report_path) and complete_result(report, ids, baseline=True):
+        actual_order = {'policy': report.get('collection_order_policy'), 'seed': report.get('collection_order_seed')}
+        if receipt.get('baseline_identity') == identity and identity.get('order') == actual_order and receipt.get('report_sha256') == sha(report_path) and complete_result(report, ids, baseline=True):
             return report
     except (OSError, ValueError, TypeError, AttributeError):
         pass
@@ -190,7 +193,8 @@ def execute(args):
     # Exclusive directory creation prevents accidental replacement of evidence.
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / 'frozen-plan.json').write_bytes(plan_bytes)
-    identity = {'source': provenance['source'], 'runtime': provenance['runtime'], 'catalog_sha256': sha(args.catalog)}
+    identity = {'source': provenance['source'], 'runtime': provenance['runtime'], 'catalog_sha256': sha(args.catalog),
+                'order': {'policy': 'normal', 'seed': 0}}
     result = {'kind': 'comparison_physical_holdouts', 'runtime_narrowing_authorized': False,
               'complete': False, 'expected_mutations': len(plan['mutations']),
               'baseline_identity': identity, 'plan_sha256': hashlib.sha256(plan_bytes).hexdigest(),
