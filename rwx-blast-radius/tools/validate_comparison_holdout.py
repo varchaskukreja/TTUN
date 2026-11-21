@@ -21,7 +21,8 @@ import tokenize
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from analyze_comparison_gain import capture_issues, conditional_selection, interpreter_issues
-from comparison_types import qualify_patch, site_key
+from comparison_types import site_key
+from fast_comparison_qualifier import qualify_patch
 from patches import parse_patch, apply_file
 from selector import Selector, read_json
 from factory_selection import FactoryCandidates

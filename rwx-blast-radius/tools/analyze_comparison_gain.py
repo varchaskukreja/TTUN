@@ -15,7 +15,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from comparison_types import qualify_patch
+from fast_comparison_qualifier import qualify_patch, qualifier_hashes
 from merge_comparison_maps import read_json
 from scheduler import split, milliseconds
 from score import evaluate_run
@@ -277,6 +277,7 @@ def main():
         result['factory_proofs_sha256'] = hashlib.sha256(args.factory_proofs.read_bytes()).hexdigest()
     if args.comparisons.is_file():
         result['comparison_capture_sha256'] = hashlib.sha256(args.comparisons.read_bytes()).hexdigest()
+    result['qualification_runtime_sha256'] = qualifier_hashes()
     result['catalog_sha256'] = hashlib.sha256((args.data / 'tests.json').read_bytes()).hexdigest()
     encoded = json.dumps(result, indent=2, sort_keys=True) + '\n'
     if args.output:

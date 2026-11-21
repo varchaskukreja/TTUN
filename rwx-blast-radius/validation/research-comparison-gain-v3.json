@@ -1,0 +1,352 @@
+{
+  "capture_issues": [],
+  "capture_summary": {
+    "elapsed_pytest_seconds": 2117.7,
+    "instrumentation_freeze_end_match": true,
+    "pool_jobs": 2183,
+    "python_subprocesses": 1,
+    "receipt_errors": [],
+    "strict_capture_complete": true,
+    "subtests_passed": 25440,
+    "tests_passed": 1620
+  },
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "comparison_capture_sha256": "a6539d18d873c7ce13728e29ce55865aaff55f77136b0bae020417d63cac081a",
+  "conditional_analysis": true,
+  "conditional_ci_gain_milliseconds": 36671,
+  "evaluation": {
+    "conditional": {
+      "misses": 0,
+      "ok": true,
+      "simulated_milliseconds": 219384
+    },
+    "production": {
+      "misses": 0,
+      "ok": true,
+      "simulated_milliseconds": 256055
+    }
+  },
+  "execution_order_caveat": "No oracle test-order/isolation guarantee is documented; separate reverse/shuffle baseline controls have two preexisting test failures. This warm normal-order capture does not establish cold/reordered equivalence.",
+  "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
+  "kind": "conditional_comparison_gain_research",
+  "limitations": [
+    "Observed-type equivalence is not proof of future executions, type-slot stability, or instrumentation transparency.",
+    "Reader and untracked-activity audits are explicitly nonexhaustive; complete capture is not exhaustive semantic coverage.",
+    "Retaining a source/code reader does not by itself establish retention of every downstream shared-state consumer.",
+    "Unknown tests remain selected; this report never emits a runtime selection artifact."
+  ],
+  "no_selected_output": true,
+  "patches": [
+    {
+      "added_reader_count": 0,
+      "commit": "2haz",
+      "conditional_ci_gain_milliseconds": 17080,
+      "conditional_count": 31,
+      "decision": "conditional_research_proposal",
+      "exact_observed_test_count": 86,
+      "original_count": 117,
+      "protected_reader_or_unknown_count": 0,
+      "removed_count": 86,
+      "site": "sqlglot/dialects/dialect.py:1280:15:1280:77"
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "2jrq",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 32,
+      "decision": "retain_production_selection",
+      "original_count": 32,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "2qn5",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 9,
+      "decision": "retain_production_selection",
+      "original_count": 9,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "2vdj",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "3utz",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 37,
+      "decision": "retain_production_selection",
+      "original_count": 37,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "4d63",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 358,
+      "decision": "retain_production_selection",
+      "original_count": 358,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "535z",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 171,
+      "decision": "retain_production_selection",
+      "original_count": 171,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "5y72",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 9,
+      "decision": "retain_production_selection",
+      "original_count": 9,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "66ks",
+      "conditional_ci_gain_milliseconds": 19591,
+      "conditional_count": 1,
+      "decision": "conditional_research_proposal",
+      "exact_observed_test_count": 51,
+      "original_count": 52,
+      "protected_reader_or_unknown_count": 0,
+      "removed_count": 51,
+      "site": "sqlglot/executor/context.py:53:11:53:30"
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "6vvp",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "6ze8",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 37,
+      "decision": "retain_production_selection",
+      "original_count": 37,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "8y7j",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 4,
+      "decision": "retain_production_selection",
+      "original_count": 4,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "986c",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 2,
+      "decision": "retain_production_selection",
+      "original_count": 2,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "9u5k",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 0,
+      "decision": "retain_production_selection",
+      "original_count": 0,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "ary6",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 112,
+      "decision": "retain_production_selection",
+      "original_count": 112,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "bap8",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 0,
+      "decision": "retain_production_selection",
+      "original_count": 0,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "bj7g",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 5,
+      "decision": "retain_production_selection",
+      "original_count": 5,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "bvw2",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "egys",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "f4bn",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "f4xa",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 0,
+      "decision": "retain_production_selection",
+      "original_count": 0,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "fryt",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 37,
+      "decision": "retain_production_selection",
+      "original_count": 37,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "gbav",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 36,
+      "decision": "retain_production_selection",
+      "original_count": 36,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "gbhk",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "j6uz",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 10,
+      "decision": "retain_production_selection",
+      "original_count": 10,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "ktz3",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 8,
+      "decision": "retain_production_selection",
+      "original_count": 8,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "mthh",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "nwnx",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "rszg",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 11,
+      "decision": "retain_production_selection",
+      "original_count": 11,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    },
+    {
+      "added_reader_count": 0,
+      "commit": "st8f",
+      "conditional_ci_gain_milliseconds": 0,
+      "conditional_count": 1,
+      "decision": "retain_production_selection",
+      "original_count": 1,
+      "reason": "unsupported whole patch",
+      "removed_count": 0
+    }
+  ],
+  "production_map_sha256": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
+  "runtime_narrowing_authorized": false,
+  "source_identity": {
+    "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395",
+    "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa"
+  },
+  "status": "conditional_estimate"
+}

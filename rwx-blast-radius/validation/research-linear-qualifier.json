@@ -1,0 +1,114 @@
+{
+  "kind": "research_linear_whole_patch_qualification",
+  "capture_instrumentation_unchanged": true,
+  "capture_core_sha256": "77247e3688c2ad79dd846d9e8782d7f608eec1c647c4c7df55469015e8c2b57e",
+  "baseline_revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa",
+  "postprocessing_files_sha256": {
+    "linear_operator_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
+    "fast_comparison_qualifier.py": "007107bebbf2b974607c4ccdff794ebcd71e57d9f99d33acbcb03c5fbca84e66",
+    "analyze_comparison_gain.py": "fe3dbef0fec66df2bca6c2bcd32249b51f2c913599a0fdae9eec8384236835bf",
+    "validate_comparison_holdout.py": "fa62a024f0716b885b21d1d024cc10a451350674f5927730612d55f0eaf0d697",
+    "run_comparison_holdouts.py": "5f6651f7a2f941d28b7501495c3a65f5ff94ac35bffc3c425a1f048aa2a5c242"
+  },
+  "tests_passed": 37,
+  "criterion": "One equal-width is/== operator token; all other source characters unchanged; exactly one unchained AST operator change and no other AST differences. Other metadata/multiple-file/unsupported changes rejected by whole-patch adapter.",
+  "legacy_acceptance_preservation_argument": [
+    "A legacy accepted text diff is exactly one replacement of is with == (or reverse), so lengths are equal, the first differing span is exactly those two characters, and all following characters match.",
+    "A legacy accepted token diff replaces one token with one token. Equal token-stream lengths imply the corresponding zipped token streams differ only at that pair. Its source position is the unchanged-character span.",
+    "The same AST one-edit, unchained-comparison and whole-AST equivalence checks remain. Thus every legacy accepted decoded-string patch meets the new gate."
+  ],
+  "legacy_false_rejection_counterexample": {
+    "before_generator": "\"\".join(f\"v{i % 3} = a is None\\n\" for i in range(18))",
+    "edit": "Replace only the fourth is token with ==.",
+    "legacy": "Rejected because SequenceMatcher aligns repeated source differently.",
+    "linear": "Accepted only after direct text+token+AST validation.",
+    "not_behaviorally_identical_to_legacy_heuristic": true
+  },
+  "benchmark": {
+    "kind": "research_linear_exact_operator_benchmark",
+    "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "cases": [
+      {
+        "path": "sqlglot/dialects/dialect.py",
+        "source_characters": 115798,
+        "candidate_edit": {
+          "site": "sqlglot/dialects/dialect.py:218:11:218:23",
+          "old": "Is",
+          "new": "Eq"
+        },
+        "legacy": {
+          "timed_out": true,
+          "wall_limit_seconds": 5.0
+        },
+        "linear": {
+          "cpu_seconds": 0.063689,
+          "edit": {
+            "site": "sqlglot/dialects/dialect.py:218:11:218:23",
+            "old": "Is",
+            "new": "Eq"
+          },
+          "wall_seconds": 0.09381374999975378
+        }
+      },
+      {
+        "path": "sqlglot/expressions/core.py",
+        "source_characters": 93178,
+        "candidate_edit": {
+          "site": "sqlglot/expressions/core.py:838:15:838:28",
+          "old": "Is",
+          "new": "Eq"
+        },
+        "legacy": {
+          "timed_out": true,
+          "wall_limit_seconds": 5.0
+        },
+        "linear": {
+          "cpu_seconds": 0.057469000000000006,
+          "edit": {
+            "site": "sqlglot/expressions/core.py:838:15:838:28",
+            "old": "Is",
+            "new": "Eq"
+          },
+          "wall_seconds": 0.08754120800040255
+        }
+      },
+      {
+        "path": "sqlglot/parser.py",
+        "source_characters": 423632,
+        "candidate_edit": {
+          "site": "sqlglot/parser.py:52:7:52:21",
+          "old": "Eq",
+          "new": "Is"
+        },
+        "legacy": {
+          "timed_out": true,
+          "wall_limit_seconds": 5.0
+        },
+        "linear": {
+          "cpu_seconds": 0.290904,
+          "edit": {
+            "site": "sqlglot/parser.py:52:7:52:21",
+            "old": "Eq",
+            "new": "Is"
+          },
+          "wall_seconds": 0.3248178750000079
+        }
+      }
+    ],
+    "criterion": "one equal-width is/== token; identical all other characters; exactly one unchained AST operator difference",
+    "legacy_heuristic_equivalent": false,
+    "legacy_difference": "SequenceMatcher can reject exact valid edits in repeated text; linear gate recovers only explicitly text/token/AST-proved cases.",
+    "failure_labels_read": false
+  },
+  "commands": [
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_linear_operator_edit.py",
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_fast_comparison_qualifier.py",
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_analyze_comparison_gain.py",
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_validate_comparison_holdout.py",
+    ".work/venv/bin/python -m unittest discover -s rwx-blast-radius/tools -p test_run_comparison_holdouts.py",
+    ".work/venv/bin/python rwx-blast-radius/tools/benchmark_linear_operator.py --source .work/sqlglot --output .work/linear-operator-benchmark.json --timeout 5"
+  ],
+  "provenance_contract": "Fresh gain and plan store qualification_runtime_sha256 covering capture core, fast adapter, linear checker and patch parser. Runner verifies equality; plan also includes research_runtime_sha256. Old gain reports require regeneration.",
+  "runtime_narrowing_authorized": false,
+  "failure_labels_read_by_benchmark": false
+}

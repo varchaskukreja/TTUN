@@ -1,0 +1,287 @@
+{
+  "baseline": {
+    "collected_count": 1620,
+    "collection_errors": [],
+    "failing_ids": [],
+    "finished_count": 1620,
+    "phase_counts": {
+      "call:passed": 1620,
+      "setup:passed": 1620,
+      "teardown:passed": 1620
+    },
+    "report": ".work/comparison-holdouts-v3/execution/reference/pytest.json",
+    "report_sha256": "82e0336641e9ec0222586aee7842b4002fff3975fc90b0cbb519197bb61ae5f6",
+    "subtest_counts": {
+      "passed": 25440
+    },
+    "unresolved_ids": [],
+    "wall_seconds": 52.889
+  },
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "comparison_capture_sha256": "a6539d18d873c7ce13728e29ce55865aaff55f77136b0bae020417d63cac081a",
+  "complete": true,
+  "evidence": {
+    ".work/comparison-holdouts-v3/execution/reference/receipt.json": "ced06b451108f340298f3e8a091947c26de10bf308189ca6df86cf60a3f022e6",
+    ".work/comparison-holdouts-v3/execution/results.json": "212355d621e52f61a198ee793d4e0fd17511e377264ef08fc8fe4f3a13b1f7db",
+    ".work/comparison-holdouts-v3/gain.json": "15f0fa531f2266f172a3478ac0e9abcc4ac0a500342a432f257b7065fbc1ab7c",
+    ".work/comparison-holdouts-v3/plan.json": "5bd463d95d1302189784672b03d8bd0d4110f6e540982d8595cf501821cb9177",
+    ".work/comparison-holdouts-v3/review.json": "6673da4e849cacec60e368bbbc1a36af4026aee835b37110ea3a5df70fb336e2"
+  },
+  "gain": {
+    "conditional": {
+      "misses": 0,
+      "ok": true,
+      "simulated_milliseconds": 219384
+    },
+    "production": {
+      "misses": 0,
+      "ok": true,
+      "simulated_milliseconds": 256055
+    }
+  },
+  "kind": "comparison_v3_fresh_physical_holdouts",
+  "limitations": [
+    "All three mutants were behaviorally passing in this full-catalog run; the unsafe-pair case verifies unchanged selection but is not a positive failing control.",
+    "Observational type equivalence and nonexhaustive reflection/reader audits remain conditional; this evidence does not authorize production narrowing.",
+    "All runs used normal order with a fresh matched passing baseline; known reverse/shuffle baseline instability is documented separately."
+  ],
+  "mutations": [
+    {
+      "actual_failing_ids": [],
+      "actual_report_sha256": "afa965a4a075d11dd748c8f50b9dd79e4c27e647fc840e648ae64ff82a936d70",
+      "collected_count": 1620,
+      "collection_errors": [],
+      "conditional_missing_ids": [],
+      "conditional_selected_count": 1504,
+      "conditional_selected_ids_sha256": "f8ea64332faeb81a46193229cbbcc1d5a31cbc28c68dbf835163a35009c25388",
+      "failing_ids": [],
+      "finished_count": 1620,
+      "kind": "eligible",
+      "original_selected_count": 1620,
+      "original_selected_ids_sha256": "0ea4768d7a1b69045fd178e0a21159022c39a186881ebd014efa72630d30ed69",
+      "patch": "diff --git a/sqlglot/parser.py b/sqlglot/parser.py\n--- a/sqlglot/parser.py\n+++ b/sqlglot/parser.py\n@@ -8396,7 +8396,7 @@\n             self.raise_error(\"Expected }\")\n \n         # https://duckdb.org/docs/sql/data_types/struct.html#creating-structs\n-        if bracket_kind == TokenType.L_BRACE:\n+        if bracket_kind is TokenType.L_BRACE:\n             this = self.expression(\n                 exp.Struct(\n                     expressions=self._kv_to_prop_eq(expressions=expressions, parse_map=parse_map)\n",
+      "patch_sha256": "697e1b0c3de4d03cb8c8b71d0cc85a8b47edbd27063d8ef21b1945b8cf1195f9",
+      "path": "sqlglot/parser.py",
+      "phase_counts": {
+        "call:passed": 1620,
+        "setup:passed": 1620,
+        "teardown:passed": 1620
+      },
+      "production_missing_ids": [],
+      "removed_count": 116,
+      "report": ".work/comparison-holdouts-v3/execution/mutation-0/pytest.json",
+      "report_sha256": "afa965a4a075d11dd748c8f50b9dd79e4c27e647fc840e648ae64ff82a936d70",
+      "site": "sqlglot/parser.py:8399:11:8399:44",
+      "subtest_counts": {
+        "passed": 25440
+      },
+      "unresolved_ids": [],
+      "wall_seconds": 52.759
+    },
+    {
+      "actual_failing_ids": [],
+      "actual_report_sha256": "d454f6d67d2559cfc4d86ae5fb5ed4c0ffa4eb4b0db6d106329882e1d8030eb1",
+      "collected_count": 1620,
+      "collection_errors": [],
+      "conditional_missing_ids": [],
+      "conditional_selected_count": 8,
+      "conditional_selected_ids_sha256": "4d448277b784047abeac8aca94551c807d8c45a6886577040b5b6276b89e9751",
+      "failing_ids": [],
+      "finished_count": 1620,
+      "kind": "eligible",
+      "original_selected_count": 10,
+      "original_selected_ids_sha256": "b42db61d19e2c4e32a8d395310ee07a3d4c04434a66e7770a266bb3691c5a953",
+      "patch": "diff --git a/sqlglot/generators/bigquery.py b/sqlglot/generators/bigquery.py\n--- a/sqlglot/generators/bigquery.py\n+++ b/sqlglot/generators/bigquery.py\n@@ -217,7 +217,7 @@\n         if isinstance(agg, exp.ArrayDistinct):\n             distinct = True\n             ignore_nulls |= agg.args.get(\"check_null\") is False\n-        elif sort is None:\n+        elif sort == None:\n             sort = agg\n         agg = agg.this\n \n",
+      "patch_sha256": "878fe53b492681348918710cc54a3fa368529a88f9127b160387979bb945b44c",
+      "path": "sqlglot/generators/bigquery.py",
+      "phase_counts": {
+        "call:passed": 1620,
+        "setup:passed": 1620,
+        "teardown:passed": 1620
+      },
+      "production_missing_ids": [],
+      "removed_count": 2,
+      "report": ".work/comparison-holdouts-v3/execution/mutation-1/pytest.json",
+      "report_sha256": "d454f6d67d2559cfc4d86ae5fb5ed4c0ffa4eb4b0db6d106329882e1d8030eb1",
+      "site": "sqlglot/generators/bigquery.py:220:13:220:25",
+      "subtest_counts": {
+        "passed": 25440
+      },
+      "unresolved_ids": [],
+      "wall_seconds": 56.302
+    },
+    {
+      "actual_failing_ids": [],
+      "actual_report_sha256": "7fce3de85c1d5e2acb7b1dfdfde8620b3a77e3f101c469b2d82e254fdbadb0e5",
+      "collected_count": 1620,
+      "collection_errors": [],
+      "conditional_missing_ids": [],
+      "conditional_selected_count": 138,
+      "conditional_selected_ids_sha256": "56990c030fd1640f264400a76914b68d488714fadb515f7dae6cb35c6a54cb79",
+      "failing_ids": [],
+      "finished_count": 1620,
+      "kind": "globally_unsafe_pair",
+      "original_selected_count": 138,
+      "original_selected_ids_sha256": "56990c030fd1640f264400a76914b68d488714fadb515f7dae6cb35c6a54cb79",
+      "patch": "diff --git a/sqlglot/optimizer/simplify.py b/sqlglot/optimizer/simplify.py\n--- a/sqlglot/optimizer/simplify.py\n+++ b/sqlglot/optimizer/simplify.py\n@@ -713,7 +713,7 @@\n                     lambda e: self._simplify(e, constant_propagation, coalesce_simplification),\n                 )\n \n-                if node is expression:\n+                if node == expression:\n                     expression = simplified\n             elif isinstance(node, exp.Where):\n                 wheres.append(node)\n",
+      "patch_sha256": "6fe0ff2f581b9b6926be0265a2917c2d2f47ff77ebf7edd1fd71ddbe4ec456c8",
+      "path": "sqlglot/optimizer/simplify.py",
+      "phase_counts": {
+        "call:passed": 1620,
+        "setup:passed": 1620,
+        "teardown:passed": 1620
+      },
+      "production_missing_ids": [],
+      "removed_count": 0,
+      "report": ".work/comparison-holdouts-v3/execution/mutation-2/pytest.json",
+      "report_sha256": "7fce3de85c1d5e2acb7b1dfdfde8620b3a77e3f101c469b2d82e254fdbadb0e5",
+      "site": "sqlglot/optimizer/simplify.py:716:19:716:37",
+      "subtest_counts": {
+        "passed": 25440
+      },
+      "unresolved_ids": [],
+      "wall_seconds": 69.125
+    }
+  ],
+  "provenance": {
+    "factory_proofs_sha256": "7c82422b03cff8eda3e591537d7ebd1b0e672010fccf7dbce545cca2982ba72e",
+    "production_map_sha256": "94c6aed662f55155778381d9e288c24ad2938d03b3d1d7a9068b8c35bf82d351",
+    "qualification_runtime_sha256": {
+      "comparison_types.py": "77247e3688c2ad79dd846d9e8782d7f608eec1c647c4c7df55469015e8c2b57e",
+      "fast_comparison_qualifier.py": "007107bebbf2b974607c4ccdff794ebcd71e57d9f99d33acbcb03c5fbca84e66",
+      "linear_operator_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
+      "patches.py": "4d5e4e7878ee6797211c9fce46bec04ffba0563ab02f371054914883b93f7d20"
+    },
+    "research_runtime_sha256": {
+      "analyze_comparison_gain.py": "fe3dbef0fec66df2bca6c2bcd32249b51f2c913599a0fdae9eec8384236835bf",
+      "comparison_types.py": "77247e3688c2ad79dd846d9e8782d7f608eec1c647c4c7df55469015e8c2b57e",
+      "fast_comparison_qualifier.py": "007107bebbf2b974607c4ccdff794ebcd71e57d9f99d33acbcb03c5fbca84e66",
+      "linear_operator_edit.py": "cadb787f6263e903d5f23c21ba8007257d49e22e24d3f2879ee8ba469307b9eb",
+      "validate_comparison_holdout.py": "fa62a024f0716b885b21d1d024cc10a451350674f5927730612d55f0eaf0d697"
+    },
+    "runtime": {
+      "distributions": [
+        [
+          "Pygments",
+          "2.21.0"
+        ],
+        [
+          "coverage",
+          "7.17.4"
+        ],
+        [
+          "duckdb",
+          "2.0.0"
+        ],
+        [
+          "iniconfig",
+          "2.3.1"
+        ],
+        [
+          "numpy",
+          "2.5.5"
+        ],
+        [
+          "packaging",
+          "26.3"
+        ],
+        [
+          "pandas",
+          "3.1.1"
+        ],
+        [
+          "pip",
+          "25.2"
+        ],
+        [
+          "pluggy",
+          "1.7.0"
+        ],
+        [
+          "pytest",
+          "9.2.0"
+        ],
+        [
+          "pytest-cov",
+          "7.1.0"
+        ],
+        [
+          "pytest-timeout",
+          "2.4.0"
+        ],
+        [
+          "python-dateutil",
+          "4.0.0"
+        ],
+        [
+          "pytz",
+          "2026.6"
+        ],
+        [
+          "setuptools",
+          "84.2.1"
+        ],
+        [
+          "typing_extensions",
+          "4.16.0"
+        ],
+        [
+          "tzdata",
+          "2026.6"
+        ]
+      ],
+      "executable": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+      "implementation": "cpython",
+      "inherited_environment_sha256": "22ac6621d41a747dee1a2a0d76f3eaffe22d1d5da112390a795785d667bb806f",
+      "physical_runner_sha256": "b01ccac2b22508ce5b72ecae0b1c43cda874089dd8183569e5cbb95b8bb5e6e7",
+      "platform": "macOS-26.1-arm64-arm-64bit-Mach-O",
+      "process_cpu_count": 10,
+      "python": "3.13.6 (v3.13.6:4e665351082, Aug  6 2025, 11:22:35) [Clang 16.0.0 (clang-1600.0.26.6)]",
+      "runner_sha256": "5f6651f7a2f941d28b7501495c3a65f5ff94ac35bffc3c425a1f048aa2a5c242"
+    },
+    "sample_patch_hashes": {
+      "2haz.patch": "0630e2bc13b2f706261e5be18a3ea4fdf00df5aed1065397fa2a60ddf1a3818b",
+      "2jrq.patch": "e06ade06a527994578a1c4d220dbb8451061d9df32ec4c3da30e26a98b19b89f",
+      "2qn5.patch": "203923059dd8b55a34d6aa37a64643a4bec227e92937152b0bbc2d2eb135c35f",
+      "2vdj.patch": "2b12b9aa37cca8fa3abfe4bf413f44c75bb08548efdca6d1641767e9d12c7768",
+      "3utz.patch": "cd6f36e609c550714d98d41654ec9ae108ed98400d5aab0690c907cc7dad500d",
+      "4d63.patch": "0f9b8a5cace3917816cc71616e960a67335879fce5c6234de37557c3a51c162e",
+      "535z.patch": "ff184ae1bbb4cc913998a456f628381dd0b0d88f9febfb7456f95dedc207b1c0",
+      "5y72.patch": "8d918fd9c25a3880abd15fc0ae59e2eceb3e30ec2951f8d2eb460b6a8ac36f8b",
+      "66ks.patch": "35b3b921abd6d1162c543f0b7d401ad053a8d5556bb3a6449974e50209226130",
+      "6vvp.patch": "f797d9a9550310a4cab92f3d01dd39bb60e34514730b474f2d69f2ccd4923695",
+      "6ze8.patch": "7a8a8b74d07fdf7bcbd299650416b4ebc995e823dbe26c2382daf2eb07f99056",
+      "8y7j.patch": "6dc935b9b5342aa65f17555365ae5f8fb366ab315897ba9f6b7c4834016e012c",
+      "986c.patch": "43e27a383952978086d5875fe888d45d35674a6dcc709deaed9d65b7897c9648",
+      "9u5k.patch": "0352bfd61f6a147d60c31b9c040bbf329f11c7d2175ac0b8f6c90ea959c20ef5",
+      "ary6.patch": "7fa4d48c5c95096669aea19d70fc73b55a3c86bcb8dabd20f6d426e063b30dfa",
+      "bap8.patch": "d90926b86116195c5fef06fd335f3d90b7d3455b9b7ba38a398ca2e7465e1ee7",
+      "bj7g.patch": "5f6340a49752c6bbe9d3fc095e49e78c67c6759e35d47f6c671edada86c8f7d4",
+      "bvw2.patch": "9e0ef88161590bd49f0b88d31348c1d5f33d97cdad506dfe0acdc253f71d1907",
+      "egys.patch": "ef40751274b8dcb5d4d56a430caabb817038091b4e9e947ee12250a617e3f080",
+      "f4bn.patch": "37cb3fe7ded57562ec679305d2d9c5ed2a0b0cf75ae041c9237a66a5d64f3ce4",
+      "f4xa.patch": "464896463e92abd5dd36b6c59b8ad809bd6ed645be7ae2f2e0fb86af00252786",
+      "fryt.patch": "a782289f77511867834a0544c287ed6f13e3d7a326eba8c49685fb11a6a7ec98",
+      "gbav.patch": "dd840238267ab0b8a59ff6776d5a435b935b9e1cb82b90bda4438a5b34580b31",
+      "gbhk.patch": "db22d4fccdd06088b8e42f81e406426dd824ef43a6fe0952b9499bfd63ab59c6",
+      "j6uz.patch": "0a0c68d162eba4d9f226965310106cbd1630c7ab09d209fd56ed313d818d8129",
+      "ktz3.patch": "1964c4ef0cab889a2a73dcf164299de26080a0922caccfb5cb31e1c03a32f0df",
+      "mthh.patch": "30e8bff5581a8a128c34d0ce9beedbd963547c8e21608ffbdfab9e791702d086",
+      "nwnx.patch": "f5186c0aad278ffc7bb6444f8e4768552d51d8e5a71475c057e6febe64d126ff",
+      "rszg.patch": "02547bd56ee999741025f0cd6712552636b36741658516a6902996c67df47317",
+      "st8f.patch": "5b15d60f4d4abafa3cba8519661112f19216e8b1a58e0e3e633e55a03544a4a8"
+    },
+    "selection_runtime_sha256": {
+      "class_selection.py": "78c0876727cd194914daea0194528b6004f59321fcbb9a2e0e50b80b8b5aa417",
+      "factory_selection.py": "436e7370e707eb121f76fd2b589d721d9e82b527d2f7150b2b328730721c7e93",
+      "import_guard.py": "9b4215d056944e927f8ffc70641913ae720926cefe28635583094c3b10741686",
+      "selector.py": "657eb1b3db9c9876ee84c09c259ea9c3c5454675ccb71a47f12c02f064bc4795"
+    },
+    "source": {
+      "archive_sha256": "578d90b1a8e1130094aaf0746117a596e6d94b63c9e4d38aa74f0fea61a37395",
+      "revision": "eb11aec4be8cb2122afe713a4816662c3f0fb2fa"
+    }
+  },
+  "runtime_narrowing_authorized": false,
+  "source_clean_after": true
+}

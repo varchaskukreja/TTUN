@@ -55,13 +55,15 @@ def runtime_identity():
 
 
 def plan_provenance(source, map_path, proofs_path, samples):
+    from fast_comparison_qualifier import qualifier_hashes
     return {'source': source_identity(source), 'runtime': runtime_identity(),
+            'qualification_runtime_sha256': qualifier_hashes(),
             'production_map_sha256': sha(map_path), 'factory_proofs_sha256': sha(proofs_path),
             'sample_patch_hashes': {p.name: sha(p) for p in sorted(Path(samples).glob('*.patch'))},
             'selection_runtime_sha256': {name: sha(ROOT / name) for name in
                 ('selector.py', 'class_selection.py', 'factory_selection.py', 'import_guard.py')},
             'research_runtime_sha256': {name: sha(Path(__file__).with_name(name)) for name in
-                ('comparison_types.py', 'analyze_comparison_gain.py', 'validate_comparison_holdout.py')}}
+                ('comparison_types.py', 'fast_comparison_qualifier.py', 'linear_operator_edit.py', 'analyze_comparison_gain.py', 'validate_comparison_holdout.py')}}
 
 
 def complete_result(report, catalog_ids, *, baseline=False):
@@ -158,7 +160,8 @@ def verify_plan(args):
     if (gain.get('catalog_sha256') != sha(args.catalog)
             or gain.get('production_map_sha256') != provenance['production_map_sha256']
             or gain.get('factory_proofs_sha256') != provenance['factory_proofs_sha256']
-            or gain.get('source_identity') != provenance['source']):
+            or gain.get('source_identity') != provenance['source']
+            or gain.get('qualification_runtime_sha256') != provenance['qualification_runtime_sha256']):
         raise ValueError('gain report source/map/proofs/catalog provenance mismatch')
     production = read_json(args.map)
     selector = Selector(tests, production, args.source, class_guard=ImportGuard(args.source, tests),

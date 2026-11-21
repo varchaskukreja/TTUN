@@ -139,7 +139,8 @@ class RunnerTests(unittest.TestCase):
                   'proofs': {'python_version': list(runner.sys.version_info[:2])}, 'map': f.production}
         for field, value in values.items():
             path = self.root / (field + '.json'); path.write_text(json.dumps(value)); setattr(args, field, path)
-        provenance = {'source': {'revision': 'pinned'}, 'runtime': {},
+        from fast_comparison_qualifier import qualifier_hashes
+        provenance = {'source': {'revision': 'pinned'}, 'runtime': {}, 'qualification_runtime_sha256': qualifier_hashes(),
                       'production_map_sha256': runner.sha(args.map), 'factory_proofs_sha256': runner.sha(args.proofs)}
         plan = fixture.plan()
         plan.update(comparison_capture_sha256=runner.sha(args.comparisons), catalog_sha256=runner.sha(args.catalog), provenance=provenance)
@@ -147,7 +148,8 @@ class RunnerTests(unittest.TestCase):
         gain = {'status': 'conditional_estimate', 'conditional_analysis': True,
                 'comparison_capture_sha256': runner.sha(args.comparisons), 'catalog_sha256': runner.sha(args.catalog),
                 'production_map_sha256': provenance['production_map_sha256'],
-                'factory_proofs_sha256': provenance['factory_proofs_sha256'], 'source_identity': provenance['source']}
+                'factory_proofs_sha256': provenance['factory_proofs_sha256'], 'source_identity': provenance['source'],
+                'qualification_runtime_sha256': provenance['qualification_runtime_sha256']}
         args.gain_report.write_text(json.dumps(gain))
         def save_plan():
             args.plan.write_text(json.dumps(plan))

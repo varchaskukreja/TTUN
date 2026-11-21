@@ -86,12 +86,12 @@
   "limitations": [
     "No unconditional skip authorization; certificates are conditional operand algebra observations.",
     "Untracked subprocesses, missing context receipts, unknown/failed/skipped executions preclude global completeness.",
-    "Two full trace attempts were intentionally interrupted and remain globally incomplete; process-pool and Python -c subprocess capture is integrated and passed a combined smoke test.",
+    "V3 completed all1620 tests and25440subtests; strict merged capture audit passed, conditional sample gain36.671seconds/0misses. Warm-order empirical evidence remains insufficient for production narrowing without further validation.",
     "Fixed deterministic warm-suite trajectory induction does not establish cold/reordered or nondeterministic execution equivalence.",
     "Instrumentation changes stack, globals, timing and reference lifetimes; reflection coverage remains empirical."
   ],
   "artifacts": {
-    "rwx-blast-radius/tools/comparison_types.py": "5db3a8401b0fe45a90568f458a8ebb6bf701410d41d6b362064be77abb3fef98",
+    "rwx-blast-radius/tools/comparison_types.py": "77247e3688c2ad79dd846d9e8782d7f608eec1c647c4c7df55469015e8c2b57e",
     "rwx-blast-radius/tools/test_comparison_types.py": "0ea451609621b0efedc7829feb832a72d989a09ec9cb50ca039129a47dae6ef0"
   },
   "v2_extensions": {
@@ -132,5 +132,38 @@
     "pool_jobs": 28,
     "python_subprocesses": 1,
     "receipt_errors": []
+  },
+  "v3_full_trace": {
+    "all_catalog_passed": true,
+    "passed": 1620,
+    "subtests_passed": 25440,
+    "elapsed_pytest_seconds": 2117.7,
+    "instrumented_wall_seconds": 2118.677426458,
+    "missing": [],
+    "receipt_submissions": 2183,
+    "python_subprocesses": 1,
+    "receipt_errors": [],
+    "must_retain": [],
+    "all_receipt_pids_terminal": true,
+    "strict_merged_audit": {
+      "capture_complete": true,
+      "errors": [],
+      "sites": 1671,
+      "shards": 7,
+      "instrumentation_freeze_end_match": true,
+      "sha256": "a6539d18d873c7ce13728e29ce55865aaff55f77136b0bae020417d63cac081a",
+      "bytes": 44881432
+    },
+    "order_limitation": "Complete warm-suite capture does not establish cold/reordered execution equivalence; separate reverse/shuffle controls show two baseline failures.",
+    "concurrency": "Three unmodified order controls overlapped part of capture; times not an isolated performance comparison.",
+    "conditional_gain": {
+      "baseline_simulated_seconds": 256.055,
+      "conditional_simulated_seconds": 219.384,
+      "gain_seconds": 36.671,
+      "baseline_misses": 0,
+      "conditional_misses": 0,
+      "qualifying_patches": 2,
+      "runtime_narrowing_authorized": false
+    }
   }
 }
