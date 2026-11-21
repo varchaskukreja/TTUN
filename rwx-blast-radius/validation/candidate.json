@@ -68,7 +68,7 @@
     "Hidden leaderboard results for this candidate are not yet available.",
     "Coverage dependencies are observed baseline behavior, not a proof of all possible runtime effects.",
     "Shared dialect registry mutation full-catalog validation timed out at180s; no audited missed-test count available.",
-    "Local container CPU varied with concurrent validation; adjacent old/new measurements were23.288363 and23.854110seconds, not leaderboard CPU estimates."
+    "Local container CPU varied with concurrent validation; adjacent old/new measurements were 23.288363 and 23.854110 seconds, not leaderboard CPU estimates."
   ],
   "production_exclusions": [
     "statement-level narrowing",
