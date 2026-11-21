@@ -370,15 +370,23 @@ class Brain {
           this.strafeUntil = t + 0.35 + this.rng() * 0.7
         }
         strafe = this.strafeDir
-        // dodge incoming laser: hard strafe
-        if (target.charging) {
+        let laserCover: [number, number] | null = null
+        if (target.charging && hasLos && map) {
           const theirYaw = target.aim[0]
           const toMe = Math.atan2(y - tp[1], x - tp[0])
-          if (Math.abs(wrap(theirYaw - toMe)) < 0.25) boost = me.energy > (lightS >= 0 ? 45 : 10)
+          if (Math.abs(wrap(theirYaw - toMe)) < 0.25) {
+            boost = me.energy > (lightS >= 0 ? 45 : 10)
+            // practice: squad focus-fire makes cover-seek too passive; FFA only
+            if (this.ffa) {
+              laserCover = map.coverFrom(x, y, tp[0], tp[1], tp[2] + 8, 40)
+              if (laserCover) mode = "laser-cover"
+            }
+          }
         }
         const mx = dirx * radial + -diry * strafe * 0.9
         const my = diry * radial + dirx * strafe * 0.9
-        if (map && radial > 0 && !hasLos) {
+        if (laserCover) moveGoal = laserCover
+        else if (map && radial > 0 && !hasLos) {
           map.field(tp[0], tp[1])
           const st = map.fieldFor(tp[0], tp[1], 30) ? map.steer(x, y) : null
           if (st) moveGoal = [x + st[0] * 10 + -diry * strafe * 3, y + st[1] * 10 + dirx * strafe * 3]
