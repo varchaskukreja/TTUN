@@ -82,6 +82,7 @@
   "candidate_bytes": 1173743,
   "candidate_sha256": "795c6099ac8738a6898e1d19ba7fb523e41e20c0a2eff9780da9825f3fd0355d",
   "catalog_tests": 1620,
+  "dependency_payload_sha256": "c37d0a05490b5b43f2ad5151d09ba8fae26ffaae1834359a4e7138ee0b1ffa25",
   "final_saved_results": 1620,
   "incomplete_tests": [],
   "mode": "isolated-baseline-union",
@@ -1404,6 +1405,41 @@
         "test": "tests/test_optimizer.py::TestOptimizer::test_canonicalize_internal_names"
       }
     ]
+  },
+  "reproduction_argv": [
+    "python3",
+    "rwx-blast-radius/tools/merge_isolated_maps.py",
+    "--primary",
+    ".work/coverage-isolated-primary.json.gz",
+    "--supplement",
+    ".work/coverage-isolated-salvage-map/coverage.json.gz",
+    "--supplement",
+    ".work/coverage-isolated-remainder-map/coverage.json.gz",
+    "--supplement",
+    ".work/coverage-isolated-native-repair-map/coverage.json.gz",
+    "--evidence-work",
+    ".work/coverage-isolated-full",
+    "--evidence-work",
+    ".work/coverage-isolated-remainder",
+    "--evidence-work",
+    ".work/coverage-isolated-native-repair",
+    "--provenance-coverage",
+    ".work/coverage-isolated-salvage/baseline.coverage",
+    "--provenance-coverage",
+    ".work/coverage-isolated-remainder/baseline.coverage",
+    "--provenance-coverage",
+    ".work/coverage-isolated-native-repair/baseline.coverage",
+    "--output",
+    ".work/coverage-isolated-reproducible.json.gz",
+    "--report",
+    "rwx-blast-radius/validation/isolated-baseline.json",
+    "--verify-map",
+    "rwx-blast-radius/maps/coverage.json.gz"
+  ],
+  "retained_map_equivalent": {
+    "only_excluded_field": "isolated_baseline_supplement",
+    "path": "rwx-blast-radius/maps/coverage.json.gz",
+    "sha256": "314b0c6d8991d18a090715fccf93a21284513d4b0de7e6478811404200a32b7e"
   },
   "supplements": [
     {

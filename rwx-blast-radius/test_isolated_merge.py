@@ -35,6 +35,10 @@ class ContextTests(unittest.TestCase):
         node = next(iter(IDS))
         row = {'nodeid': node, 'results': {node: 'failed'}, 'call_outcomes': {node: 'passed'}}
         self.assertFalse(successful(row))
+        row['results'][node] = 'passed'
+        self.assertTrue(successful(row))
+        row['errors'] = ['disk failure']
+        self.assertFalse(successful(row))
 
     def test_payload_equivalence_excludes_only_explanatory_metadata(self):
         left = {'files': {'x': 1}, 'baseline_outcomes': {'test': 'passed'}, 'isolated_baseline_supplement': {'old': True}}
@@ -42,10 +46,6 @@ class ContextTests(unittest.TestCase):
         self.assertEqual(dependency_payload(left), dependency_payload(right))
         right['baseline_outcomes'] = {'test': 'failed'}
         self.assertNotEqual(dependency_payload(left), dependency_payload(right))
-        row['results'][node] = 'passed'
-        self.assertTrue(successful(row))
-        row['errors'] = ['disk failure']
-        self.assertFalse(successful(row))
 
 
 @unittest.skipUnless(importlib.util.find_spec('coverage'), 'coverage.py needed for raw artifact tests')
