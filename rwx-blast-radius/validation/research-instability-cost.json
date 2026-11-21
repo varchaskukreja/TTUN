@@ -1,0 +1,38 @@
+{
+  "kind": "baseline_instability_retention_cost",
+  "unstable_ids": [
+    "tests/dialects/test_dialect.py::TestDialect::test_enum",
+    "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+  ],
+  "sample_output_sha256": "e19e6cb86e7f34bf8703a356bafb3e64b21fe19f00a644a9f2876ef4e411f355",
+  "catalog_sha256": "21257a93c58f4b0646c5122586d2141b4b340ad85b2f0bb251af3746de3f0dc2",
+  "sample_before_ms": 256055,
+  "sample_always_retain_ms": 262603,
+  "added_ms": 6548,
+  "runtime_changed": false,
+  "limitation": "Matched reverse-order baseline evidence only; oracle execution order is unknown. Global retention also adds worker overhead on otherwise empty selections.",
+  "baseline_evidence": {
+    "report": "/Users/dylanli/Documents/TTUN/.work/comparison-robustness-v3/orders/reversed/baseline/pytest.json",
+    "report_sha256": "6034be206d14d8e3d70cff33d43c46c82e5cce0723dcb7cd1671e79be2471109",
+    "collected_order_sha256": "f26aeb14f339079448cfb0b6c2de342e6f4cb29586949cde9febd3cb3a200962",
+    "completed_requested_scope": true
+  },
+  "attribution": [
+    {
+      "site": "sqlglot/parser.py:8399:11:8399:44",
+      "production_omits_unstable": [],
+      "conditional_omits_unstable": []
+    },
+    {
+      "site": "sqlglot/generators/bigquery.py:220:13:220:25",
+      "production_omits_unstable": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ],
+      "conditional_omits_unstable": [
+        "tests/dialects/test_dialect.py::TestDialect::test_enum",
+        "tests/dialects/test_starrocks.py::TestStarrocks::test_time_slice_origin_roundtrip"
+      ]
+    }
+  ]
+}
